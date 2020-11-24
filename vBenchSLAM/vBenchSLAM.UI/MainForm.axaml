@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="450"
-        x:Class="vBenchSLAM.UI.MainWindow"
+        x:Class="vBenchSLAM.UI.MainForm"
         Width="400" Height="800"
         Title="vBenchSLAM.UI">
   <Button>Hi there!</Button>

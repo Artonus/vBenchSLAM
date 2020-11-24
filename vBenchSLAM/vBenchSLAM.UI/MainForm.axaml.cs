@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace vBenchSLAM.UI
 {
-    public class MainWindow : Window
+    public class MainForm : Window
     {
-        public MainWindow()
+        public MainForm()
         {
             InitializeComponent();
 #if DEBUG
@@ -17,6 +17,7 @@ namespace vBenchSLAM.UI
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+
         }
     }
 }

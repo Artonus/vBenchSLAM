@@ -15,7 +15,7 @@ namespace vBenchSLAM.UI
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow();
+                desktop.MainWindow = new MainForm();
             }
 
             base.OnFrameworkInitializationCompleted();
