@@ -12,4 +12,8 @@
     <OutputPath>..\bin\Release</OutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Docker.DotNet" Version="3.125.4" />
+  </ItemGroup>
+
 </Project>

@@ -13,4 +13,8 @@
     <OutputPath>..\bin\Release</OutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\vBenchSLAM.Core\vBenchSLAM.Core.csproj" />
+  </ItemGroup>
+
 </Project>
