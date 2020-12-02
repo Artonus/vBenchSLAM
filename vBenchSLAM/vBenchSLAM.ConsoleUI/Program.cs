@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using vBenchSLAM.Core;
 using vBenchSLAM.Core.DockerCore;
 
 namespace vBenchSLAM.ConsoleUI
@@ -11,7 +12,8 @@ namespace vBenchSLAM.ConsoleUI
             try
             {
                 Console.WriteLine("Hello World from Docker!");
-                var manager = new DockerManager();
+                Settings.CheckWsl();
+                IDockerManager manager = new DockerManager();
                 var containers = await manager.ListContainersAsync();
                 foreach (var container in containers)
                 {
