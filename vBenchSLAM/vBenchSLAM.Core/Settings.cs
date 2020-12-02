@@ -15,7 +15,12 @@ namespace vBenchSLAM.Core
 
         public static bool IsWsl { get; private set; }
 
-        public static bool CheckWsl()
+        public static void Initialize()
+        {
+            CheckWsl();
+        }
+
+        private static bool CheckWsl()
         {
             var retVal = false;
             var system = Environment.OSVersion;
@@ -39,6 +44,8 @@ namespace vBenchSLAM.Core
             IsWsl = retVal;
             return retVal;
         }
+
+
     }
 }
 

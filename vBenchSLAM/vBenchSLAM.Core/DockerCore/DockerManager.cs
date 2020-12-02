@@ -13,17 +13,12 @@ namespace vBenchSLAM.Core.DockerCore
         public DockerManager()
         {
             var uri = GetWslUri();
-            if (Settings.CheckWsl())
-            {
-                
-            }
-            _client = new DockerClientConfiguration(uri).CreateClient();
+            
+            _client = Settings.IsWsl ? new DockerClientConfiguration(uri).CreateClient() : new DockerClientConfiguration().CreateClient();
         }
 
         private static Uri GetWslUri()
         {
-            
-
             return new Uri($"tcp://127.0.0.1:{Settings.WslPort}");
         }
 
