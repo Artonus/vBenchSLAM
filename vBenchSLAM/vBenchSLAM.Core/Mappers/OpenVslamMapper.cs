@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using vBenchSLAM.Core.DockerCore;
+using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
 
@@ -10,13 +9,17 @@ namespace vBenchSLAM.Core.Mappers
 {
     public class OpenVslamMapper : BaseMapper, IMapper
     {
+        private readonly IDockerManager _dockerManager;
+        private const string ServerContainerImage = "openvslam-server";
+        private const string ViewerContainerImage = "";
         private const string FullName = "";
 
+        public MapperTypeEnum MapperType => MapperTypeEnum.OpenVslam;
         public string FullFrameworkName => FullName;
 
-        public OpenVslamMapper()
+        public OpenVslamMapper(IDockerManager dockerManager)
         {
-            
+            _dockerManager = dockerManager;
         }
         public string SaveMap()
         {
@@ -29,7 +32,16 @@ namespace vBenchSLAM.Core.Mappers
         }
         public bool Start()
         {
-            throw new NotImplementedException();
+            return StartAsync().Result;
+        }
+
+        private async Task<bool> StartAsync()
+        {
+            var containerId = await _dockerManager.GetContainerIdByNameAsync(ServerContainerImage);
+            var started = await _dockerManager.StartContainerAsync(containerId);
+            var hasStarted = started;
+
+            return hasStarted;
         }
         public bool Stop()
         {

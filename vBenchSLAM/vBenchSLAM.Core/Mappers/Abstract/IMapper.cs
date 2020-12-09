@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using vBenchSLAM.Core.Enums;
 
 namespace vBenchSLAM.Core.Mappers.Abstract
 {
     public interface IMapper
     {
+        MapperTypeEnum MapperType { get; }
         string FullFrameworkName { get; }
         string SaveMap();
         bool ShowMap();

@@ -11,7 +11,7 @@ namespace vBenchSLAM.Core
         /// <summary>
         /// The port the docker in WSL2 should be configured
         /// </summary>
-        public const int WslPort = 2375;
+        public const int DockerWslPort = 2375;
 
         public static bool IsWsl { get; private set; }
 

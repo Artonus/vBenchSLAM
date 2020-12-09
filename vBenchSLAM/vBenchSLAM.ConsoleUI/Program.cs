@@ -12,8 +12,10 @@ namespace vBenchSLAM.ConsoleUI
             try
             {
                 Settings.Initialize();
-                Console.WriteLine("Hello World from Docker!");
+
                 IDockerManager manager = new DockerManager();
+
+
                 var containers = await manager.ListContainersAsync();
                 foreach (var container in containers)
                 {

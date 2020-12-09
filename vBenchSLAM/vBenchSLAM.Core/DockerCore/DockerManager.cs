@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
@@ -19,7 +20,7 @@ namespace vBenchSLAM.Core.DockerCore
 
         private static Uri GetWslUri()
         {
-            return new Uri($"tcp://127.0.0.1:{Settings.WslPort}");
+            return new Uri($"tcp://127.0.0.1:{Settings.DockerWslPort}");
         }
 
         public async Task<IList<ContainerListResponse>> ListContainersAsync()
@@ -50,9 +51,13 @@ namespace vBenchSLAM.Core.DockerCore
             throw new NotImplementedException();
         }
 
-        public void SaveMap()
+        public async Task<string> GetContainerIdByNameAsync(string containerName)
         {
-            throw new NotImplementedException();
+            var containers = await ListContainersAsync();
+
+            var cont = containers.FirstOrDefault(c => c.Image == containerName);
+
+            return cont?.ID;
         }
     }
 }
