@@ -37,6 +37,7 @@ namespace vBenchSLAM.Core.DockerCore
         {
             var parameters = new ContainerStartParameters();
             var success = await _client.Containers.StartContainerAsync(container, parameters);
+            
             return success;
         }
 
@@ -46,18 +47,28 @@ namespace vBenchSLAM.Core.DockerCore
             return success;
         }
 
-        public void SendCommand(string containerId, string command)
+        public async Task SendCommandAsync(string containerId, string command)
         {
-            throw new NotImplementedException();
+            var container = await GetContainerByIdAsync(containerId);
+            container.Command = command;
         }
 
-        public async Task<string> GetContainerIdByNameAsync(string containerName)
+        public async Task<ContainerListResponse> GetContainerByNameAsync(string containerName)
         {
             var containers = await ListContainersAsync();
 
             var cont = containers.FirstOrDefault(c => c.Image == containerName);
 
-            return cont?.ID;
+            return cont;
+        }
+
+        private async Task<ContainerListResponse> GetContainerByIdAsync(string containerId)
+        {
+            var containers = await ListContainersAsync();
+
+            var cont = containers.FirstOrDefault(c => c.ID == containerId);
+
+            return cont;
         }
     }
 }
