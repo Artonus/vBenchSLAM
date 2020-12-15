@@ -70,12 +70,12 @@ namespace vBenchSLAM.Core.Mappers
             // execution of the vslam algorithm
             retVal &= await _dockerManager.SendCommandAsync(socketContainer.ID, command);
 
-            retVal &= await StopContainers(ServerContainerImage, ViewerContainerImage);
+            retVal &= await ParallelStopContainersAsync(ServerContainerImage, ViewerContainerImage);
 
             return retVal;
         }
 
-        private async Task<bool> StopContainers(params string[] containerNames)
+        private async Task<bool> ParallelStopContainersAsync(params string[] containerNames)
         {
             var stopped = new List<Task<bool>>();
             foreach (var container in containerNames)
