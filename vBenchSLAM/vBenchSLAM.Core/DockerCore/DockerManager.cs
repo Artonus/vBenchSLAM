@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
@@ -47,10 +49,48 @@ namespace vBenchSLAM.Core.DockerCore
             return success;
         }
 
-        public async Task SendCommandAsync(string containerId, string command)
+        public async Task<bool> SendCommandAsync(string containerId, string command)
         {
             var container = await GetContainerByIdAsync(containerId);
             container.Command = command;
+
+            var processRunner = new ProcessRunner();
+            await processRunner.SendCommandToContainerAsync(containerId, command);
+
+            //var containerParams = new ContainerExecCreateParameters()
+            //{
+            //    AttachStdout = true,
+            //    AttachStderr = true,
+            //    AttachStdin = false,
+            //    Cmd = new List<string> { "bash -c " + command },
+            //    //Privileged = false,
+            //    //User = "root",
+            //    //WorkingDir = "/openvslam/build"
+            //};
+            //Console.WriteLine(containerParams.Cmd[0]);
+            //var response = await _client.Exec.ExecCreateContainerAsync(container.ID, containerParams);
+            //if (string.IsNullOrEmpty(response.ID))
+            //{
+            //    return false;
+            //}
+            //ContainerExecInspectResponse inspection = await _client.Exec.InspectContainerExecAsync(response.ID);
+            //var containerExecStartParams = new ContainerExecStartParameters
+            //{
+            //    AttachStdout = containerParams.AttachStdout,
+            //    AttachStderr = containerParams.AttachStderr,
+            //    AttachStdin = containerParams.AttachStdin,
+            //    Cmd = containerParams.Cmd,
+            //    Detach = false,
+            //    Tty = true
+            //};
+            //var multiplexedStream = await _client.Exec.StartWithConfigContainerExecAsync(response.ID, containerExecStartParams);
+
+            //inspection = await _client.Exec.InspectContainerExecAsync(response.ID);
+            //await using (var fileStream = new FileStream("C:\\Works\\vBenchSLAM\\Samples\\output.txt", FileMode.Create))
+            //{
+            //    await multiplexedStream.CopyOutputToAsync(fileStream, fileStream, fileStream, new CancellationToken());
+            //}
+            return true;
         }
 
         public async Task<ContainerListResponse> GetContainerByNameAsync(string containerName)

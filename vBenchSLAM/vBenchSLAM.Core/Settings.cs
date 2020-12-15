@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace vBenchSLAM.Core
 {
@@ -15,9 +16,13 @@ namespace vBenchSLAM.Core
 
         public static bool IsWsl { get; private set; }
 
+        public static bool IsUnix { get; private set; }
+
         public static void Initialize()
         {
             CheckWsl();
+            IsUnix = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                     RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         }
 
         private static bool CheckWsl()

@@ -9,7 +9,7 @@ namespace vBenchSLAM.Core.DockerCore
         Task<IList<ContainerListResponse>> ListContainersAsync();
         Task<bool> StartContainerAsync(string containerId);
         Task<bool> StopContainerAsync(string containerId);
-        Task SendCommandAsync(string containerId, string command);
+        Task<bool> SendCommandAsync(string containerId, string command);
         Task<ContainerListResponse> GetContainerByNameAsync(string containerName);
     }
 }

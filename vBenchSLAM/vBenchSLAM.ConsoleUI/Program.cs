@@ -2,12 +2,13 @@
 using System.Threading.Tasks;
 using vBenchSLAM.Core;
 using vBenchSLAM.Core.DockerCore;
+using vBenchSLAM.Core.Enums;
 
 namespace vBenchSLAM.ConsoleUI
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             try
             {
@@ -15,14 +16,13 @@ namespace vBenchSLAM.ConsoleUI
 
                 IDockerManager manager = new DockerManager();
 
-
-                var containers = await manager.ListContainersAsync();
-                foreach (var container in containers)
-                {
-                    Console.WriteLine(container.Image);
-                }
-                var run = await manager.StartContainerAsync(containers[0].ID);
-
+                var runner = new Runner(MapperTypeEnum.OpenVslam, manager);
+                runner.Run();
+                //var containers = await manager.ListContainersAsync();
+                //foreach (var container in containers)
+                //{
+                //    manager.StopContainerAsync(container.ID);
+                //}
             }
             catch (Exception ex)
             {
