@@ -18,11 +18,6 @@ namespace vBenchSLAM.ConsoleUI
 
                 var runner = new Runner(MapperTypeEnum.OpenVslam, manager);
                 runner.Run();
-                //var containers = await manager.ListContainersAsync();
-                //foreach (var container in containers)
-                //{
-                //    manager.StopContainerAsync(container.ID);
-                //}
             }
             catch (Exception ex)
             {

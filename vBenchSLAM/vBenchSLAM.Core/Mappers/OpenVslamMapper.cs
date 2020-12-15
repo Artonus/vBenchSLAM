@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
@@ -35,10 +37,10 @@ namespace vBenchSLAM.Core.Mappers
         }
         public bool Start()
         {
-            return StartAsync().Result;
+            return Run().Result;
         }
 
-        private async Task<bool> StartAsync()
+        private async Task<bool> Run()
         {
             var serverContainer = await _dockerManager.GetContainerByNameAsync(ServerContainerImage);
             if (serverContainer is null)
@@ -47,7 +49,7 @@ namespace vBenchSLAM.Core.Mappers
             if (socketContainer is null)
                 return false;
 
-            var retVal = false;
+            var retVal = true;
 
             if (socketContainer.Mounts.Count == 0)
                 socketContainer.Mounts.Add(new MountPoint
@@ -65,10 +67,30 @@ namespace vBenchSLAM.Core.Mappers
 
             StartViewerWindow();
             var command = PrepareStartCommand();
-            var result = await _dockerManager.SendCommandAsync(socketContainer.ID, command);
-            retVal = result;
+            // execution of the vslam algorithm
+            retVal &= await _dockerManager.SendCommandAsync(socketContainer.ID, command);
+
+            retVal &= await StopContainers(ServerContainerImage, ViewerContainerImage);
 
             return retVal;
+        }
+
+        private async Task<bool> StopContainers(params string[] containerNames)
+        {
+            var stopped = new List<Task<bool>>();
+            foreach (var container in containerNames)
+            {
+                stopped.Add(FindAndStopContainerAsync(container));
+            }
+
+            var results = await Task.WhenAll(stopped);
+            return results.All(r=>r);
+        }
+
+        private async Task<bool> FindAndStopContainerAsync(string containerName)
+        {
+            var container = await _dockerManager.GetContainerByNameAsync(containerName);
+            return await _dockerManager.StopContainerAsync(container.ID);
         }
 
         private void StartViewerWindow()
@@ -105,7 +127,7 @@ namespace vBenchSLAM.Core.Mappers
             //TODO: create temporary folder to store data to run
             var command =
                 @"""./run_video_slam -v samples/orb_vocab/orb_vocab.dbow2 -c samples/config.yaml -m samples/video.mp4 " +
-                @"--auto-term --no-sleep --map-db samples/generated/aist_living_lab_1_map.msg && exit""";
+                @"--auto-term --no-sleep --map-db samples/generated/aist_living_lab_1_map.msg --debug && exit""";
             Console.WriteLine(command);
             return command;
         }

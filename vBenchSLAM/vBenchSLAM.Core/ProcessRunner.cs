@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace vBenchSLAM.Core
@@ -21,8 +17,8 @@ namespace vBenchSLAM.Core
             var execCmdOption = Settings.IsUnix ? "-c" : "/C";
             var prefix = Settings.IsWsl ? "wsl" : string.Empty;
 
-            var runCommand = $@"{execCmdOption} ""{prefix} docker exec -it {containerId} bash -c {command}""";
-            return await RunProcessAsync(baseProgram, runCommand);
+            var args = $@"{execCmdOption} ""{prefix} docker exec -it {containerId} bash -c {command}""";
+            return await RunProcessAsync(baseProgram, args);
         }
 
         public static async Task<int> RunProcessAsync(string fileName, string args)
@@ -54,7 +50,7 @@ namespace vBenchSLAM.Core
             process.Exited += (s, ea) =>
             {
                 tcs.SetResult(process.ExitCode);
-                //Console.WriteLine($"Process has exited with code: {process.ExitCode}");
+                Console.WriteLine($"Process has exited with code: {process.ExitCode}");
             };
             process.OutputDataReceived += (s, ea) => Console.WriteLine(ea.Data);
             process.ErrorDataReceived += (s, ea) => Console.WriteLine("ERR: " + ea.Data);
