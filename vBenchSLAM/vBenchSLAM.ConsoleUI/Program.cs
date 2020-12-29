@@ -13,9 +13,9 @@ namespace vBenchSLAM.ConsoleUI
             try
             {
                 Settings.Initialize();
-
+                
                 IDockerManager manager = new DockerManager();
-
+                
                 var runner = new Runner(MapperTypeEnum.OpenVslam, manager);
                 runner.Run();
             }

@@ -13,5 +13,10 @@ namespace vBenchSLAM.Core.Mappers.Base
         {
                 
         }
+
+        protected static string GetFullImageName(string repository, string tag)
+        {
+            return $"{repository}:{tag}";
+        }
     }
 }

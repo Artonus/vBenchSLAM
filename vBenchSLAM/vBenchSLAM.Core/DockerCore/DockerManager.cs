@@ -6,18 +6,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
+using vBenchSLAM.Addins.Exceptions;
 
 namespace vBenchSLAM.Core.DockerCore
 {
     public class DockerManager : IDockerManager
     {
         private readonly IDockerClient _client;
+        private readonly ProcessRunner _runner;
 
         public DockerManager()
         {
             var uri = GetWslUri();
             
             _client = Settings.IsWsl ? new DockerClientConfiguration(uri).CreateClient() : new DockerClientConfiguration().CreateClient();
+            _runner = new ProcessRunner();
         }
 
         private static Uri GetWslUri()
@@ -35,7 +38,7 @@ namespace vBenchSLAM.Core.DockerCore
             return containers;
         }
 
-        public async Task<bool> StartContainerAsync(string container)
+        public async Task<bool> StartContainerAsync(string container, string cmdArgs = "")
         {
             var parameters = new ContainerStartParameters();
             var success = await _client.Containers.StartContainerAsync(container, parameters);
@@ -57,43 +60,9 @@ namespace vBenchSLAM.Core.DockerCore
         {
             var container = await GetContainerByIdAsync(containerId);
             container.Command = command;
-
-            var processRunner = new ProcessRunner();
-            await processRunner.SendCommandToContainerAsync(containerId, command);
-
-            //var containerParams = new ContainerExecCreateParameters()
-            //{
-            //    AttachStdout = true,
-            //    AttachStderr = true,
-            //    AttachStdin = false,
-            //    Cmd = new List<string> { "bash -c " + command },
-            //    //Privileged = false,
-            //    //User = "root",
-            //    //WorkingDir = "/openvslam/build"
-            //};
-            //Console.WriteLine(containerParams.Cmd[0]);
-            //var response = await _client.Exec.ExecCreateContainerAsync(container.ID, containerParams);
-            //if (string.IsNullOrEmpty(response.ID))
-            //{
-            //    return false;
-            //}
-            //ContainerExecInspectResponse inspection = await _client.Exec.InspectContainerExecAsync(response.ID);
-            //var containerExecStartParams = new ContainerExecStartParameters
-            //{
-            //    AttachStdout = containerParams.AttachStdout,
-            //    AttachStderr = containerParams.AttachStderr,
-            //    AttachStdin = containerParams.AttachStdin,
-            //    Cmd = containerParams.Cmd,
-            //    Detach = false,
-            //    Tty = true
-            //};
-            //var multiplexedStream = await _client.Exec.StartWithConfigContainerExecAsync(response.ID, containerExecStartParams);
-
-            //inspection = await _client.Exec.InspectContainerExecAsync(response.ID);
-            //await using (var fileStream = new FileStream("C:\\Works\\vBenchSLAM\\Samples\\output.txt", FileMode.Create))
-            //{
-            //    await multiplexedStream.CopyOutputToAsync(fileStream, fileStream, fileStream, new CancellationToken());
-            //}
+            
+            await _runner.SendCommandToContainerAsync(containerId, command);
+            
             return true;
         }
 
@@ -113,6 +82,24 @@ namespace vBenchSLAM.Core.DockerCore
             var cont = containers.FirstOrDefault(c => c.ID == containerId);
 
             return cont;
+        }
+
+        public async Task<ContainerListResponse> DownloadAndBuildContainer(string repository, string containerName)
+        {
+            var containerInfo = $"{repository}:{containerName}";
+
+            var exitCode = await _runner.PullContainer(containerInfo);
+
+            // if (exitCode != 1)
+            //     throw new FailedToPullImageException("Unable to pull image", exitCode, containerInfo);
+            
+            var buildExitCode = await _runner.BuildImage(containerInfo);
+            // if (buildExitCode != 1)
+            //     throw new FailedToBuildImageException("Unable to build image", exitCode, containerInfo);
+
+            var image = await GetContainerByNameAsync(containerInfo);
+            
+            return image;
         }
     }
 }

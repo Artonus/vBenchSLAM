@@ -8,7 +8,6 @@ namespace vBenchSLAM.Core
     {
         public ProcessRunner()
         {
-
         }
 
         public async Task<int> SendCommandToContainerAsync(string containerId, string command)
@@ -21,10 +20,30 @@ namespace vBenchSLAM.Core
             return await RunProcessAsync(baseProgram, args);
         }
 
+        public async Task<int> PullContainer(string containerInfo)
+        {
+            var baseProgram = Settings.IsUnix ? "bash" : "cmd.exe";
+            var execCmdOption = Settings.IsUnix ? "-c" : "/C";
+            var prefix = Settings.IsWsl ? "wsl" : string.Empty;
+            
+            var args = $@"{execCmdOption} ""{prefix} docker pull {containerInfo}""";
+            return await RunProcessAsync(baseProgram, args);
+        }
+        
+        public async Task<int> BuildImage(string containerName)
+        {
+            var baseProgram = Settings.IsUnix ? "bash" : "cmd.exe";
+            var execCmdOption = Settings.IsUnix ? "-c" : "/C";
+            var prefix = Settings.IsWsl ? "wsl" : string.Empty;
+            
+            var args = $@"{execCmdOption} ""{prefix} docker container create {containerName}""";
+            return await RunProcessAsync(baseProgram, args);
+        }
+
         public static async Task<int> RunProcessAsync(string fileName, string args)
         {
             var startInfo = new ProcessStartInfo
-                {
+            {
                 FileName = fileName,
                 Arguments = args,
                 UseShellExecute = false,
@@ -40,18 +59,18 @@ namespace vBenchSLAM.Core
             {
                 return await RunProcessAsync(process).ConfigureAwait(false);
             }
-                
-
         }
+
         private static Task<int> RunProcessAsync(Process process)
         {
             var tcs = new TaskCompletionSource<int>();
 
-            process.Exited += (s, ea) =>
-            {
-                tcs.SetResult(process.ExitCode);
-                Console.WriteLine($"Process has exited with code: {process.ExitCode}");
-            };
+            // process.Exited += (s, ea) =>
+            // {
+            //     tcs.SetResult(process.ExitCode);
+            //     Console.WriteLine($"Process has exited with code: {process.ExitCode}");
+            // };
+            //TODO: move to separate functions
             process.OutputDataReceived += (s, ea) => Console.WriteLine(ea.Data);
             process.ErrorDataReceived += (s, ea) => Console.WriteLine("ERR: " + ea.Data);
 
@@ -68,5 +87,7 @@ namespace vBenchSLAM.Core
 
             return tcs.Task;
         }
+
+        
     }
 }

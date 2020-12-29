@@ -15,7 +15,7 @@ namespace vBenchSLAM.Addins.ExtensionMethods
             // Get fieldinfo for this type
             FieldInfo fieldInfo = type.GetField(value.ToString());
 
-            // Get the stringvalue attributes
+            // Get the StringValue attributes
             StringValueAttribute[] attributes = fieldInfo.GetCustomAttributes(
                 typeof(StringValueAttribute), false) as StringValueAttribute[];
 

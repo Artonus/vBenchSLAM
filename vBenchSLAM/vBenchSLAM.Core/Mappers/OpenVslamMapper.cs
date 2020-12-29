@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
+using vBenchSLAM.Addins.Exceptions;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers.Abstract;
@@ -26,6 +27,7 @@ namespace vBenchSLAM.Core.Mappers
         {
             _dockerManager = dockerManager;
         }
+
         public string SaveMap()
         {
             throw new NotImplementedException();
@@ -35,6 +37,7 @@ namespace vBenchSLAM.Core.Mappers
         {
             throw new NotImplementedException();
         }
+
         public bool Start()
         {
             return Run().Result;
@@ -42,24 +45,37 @@ namespace vBenchSLAM.Core.Mappers
 
         private async Task<bool> Run()
         {
-            var serverContainer = await _dockerManager.GetContainerByNameAsync(ServerContainerImage);
+            var serverContainer = await _dockerManager.GetContainerByNameAsync(GetFullImageName(Settings.VBenchSLAMRepositoryName, ServerContainerImage));
             if (serverContainer is null)
-                return false;
-            var socketContainer = await _dockerManager.GetContainerByNameAsync(ViewerContainerImage);
+            {
+                serverContainer =
+                    await _dockerManager.DownloadAndBuildContainer(Settings.VBenchSLAMRepositoryName, ServerContainerImage);
+            }
+
+            var socketContainer = await _dockerManager.GetContainerByNameAsync(GetFullImageName(Settings.VBenchSLAMRepositoryName, ViewerContainerImage));
             if (socketContainer is null)
-                return false;
+            {
+                socketContainer =
+                    await _dockerManager.DownloadAndBuildContainer(Settings.VBenchSLAMRepositoryName, ViewerContainerImage);
+                if (socketContainer is null)
+                {
+                    throw new MapperImageNotFoundException(ViewerContainerImage, "Unable to locate the image");
+                }
+            }
 
             var retVal = true;
 
             if (socketContainer.Mounts.Count == 0)
+            {
                 socketContainer.Mounts.Add(new MountPoint
                 {
-                    Source = "/mnt/c/Works/vBenchSLAM/Samples", //TODO: temporary folder path
+                    Source = "~/Works/vBenchSLAM/Samples", //TODO: temporary folder path
                     Destination = "/openvslam/build/samples",
                     RW = true
                 });
+            }
 
-            var started = await _dockerManager.StartContainerAsync(serverContainer.ID)
+            var started = await _dockerManager.StartContainerAsync(serverContainer.ID, "--net=host") 
                           && await _dockerManager.StartContainerAsync(socketContainer.ID);
 
             if (started == false)
@@ -84,7 +100,7 @@ namespace vBenchSLAM.Core.Mappers
             }
 
             var results = await Task.WhenAll(stopped);
-            return results.All(r=>r);
+            return results.All(r => r);
         }
 
         private async Task<bool> FindAndStopContainerAsync(string containerName)
@@ -106,7 +122,7 @@ namespace vBenchSLAM.Core.Mappers
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") {CreateNoWindow = true});
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     Process.Start("xdg-open", url);

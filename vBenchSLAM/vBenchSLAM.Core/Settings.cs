@@ -14,6 +14,11 @@ namespace vBenchSLAM.Core
         /// </summary>
         public const int DockerWslPort = 2375;
 
+        /// <summary>
+        /// The name of the repository containing docker images of vSLAM frameworks
+        /// </summary>
+        public const string VBenchSLAMRepositoryName = "artonus/vbenchslam";
+
         public static bool IsWsl { get; private set; }
 
         public static bool IsUnix { get; private set; }
@@ -46,11 +51,9 @@ namespace vBenchSLAM.Core
                         retVal = true;
                 }
             }
+
             IsWsl = retVal;
             return retVal;
         }
-
-
     }
 }
-

@@ -14,7 +14,7 @@ namespace vBenchSLAM.Addins.Attributes
         /// <summary>
         /// Holds the string value for the enum
         /// </summary>
-        public string StringValue { get; protected set; }
+        public string StringValue { get; }
 
         public StringValueAttribute(string stringValue)
         {
