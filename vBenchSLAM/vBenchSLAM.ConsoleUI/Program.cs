@@ -1,24 +1,22 @@
 ﻿using System;
-using System.Threading.Tasks;
+using vBenchSLAM.Core;
 using vBenchSLAM.Core.DockerCore;
+using vBenchSLAM.Core.Enums;
 
 namespace vBenchSLAM.ConsoleUI
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             try
             {
-                Console.WriteLine("Hello World from Docker!");
-                var manager = new DockerManager();
-                var containers = await manager.ListContainersAsync();
-                foreach (var container in containers)
-                {
-                    Console.WriteLine(container.Image);
-                }
-                var run = await manager.StartContainerAsync(containers[0].ID);
-
+                Settings.Initialize();
+                
+                IDockerManager manager = new DockerManager();
+                
+                var runner = new Runner(MapperTypeEnum.OpenVslam, manager);
+                runner.Run();
             }
             catch (Exception ex)
             {
@@ -26,7 +24,5 @@ namespace vBenchSLAM.ConsoleUI
             }
             Console.ReadLine();
         }
-
-        
     }
 }

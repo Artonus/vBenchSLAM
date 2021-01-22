@@ -1,6 +1,6 @@
 Uruchomienie dockera z serwerem
 docker run --rm -it --name openvslam-server --net=host openvslam-server
 Uruchomienie dockera aplikacji z montowaniem katalogu z przykladowymi plikami
-docker run --rm -it --name openvslam-socket --net=host --gpus all -v /usr/local/vBenchSLAM/openvslam/samples:/openvslam/build/samples openvslam-socket
+docker run -it --name openvslam-socket --net=host --gpus all -v /mnt/c/Works/vBenchSLAM/samples:/openvslam/build/samples openvslam-socket
 Uruchomienie przetwarzania filmu
-./run_video_slam -v /openvslam/build/samples/orb_vocab/orb_vocab.dbow2 -c /openvslam/build/samples/config.yaml -m /openvslam/build/samples/video.mp4
+./run_video_slam -v /openvslam/build/samples/orb_vocab/orb_vocab.dbow2 -c /openvslam/build/samples/config.yaml -m /openvslam/build/samples/video.mp4 --auto-term --no-sleep --map-db samples/generated/aist_living_lab_1_map.msg

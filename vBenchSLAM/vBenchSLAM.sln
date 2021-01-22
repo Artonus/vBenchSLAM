@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vBenchSLAM.Core", "vBenchSL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vBenchSLAM.ConsoleUI", "vBenchSLAM.ConsoleUI\vBenchSLAM.ConsoleUI.csproj", "{EDC375C7-0E4F-4737-B3ED-AA7B0B08B44D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vBenchSLAM.Addins", "vBenchSLAM.Addins\vBenchSLAM.Addins.csproj", "{3ECCDE4D-7935-4CDB-9B2A-CCED931AACD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{EDC375C7-0E4F-4737-B3ED-AA7B0B08B44D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDC375C7-0E4F-4737-B3ED-AA7B0B08B44D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDC375C7-0E4F-4737-B3ED-AA7B0B08B44D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3ECCDE4D-7935-4CDB-9B2A-CCED931AACD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ECCDE4D-7935-4CDB-9B2A-CCED931AACD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3ECCDE4D-7935-4CDB-9B2A-CCED931AACD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3ECCDE4D-7935-4CDB-9B2A-CCED931AACD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
