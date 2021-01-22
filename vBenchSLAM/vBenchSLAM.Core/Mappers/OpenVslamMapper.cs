@@ -45,18 +45,22 @@ namespace vBenchSLAM.Core.Mappers
 
         private async Task<bool> Run()
         {
-            var serverContainer = await _dockerManager.GetContainerByNameAsync(GetFullImageName(Settings.VBenchSLAMRepositoryName, ServerContainerImage));
+            var serverContainer =
+                await _dockerManager.GetContainerByNameAsync(GetFullImageName(ServerContainerImage));
             if (serverContainer is null)
             {
                 serverContainer =
-                    await _dockerManager.DownloadAndBuildContainer(Settings.VBenchSLAMRepositoryName, ServerContainerImage);
+                    await _dockerManager.DownloadAndBuildContainer(Settings.VBenchSLAMRepositoryName,
+                        ServerContainerImage);
             }
 
-            var socketContainer = await _dockerManager.GetContainerByNameAsync(GetFullImageName(Settings.VBenchSLAMRepositoryName, ViewerContainerImage));
+            var socketContainer =
+                await _dockerManager.GetContainerByNameAsync(GetFullImageName(ViewerContainerImage));
             if (socketContainer is null)
             {
                 socketContainer =
-                    await _dockerManager.DownloadAndBuildContainer(Settings.VBenchSLAMRepositoryName, ViewerContainerImage);
+                    await _dockerManager.DownloadAndBuildContainer(Settings.VBenchSLAMRepositoryName,
+                        ViewerContainerImage);
                 if (socketContainer is null)
                 {
                     throw new MapperImageNotFoundException(ViewerContainerImage, "Unable to locate the image");
@@ -65,18 +69,20 @@ namespace vBenchSLAM.Core.Mappers
 
             var retVal = true;
 
-            if (socketContainer.Mounts.Count == 0)
-            {
-                socketContainer.Mounts.Add(new MountPoint
-                {
-                    Source = "~/Works/vBenchSLAM/Samples", //TODO: temporary folder path
-                    Destination = "/openvslam/build/samples",
-                    RW = true
-                });
-            }
+            // if (socketContainer.Mounts.Count == 0)
+            // {
+            //     socketContainer.Mounts.Add(new MountPoint
+            //     {
+            //         Source = "/home/Bartek/Works/vBenchSLAM/Samples", //TODO: temporary folder path
+            //         Destination = "/openvslam/build/samples",
+            //         RW = true
+            //     });
+            // }
 
-            var started = await _dockerManager.StartContainerAsync(serverContainer.ID, "--net=host") 
-                          && await _dockerManager.StartContainerAsync(socketContainer.ID);
+            var started = await _dockerManager.StartContainerAsync(serverContainer.ID, "-it --net=host");
+
+            var startedNew = await _dockerManager.StartContainerAsync(socketContainer.ID/*,
+                "-it --net=host --gpus all -v /home/Bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples"*/);
 
             if (started == false)
                 return false;

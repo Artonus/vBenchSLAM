@@ -6,38 +6,32 @@ namespace vBenchSLAM.Core
 {
     public class ProcessRunner
     {
+        private string BaseProgram { get; }
+        private string ExecCmdOption { get; }
+        private string Prefix { get; }
         public ProcessRunner()
         {
+            BaseProgram = Settings.IsUnix ? "bash" : "cmd.exe";
+            ExecCmdOption = Settings.IsUnix ? "-c" : "/C";
+            Prefix = Settings.IsWsl ? "wsl" : string.Empty;
         }
 
         public async Task<int> SendCommandToContainerAsync(string containerId, string command)
         {
-            var baseProgram = Settings.IsUnix ? "bash" : "cmd.exe";
-            var execCmdOption = Settings.IsUnix ? "-c" : "/C";
-            var prefix = Settings.IsWsl ? "wsl" : string.Empty;
-
-            var args = $@"{execCmdOption} ""{prefix} docker exec -it {containerId} bash -c {command}""";
-            return await RunProcessAsync(baseProgram, args);
+            var args = $@"{ExecCmdOption} ""{Prefix} docker exec -it {containerId} bash -c {command}""";
+            return await RunProcessAsync(BaseProgram, args);
         }
 
         public async Task<int> PullContainer(string containerInfo)
         {
-            var baseProgram = Settings.IsUnix ? "bash" : "cmd.exe";
-            var execCmdOption = Settings.IsUnix ? "-c" : "/C";
-            var prefix = Settings.IsWsl ? "wsl" : string.Empty;
-            
-            var args = $@"{execCmdOption} ""{prefix} docker pull {containerInfo}""";
-            return await RunProcessAsync(baseProgram, args);
+            var args = $@"{ExecCmdOption} ""{Prefix} docker pull {containerInfo}""";
+            return await RunProcessAsync(BaseProgram, args);
         }
         
         public async Task<int> BuildImage(string containerName)
         {
-            var baseProgram = Settings.IsUnix ? "bash" : "cmd.exe";
-            var execCmdOption = Settings.IsUnix ? "-c" : "/C";
-            var prefix = Settings.IsWsl ? "wsl" : string.Empty;
-            
-            var args = $@"{execCmdOption} ""{prefix} docker container create {containerName}""";
-            return await RunProcessAsync(baseProgram, args);
+            var args = $@"{ExecCmdOption} ""{Prefix} docker container create {containerName}""";
+            return await RunProcessAsync(BaseProgram, args);
         }
 
         public static async Task<int> RunProcessAsync(string fileName, string args)
@@ -70,9 +64,8 @@ namespace vBenchSLAM.Core
             //     tcs.SetResult(process.ExitCode);
             //     Console.WriteLine($"Process has exited with code: {process.ExitCode}");
             // };
-            //TODO: move to separate functions
-            process.OutputDataReceived += (s, ea) => Console.WriteLine(ea.Data);
-            process.ErrorDataReceived += (s, ea) => Console.WriteLine("ERR: " + ea.Data);
+            process.OutputDataReceived += ProcessOnOutputDataReceived;
+            process.ErrorDataReceived += ProcessOnErrorDataReceived;
 
             bool started = process.Start();
             if (!started)
@@ -88,6 +81,22 @@ namespace vBenchSLAM.Core
             return tcs.Task;
         }
 
+        #region Events
+
+        private static void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Console.WriteLine(e.Data);
+        }
+        private static void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(e.Data) == false)
+            {
+                Console.WriteLine("ERR: " + e.Data);
+            }
+            
+        }
+
+        #endregion
         
     }
 }

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
-using vBenchSLAM.Addins.Exceptions;
 
 namespace vBenchSLAM.Core.DockerCore
 {
@@ -40,7 +37,10 @@ namespace vBenchSLAM.Core.DockerCore
 
         public async Task<bool> StartContainerAsync(string container, string cmdArgs = "")
         {
-            var parameters = new ContainerStartParameters();
+            var parameters = new ContainerStartParameters()
+            {
+                DetachKeys = cmdArgs
+            };
             var success = await _client.Containers.StartContainerAsync(container, parameters);
             
             return success;

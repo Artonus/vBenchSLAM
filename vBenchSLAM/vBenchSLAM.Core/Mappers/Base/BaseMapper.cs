@@ -14,9 +14,9 @@ namespace vBenchSLAM.Core.Mappers.Base
                 
         }
 
-        protected static string GetFullImageName(string repository, string tag)
+        protected static string GetFullImageName(string image)
         {
-            return $"{repository}:{tag}";
+            return $"{Settings.VBenchSLAMRepositoryName}:{image}";
         }
     }
 }
