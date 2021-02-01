@@ -355,3 +355,5 @@ MigrationBackup/
 .ionide/
 # JetBrains Rider 
 .idea/
+# Catalog with VisualSLAM runtime samples
+/Samples
