@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
+using vBenchSLAM.Addins.EventArgs;
 
 namespace vBenchSLAM.Core.DockerCore
 {
@@ -18,8 +19,9 @@ namespace vBenchSLAM.Core.DockerCore
             
             _client = Settings.IsWsl ? new DockerClientConfiguration(uri).CreateClient() : new DockerClientConfiguration().CreateClient();
             _runner = new ProcessRunner();
+            _runner.ProcessRegistered += RunnerProcessRegistered;
         }
-
+        
         private static Uri GetWslUri()
         {
             return new Uri($"tcp://127.0.0.1:{Settings.DockerWslPort}");
@@ -70,7 +72,7 @@ namespace vBenchSLAM.Core.DockerCore
         {
             var containers = await ListContainersAsync();
 
-            var cont = containers.FirstOrDefault(c => c.Image == containerName);
+            var cont = containers.SingleOrDefault(c => c.Image == containerName);
 
             return cont;
         }
@@ -79,7 +81,7 @@ namespace vBenchSLAM.Core.DockerCore
         {
             var containers = await ListContainersAsync();
 
-            var cont = containers.FirstOrDefault(c => c.ID == containerId);
+            var cont = containers.SingleOrDefault(c => c.ID == containerId);
 
             return cont;
         }
@@ -88,7 +90,7 @@ namespace vBenchSLAM.Core.DockerCore
         {
             var containerInfo = $"{repository}:{containerName}";
 
-            var exitCode = await _runner.PullContainer(containerInfo);
+            var pullExitCode = await _runner.PullContainer(containerInfo);
 
             // if (exitCode != 1)
             //     throw new FailedToPullImageException("Unable to pull image", exitCode, containerInfo);
@@ -100,6 +102,11 @@ namespace vBenchSLAM.Core.DockerCore
             var image = await GetContainerByNameAsync(containerInfo);
             
             return image;
+        }
+        
+        private void RunnerProcessRegistered(object sender, ProcessRegisteredEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

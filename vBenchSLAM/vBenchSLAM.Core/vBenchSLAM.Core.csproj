@@ -20,4 +20,8 @@
     <ProjectReference Include="..\vBenchSLAM.Addins\vBenchSLAM.Addins.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SystemMonitor\Abstract" />
+  </ItemGroup>
+
 </Project>

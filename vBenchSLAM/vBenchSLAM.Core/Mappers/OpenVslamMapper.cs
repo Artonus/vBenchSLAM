@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Docker.DotNet.Models;
 using vBenchSLAM.Addins.Exceptions;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;

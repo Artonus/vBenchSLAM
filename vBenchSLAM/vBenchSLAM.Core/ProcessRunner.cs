@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using vBenchSLAM.Addins;
+using vBenchSLAM.Addins.EventArgs;
 
 namespace vBenchSLAM.Core
 {
     public class ProcessRunner
     {
+        public delegate void ProcessRegisteredEventHandler(object sender, ProcessRegisteredEventArgs e);
+
+        public event ProcessRegisteredEventHandler ProcessRegistered;
+        
         private string BaseProgram { get; }
         private string ExecCmdOption { get; }
         private string Prefix { get; }
@@ -34,7 +40,7 @@ namespace vBenchSLAM.Core
             return await RunProcessAsync(BaseProgram, args);
         }
 
-        public static async Task<int> RunProcessAsync(string fileName, string args)
+        public async Task<int> RunProcessAsync(string fileName, string args)
         {
             var startInfo = new ProcessStartInfo
             {
@@ -45,12 +51,13 @@ namespace vBenchSLAM.Core
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
             };
-            using (var process = new Process
+            using (var process = new VBenchProcess
             {
                 StartInfo = startInfo,
                 EnableRaisingEvents = true
             })
             {
+                OnProcessRegistered(new ProcessRegisteredEventArgs(process));
                 return await RunProcessAsync(process).ConfigureAwait(false);
             }
         }
@@ -95,8 +102,11 @@ namespace vBenchSLAM.Core
             }
             
         }
-
         #endregion
-        
+
+        private void OnProcessRegistered(ProcessRegisteredEventArgs e)
+        {
+            ProcessRegistered?.Invoke(this, e);
+        }
     }
 }
