@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using vBenchSLAM.Addins;
-using vBenchSLAM.Addins.EventArgs;
+using vBenchSLAM.Addins.Events;
 
 namespace vBenchSLAM.Core
 {

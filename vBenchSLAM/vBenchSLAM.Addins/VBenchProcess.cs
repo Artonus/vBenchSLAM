@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using vBenchSLAM.Addins.EventArgs;
+using vBenchSLAM.Addins.Events;
 
 namespace vBenchSLAM.Addins
 {
@@ -14,13 +14,12 @@ namespace vBenchSLAM.Addins
             var started = base.Start();
             if (started)
             {
-                OnProcessStarted(new ProcessStartedEventArgs());
+                OnProcessStarted(new ProcessStartedEventArgs(this));
             }
-
             return started;
         }
 
-        protected virtual void OnProcessStarted(ProcessStartedEventArgs e)
+        private void OnProcessStarted(ProcessStartedEventArgs e)
         {
             ProcessStarted?.Invoke(this, e);
         }

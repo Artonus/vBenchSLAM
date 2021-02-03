@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
-using vBenchSLAM.Addins.EventArgs;
+using vBenchSLAM.Addins.Events;
 
 namespace vBenchSLAM.Core.DockerCore
 {
