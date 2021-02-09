@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
+using Microsoft.VisualBasic;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.Events;
 using vBenchSLAM.Addins.ExtensionMethods;
@@ -13,10 +14,12 @@ namespace vBenchSLAM.Core.SystemMonitor
     public class ProcessMonitor : IDisposable
     {
         private readonly Action<ProcessMonitor> _removeFromRegistryAction;
-        private readonly Process _process;
+        private readonly VBenchProcess _process;
         private readonly Timer _timer;
         private string _tmpFilePath;
-        private readonly PerformanceCounter _performanceCounter;
+        //private PerformanceCounter _performanceCounter;
+        private decimal _prevCpuUsageTime;
+        private DateTime _prevTimeCheck;
 
         public ProcessMonitor(VBenchProcess process, Action<ProcessMonitor> removeFromRegistryAction)
         {
@@ -24,8 +27,6 @@ namespace vBenchSLAM.Core.SystemMonitor
             _process = process;
             process.ProcessStarted += ProcessOnProcessStarted;
             process.Exited += ProcessOnExited;
-            _performanceCounter = new PerformanceCounter("Process", "% Processor Time",
-                process.ProcessName, true);
             _timer = new Timer
             {
                 Interval = 1000
@@ -35,13 +36,30 @@ namespace vBenchSLAM.Core.SystemMonitor
 
         private void RecordProcessUsage()
         {
-            var procCpuUsage = (decimal) (_performanceCounter.NextValue() / Environment.ProcessorCount);
-            var model = new ResourceUsageModel(procCpuUsage, _process.WorkingSet64);
-            SaveUsageToFileAsync(model);
+            var currTime = DateTime.Now;
+            var currCpuUsageTime = (decimal)_process.TotalProcessorTime.TotalMilliseconds;
+
+            if (_prevTimeCheck != default && _prevCpuUsageTime != default)
+            {
+                var timePassed = (decimal)(currTime - _prevTimeCheck).TotalMilliseconds;
+                var currCpuMs = (currCpuUsageTime - _prevCpuUsageTime);
+                decimal procCpuUsage = currCpuMs * 100 / (Environment.ProcessorCount * timePassed);
+                var model = new ResourceUsageModel(procCpuUsage, _process.WorkingSet64);
+                SaveUsageToFileAsync(model);
+            }
+
+            _prevTimeCheck = currTime;
+            _prevCpuUsageTime = currCpuUsageTime;
+
         }
 
         private async Task SaveUsageToFileAsync(ResourceUsageModel model)
         {
+            var dir = Directory.GetParent(_tmpFilePath);
+            if (dir?.Parent != null && dir.Parent.Exists == false)
+            {
+                Directory.CreateDirectory(dir.Parent.FullName);
+            }
             await using (StreamWriter writer = File.AppendText(_tmpFilePath))
             {
                 await writer.WriteLineAsync(model.ParseAsCsvLiteral());
@@ -50,6 +68,8 @@ namespace vBenchSLAM.Core.SystemMonitor
 
         private void ProcessOnProcessStarted(object sender, ProcessStartedEventArgs e)
         {
+            // _performanceCounter = new PerformanceCounter("Process", "% Processor Time",
+            //     e.Process.ProcessName, true);
             var currTime = DateTime.Now;
             _tmpFilePath = @$"{DirectoryHepler.GetTempPath()}/monitors/{currTime.FormatAsFileNameCode()}.csv";
 
@@ -71,7 +91,7 @@ namespace vBenchSLAM.Core.SystemMonitor
             _timer.Stop();
             _process?.Dispose();
             _timer?.Dispose();
-            _performanceCounter.Dispose();
+            //_performanceCounter?.Dispose();
         }
     }
 }
