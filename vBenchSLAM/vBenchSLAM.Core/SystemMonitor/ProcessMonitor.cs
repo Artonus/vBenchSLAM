@@ -12,16 +12,20 @@ namespace vBenchSLAM.Core.SystemMonitor
 {
     public class ProcessMonitor : IDisposable
     {
+        private readonly Action<ProcessMonitor> _removeFromRegistryAction;
         private readonly Process _process;
         private readonly Timer _timer;
         private string _tmpFilePath;
-        private PerformanceCounter _performanceCounter;
+        private readonly PerformanceCounter _performanceCounter;
 
-        public ProcessMonitor(VBenchProcess process)
+        public ProcessMonitor(VBenchProcess process, Action<ProcessMonitor> removeFromRegistryAction)
         {
+            _removeFromRegistryAction = removeFromRegistryAction;
             _process = process;
             process.ProcessStarted += ProcessOnProcessStarted;
-
+            process.Exited += ProcessOnExited;
+            _performanceCounter = new PerformanceCounter("Process", "% Processor Time",
+                process.ProcessName, true);
             _timer = new Timer
             {
                 Interval = 1000
@@ -52,6 +56,11 @@ namespace vBenchSLAM.Core.SystemMonitor
             _timer.Start();
         }
 
+        private void ProcessOnExited(object sender, EventArgs e)
+        {
+            _removeFromRegistryAction?.Invoke(this);
+        }
+
         private void TimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             RecordProcessUsage();
@@ -59,7 +68,6 @@ namespace vBenchSLAM.Core.SystemMonitor
 
         public void Dispose()
         {
-            
             _timer.Stop();
             _process?.Dispose();
             _timer?.Dispose();
