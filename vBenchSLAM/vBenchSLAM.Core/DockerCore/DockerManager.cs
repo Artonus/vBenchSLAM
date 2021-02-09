@@ -113,7 +113,6 @@ namespace vBenchSLAM.Core.DockerCore
 
         private void RunnerProcessRegistered(object sender, ProcessRegisteredEventArgs e)
         {
-            //TODO: start tracing the resources usage for the process
             if (e.Process is not VBenchProcess)
                 return;
 
