@@ -2,7 +2,7 @@ using System.IO;
 
 namespace vBenchSLAM.Addins
 {
-    public static class DirectoryHepler
+    public static class DirectoryHelper
     {
         public static string GetTempPath()
         {

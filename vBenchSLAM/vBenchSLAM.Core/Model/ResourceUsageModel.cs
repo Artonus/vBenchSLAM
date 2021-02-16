@@ -1,3 +1,5 @@
+using System;
+
 namespace vBenchSLAM.Core.Model
 {
     public class ResourceUsageModel
@@ -18,7 +20,16 @@ namespace vBenchSLAM.Core.Model
 
         public string ParseAsCsvLiteral()
         {
-            return $"{RamUsage};{ProcUsage}";
+            return $"{RamUsage};{Math.Round(ProcUsage, 2)}";
+        }
+
+        public static string AsCsvLiteral(ResourceUsageModel model)
+        {
+            return model.ParseAsCsvLiteral();
+        }
+        public static ResourceUsageModel FromCsvLiteral(string line)
+        {
+            throw new NotImplementedException();
         }
     }
 }
