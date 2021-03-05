@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vBenchSLAM.DesktopUI", "vBenchSLAM.UI\vBenchSLAM.DesktopUI.csproj", "{828E72A2-BD92-461C-BE9A-22B8593BC872}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vBenchSLAM.Core", "vBenchSLAM.Core\vBenchSLAM.Core.csproj", "{6E38D733-F7FB-4697-8FD1-A7A316DB00B6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vBenchSLAM.ConsoleUI", "vBenchSLAM.ConsoleUI\vBenchSLAM.ConsoleUI.csproj", "{EDC375C7-0E4F-4737-B3ED-AA7B0B08B44D}"
@@ -17,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{828E72A2-BD92-461C-BE9A-22B8593BC872}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{828E72A2-BD92-461C-BE9A-22B8593BC872}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{828E72A2-BD92-461C-BE9A-22B8593BC872}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{828E72A2-BD92-461C-BE9A-22B8593BC872}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E38D733-F7FB-4697-8FD1-A7A316DB00B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6E38D733-F7FB-4697-8FD1-A7A316DB00B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E38D733-F7FB-4697-8FD1-A7A316DB00B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
