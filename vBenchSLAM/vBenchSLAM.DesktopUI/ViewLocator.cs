@@ -2,6 +2,7 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using vBenchSLAM.DesktopUI.ViewModels;
+using vBenchSLAM.DesktopUI.ViewModels.Base;
 
 namespace vBenchSLAM.DesktopUI
 {
