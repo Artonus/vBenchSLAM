@@ -7,7 +7,7 @@ using Docker.DotNet.Models;
 
 namespace vBenchSLAM.Core.DockerCore
 {
-    public class DockerManager : IDockerManager
+    public class DockerManager : IDockerManager, IDisposable
     {
         private readonly IDockerClient _client;
         private readonly ProcessRunner _runner;
@@ -100,6 +100,11 @@ namespace vBenchSLAM.Core.DockerCore
             var image = await GetContainerByNameAsync(containerInfo);
             
             return image;
+        }
+        
+        public void Dispose()
+        {
+            _client?.Dispose();
         }
     }
 }

@@ -19,6 +19,7 @@
         <PackageReference Include="Avalonia.Desktop" Version="0.10.0" />
         <PackageReference Include="Avalonia.Diagnostics" Version="0.10.0" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />
+        <PackageReference Include="ReactiveUI.Validation" Version="2.1.1" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\vBenchSLAM.Core\vBenchSLAM.Core.csproj" />

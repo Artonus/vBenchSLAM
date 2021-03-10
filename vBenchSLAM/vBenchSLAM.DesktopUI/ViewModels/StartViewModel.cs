@@ -1,7 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Reactive;
-using Avalonia.Controls;
 using ReactiveUI;
+using ReactiveUI.Validation.Abstractions;
+using ReactiveUI.Validation.Contexts;
+using ReactiveUI.Validation.Extensions;
+using vBenchSLAM.Core;
+using vBenchSLAM.Core.DockerCore;
+using vBenchSLAM.Core.Enums;
 using vBenchSLAM.DesktopUI.Models;
 using vBenchSLAM.DesktopUI.Services;
 using vBenchSLAM.DesktopUI.ViewModels.Base;
@@ -11,10 +18,18 @@ namespace vBenchSLAM.DesktopUI.ViewModels
     public class StartViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
+        private FrameworkModel _selectedFramework;
         private string _datasetInformation;
         private string _datasetPath;
         private string _outputPath;
+
+        //public ValidationContext ValidationContext { get; } 
         public ObservableCollection<FrameworkModel> FrameworkList { get; }
+        public FrameworkModel SelectedFramework
+        {
+            get => _selectedFramework;
+            set => this.RaiseAndSetIfChanged(ref _selectedFramework, value);
+        }
 
         public string DatasetInformation
         {
@@ -33,24 +48,42 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             get => _outputPath;
             set => this.RaiseAndSetIfChanged(ref _outputPath, value);
         }
-        
-        public ReactiveCommand<Unit, Unit> SelectDatasourceCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> StartFrameworkCommand { get; }
+
         public StartViewModel(IDataService dataService)
         {
             _dataService = dataService;
+            //ValidationContext = new ValidationContext();
             var availableFrameworks = dataService.GetAvailableFrameworks();
             FrameworkList = new ObservableCollection<FrameworkModel>(availableFrameworks);
 
-            SelectDatasourceCommand = ReactiveCommand.Create(SelectDatasourceCommandHandler);
+            StartFrameworkCommand = ReactiveCommand.Create(StartFrameworkCommandHandler);
+
+            PrepareValidationConstraints();
         }
 
-        private void SelectDatasourceCommandHandler()
+        private void PrepareValidationConstraints()
         {
-            //TODO: show the openFileDialog
-            var dialog = new OpenFileDialog();
-
-            //var result = dialog.ShowAsync();
+            //dataset path
+            this.ValidationRule(vm => vm.DatasetPath,
+                path => string.IsNullOrWhiteSpace(path) == false && Directory.Exists(path) == false,
+                "Please select appropriate dataset directory");
         }
-        
+
+        private void StartFrameworkCommandHandler()
+        {
+            var mapperType = GetSelectedMapperType();
+            using (var dockerManager = new DockerManager())
+            using (var runner = new Runner(mapperType, dockerManager))
+            {
+                runner.Run();
+            }
+        }
+
+        private MapperTypeEnum GetSelectedMapperType()
+        {
+            return (MapperTypeEnum)SelectedFramework.Id; 
+        }
     }
 }

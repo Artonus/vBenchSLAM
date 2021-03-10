@@ -14,7 +14,7 @@ namespace vBenchSLAM.DesktopUI.Services
             var retVals = new List<FrameworkModel>();
             foreach (MapperTypeEnum value in Enum.GetValues(typeof(MapperTypeEnum)))
             {
-                retVals.Add(new FrameworkModel(){Name = value.GetStringValue(), Id = (int)value});
+                retVals.Add(new FrameworkModel(){Name = value.ToString(), Id = (int)value});
             }
 
             return retVals;

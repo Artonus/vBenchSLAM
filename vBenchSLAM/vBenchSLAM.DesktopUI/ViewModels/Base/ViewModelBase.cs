@@ -1,8 +1,8 @@
-﻿using ReactiveUI;
+﻿using ReactiveUI.Validation.Helpers;
 
 namespace vBenchSLAM.DesktopUI.ViewModels.Base
 {
-    public class ViewModelBase : ReactiveObject
+    public class ViewModelBase : ReactiveValidationObject
     {
     }
 }

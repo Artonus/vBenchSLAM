@@ -9,7 +9,7 @@
         <StackPanel>
             <Label Margin="5, 10, 5, 0">Selected Dataset:</Label>
             <DockPanel Margin="5">
-                <Button DockPanel.Dock="Right" Name="DatasetPathButton"
+                <Button DockPanel.Dock="Right" Name="DatasetPath"
                         Width="50" HorizontalContentAlignment="Center"
                         Click="ButtonOnClick">...</Button>
                 <TextBox IsReadOnly="True"
@@ -20,7 +20,9 @@
             <TextBlock Margin="5, 10, 5, 0" Height="100" Text="{Binding DatasetInformation}" />
             <Label Margin="5, 10, 5, 0">Selected Framework:</Label>
             <DockPanel LastChildFill="False" HorizontalAlignment="Stretch">
-                <ComboBox Margin="5, 10, 5, 0" Items="{Binding FrameworkList}">
+                <ComboBox Margin="5, 10, 5, 0" Width="300"
+                          Items="{Binding FrameworkList}"
+                          SelectedItem="{Binding SelectedFramework}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="models:FrameworkModel">
                             <TextBlock Text="{Binding Name}" />
@@ -30,13 +32,16 @@
             </DockPanel>
             <Label Margin="5, 10, 5, 0">Benchmark result path:</Label>
             <DockPanel Margin="5">
-                <Button DockPanel.Dock="Right" Width="50" HorizontalContentAlignment="Center">...</Button>
+                <Button DockPanel.Dock="Right" Name="OutputPath"
+                        Width="50" HorizontalContentAlignment="Center"
+                        Click="ButtonOnClick">...</Button>
                 <TextBox IsReadOnly="True"
-                         Text="{Binding DatasetPath}" Watermark="Output path"
+                         Text="{Binding OutputPath}" Watermark="Output path"
                          Margin="0,0,5,0" />
             </DockPanel>
             <Button Margin="5,0,5,0" Width="300" HorizontalAlignment="Center"
-                    HorizontalContentAlignment="Center">
+                    HorizontalContentAlignment="Center"
+                    Command="{Binding StartFrameworkCommand}">
                 Start
             </Button>
             <Border Margin="0,20,0,0" BorderBrush="Black">

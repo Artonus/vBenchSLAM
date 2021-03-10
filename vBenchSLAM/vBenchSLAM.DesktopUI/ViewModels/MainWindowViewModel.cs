@@ -11,8 +11,8 @@ namespace vBenchSLAM.DesktopUI.ViewModels
     {
         private readonly IDataService _dataService;
         private ViewModelBase _content;
-        public TodoListViewModel List { get; }
 
+        // ReSharper disable once MemberCanBePrivate.Global
         public ViewModelBase Content
         {
             get => _content;
@@ -23,23 +23,6 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         {
             _dataService = dataService;
             Content = new StartViewModel(dataService);
-        }
-
-        public void AddItem()
-        {
-            var vm = new AddItemViewModel();
-            Observable.Merge(
-                    vm.OkCommand,
-                    vm.CancelCommand.Select(_ => (TodoItem) null))
-                .Take(1)
-                .Subscribe(model =>
-                {
-                    if (model is not null)
-                        List.Items.Add(model);
-                    
-                    Content = List;
-                });
-            Content = vm;
         }
     }
 }
