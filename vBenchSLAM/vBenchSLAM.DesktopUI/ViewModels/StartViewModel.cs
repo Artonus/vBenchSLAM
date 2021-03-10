@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Reactive;
+using Avalonia.Controls;
 using ReactiveUI;
 using vBenchSLAM.DesktopUI.Models;
 using vBenchSLAM.DesktopUI.Services;
@@ -31,13 +33,24 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             get => _outputPath;
             set => this.RaiseAndSetIfChanged(ref _outputPath, value);
         }
+        
+        public ReactiveCommand<Unit, Unit> SelectDatasourceCommand { get; }
         public StartViewModel(IDataService dataService)
         {
             _dataService = dataService;
             var availableFrameworks = dataService.GetAvailableFrameworks();
             FrameworkList = new ObservableCollection<FrameworkModel>(availableFrameworks);
+
+            SelectDatasourceCommand = ReactiveCommand.Create(SelectDatasourceCommandHandler);
         }
-        
+
+        private void SelectDatasourceCommandHandler()
+        {
+            //TODO: show the openFileDialog
+            var dialog = new OpenFileDialog();
+
+            //var result = dialog.ShowAsync();
+        }
         
     }
 }

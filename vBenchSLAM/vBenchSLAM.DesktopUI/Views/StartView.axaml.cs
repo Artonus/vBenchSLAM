@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 
 namespace vBenchSLAM.DesktopUI.Views
@@ -14,6 +15,11 @@ namespace vBenchSLAM.DesktopUI.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        protected void ButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

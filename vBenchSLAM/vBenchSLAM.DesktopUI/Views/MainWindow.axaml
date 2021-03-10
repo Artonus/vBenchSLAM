@@ -5,7 +5,8 @@
         mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="800"
         x:Class="vBenchSLAM.DesktopUI.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Width="600" Height="800"    
+        Width="350" Height="500"
+        CanResize="False"
         Title="vBenchSLAM"
         Content ="{Binding  Content}">
 </Window>

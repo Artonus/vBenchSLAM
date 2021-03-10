@@ -9,7 +9,9 @@
         <StackPanel>
             <Label Margin="5, 10, 5, 0">Selected Dataset:</Label>
             <DockPanel Margin="5">
-                <Button DockPanel.Dock="Right" Width="50" HorizontalContentAlignment="Center">...</Button>
+                <Button DockPanel.Dock="Right" Name="DatasetPathButton"
+                        Width="50" HorizontalContentAlignment="Center"
+                        Click="ButtonOnClick">...</Button>
                 <TextBox IsReadOnly="True"
                          Text="{Binding DatasetPath}" Watermark="Dataset path"
                          Margin="0,0,5,0" />
@@ -17,13 +19,15 @@
             <Label Margin="5, 10 ,5, 0">Selected dataset information</Label>
             <TextBlock Margin="5, 10, 5, 0" Height="100" Text="{Binding DatasetInformation}" />
             <Label Margin="5, 10, 5, 0">Selected Framework:</Label>
-            <ComboBox Margin="5, 10, 5, 0" Items="{Binding FrameworkList}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate DataType="models:FrameworkModel">
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+            <DockPanel LastChildFill="False" HorizontalAlignment="Stretch">
+                <ComboBox Margin="5, 10, 5, 0" Items="{Binding FrameworkList}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="models:FrameworkModel">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </DockPanel>
             <Label Margin="5, 10, 5, 0">Benchmark result path:</Label>
             <DockPanel Margin="5">
                 <Button DockPanel.Dock="Right" Width="50" HorizontalContentAlignment="Center">...</Button>
