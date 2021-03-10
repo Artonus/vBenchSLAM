@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Reactive;
+using Avalonia.Controls;
 using ReactiveUI;
-using ReactiveUI.Validation.Abstractions;
-using ReactiveUI.Validation.Contexts;
 using ReactiveUI.Validation.Extensions;
 using vBenchSLAM.Core;
 using vBenchSLAM.Core.DockerCore;
@@ -69,10 +67,23 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             this.ValidationRule(vm => vm.DatasetPath,
                 path => string.IsNullOrWhiteSpace(path) == false && Directory.Exists(path) == false,
                 "Please select appropriate dataset directory");
+            this.ValidationRule(vm => vm.OutputPath,
+                path => string.IsNullOrWhiteSpace(path) == false && Directory.Exists(path) == false,
+                "Please select appropriate output directory");
+            this.ValidationRule(vm => vm.SelectedFramework,
+                f => f is not null,
+                "Please select desired framework");
         }
 
         private void StartFrameworkCommandHandler()
         {
+            if (HasErrors)
+            {
+                
+                return;
+            }
+                
+            
             var mapperType = GetSelectedMapperType();
             using (var dockerManager = new DockerManager())
             using (var runner = new Runner(mapperType, dockerManager))

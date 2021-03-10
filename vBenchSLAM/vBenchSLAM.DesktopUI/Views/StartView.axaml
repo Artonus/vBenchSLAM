@@ -22,7 +22,8 @@
             <DockPanel LastChildFill="False" HorizontalAlignment="Stretch">
                 <ComboBox Margin="5, 10, 5, 0" Width="300"
                           Items="{Binding FrameworkList}"
-                          SelectedItem="{Binding SelectedFramework}">
+                          SelectedItem="{Binding SelectedFramework}"
+                          >
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="models:FrameworkModel">
                             <TextBlock Text="{Binding Name}" />
