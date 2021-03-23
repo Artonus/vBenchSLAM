@@ -33,7 +33,7 @@ namespace vBenchSLAM.Core
         public async Task<int> StartContainerViaCommandLineAsync(string containerName, string startParameters, bool riseCustomEvents)
         {
             var args =$"{ExecCmdOption} \"{Prefix}docker run {startParameters}\"".Replace("replaceME", containerName);
-            if (containerName == "openvslam-socket:latest")
+            if (containerName == "artonus/vbenchslam:openvslam-socket")
             {
                 args = $"{ExecCmdOption} ./run.sh";
             }
@@ -83,7 +83,7 @@ namespace vBenchSLAM.Core
             }
         }
 
-        private static async Task<int> RunProcessAsync(VBenchProcess process)
+        private static Task<int> RunProcessAsync(VBenchProcess process)
         {
             var tcs = new TaskCompletionSource<int>();
             process.Exited += (s, ea) =>
@@ -107,7 +107,7 @@ namespace vBenchSLAM.Core
             
             //await process.WaitForExitAsync();
 
-            return process.ExitCode;
+            return tcs.Task;
         }
 
         private static void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)

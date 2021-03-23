@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
-using Docker.DotNet.Models;
-using vBenchSLAM.Addins.Exceptions;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers.Abstract;
@@ -93,7 +87,7 @@ namespace vBenchSLAM.Core.Mappers
                 StartViewerWindow();
                 
                 var command = PrepareStartCommand();
-                
+                #region ToTest
                 // var config = new Config()
                 // {
                 //     Cmd = new List<string>()
@@ -135,16 +129,17 @@ namespace vBenchSLAM.Core.Mappers
                 //
                 // started &= await DockerManager.StartContainerAsync(socketContainer.ID);
 
-                #region OldStuff
-                //IT'S WORKING!!!!!!!!!!!!!!
+                
+                #endregion
+                
                 var cmd =
                     "--rm -it --net=host --gpus all -v /home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples " +
                     "replaceME " + command;
-                await DockerManager.StartContainerViaCommandLineAsync("openvslam-socket:latest", cmd);
+                await DockerManager.StartContainerViaCommandLineAsync(GetFullImageName(ViewerContainerImage), cmd);
                 var socketContainer =
                     await DockerManager.GetContainerByNameAsync(GetFullImageName(ViewerContainerImage));
 
-                #endregion
+                
             }
             finally
             {
