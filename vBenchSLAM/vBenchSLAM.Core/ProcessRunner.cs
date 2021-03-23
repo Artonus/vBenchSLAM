@@ -83,7 +83,7 @@ namespace vBenchSLAM.Core
             }
         }
 
-        private static Task<int> RunProcessAsync(VBenchProcess process)
+        private static async Task<int> RunProcessAsync(VBenchProcess process)
         {
             var tcs = new TaskCompletionSource<int>();
             process.Exited += (s, ea) =>
@@ -107,7 +107,7 @@ namespace vBenchSLAM.Core
             
             //await process.WaitForExitAsync();
 
-            return tcs.Task;
+            return process.ExitCode;
         }
 
         private static void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
