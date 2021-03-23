@@ -22,7 +22,7 @@ namespace vBenchSLAM.ConsoleUI
             {
                 Console.WriteLine(ex.ToString());
             }
-            Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }

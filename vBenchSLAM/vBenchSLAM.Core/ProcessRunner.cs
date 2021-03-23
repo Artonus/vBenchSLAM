@@ -11,15 +11,33 @@ namespace vBenchSLAM.Core
         public delegate void ProcessRegisteredEventHandler(object sender, ProcessRegisteredEventArgs e);
 
         public event ProcessRegisteredEventHandler ProcessRegistered;
-        
+
         private string BaseProgram { get; }
         private string ExecCmdOption { get; }
         private string Prefix { get; }
+
         public ProcessRunner()
         {
-            BaseProgram = Settings.IsUnix ? "bash" : "cmd.exe";
+            BaseProgram = Settings.IsUnix ? "/bin/bash" : "cmd.exe";
             ExecCmdOption = Settings.IsUnix ? "-c" : "/C";
-            Prefix = Settings.IsWsl ? "wsl" : string.Empty;
+            Prefix = Settings.IsWsl ? "wsl " : string.Empty;
+        }
+
+        /// <summary>
+        /// Asynchronously starts the container using the command line
+        /// </summary>
+        /// <param name="containerName"></param>
+        /// <param name="startParameters"></param>
+        /// <param name="riseCustomEvents"></param>
+        /// <returns></returns>
+        public async Task<int> StartContainerViaCommandLineAsync(string containerName, string startParameters, bool riseCustomEvents)
+        {
+            var args =$"{ExecCmdOption} \"{Prefix}docker run {startParameters}\"".Replace("replaceME", containerName);
+            if (containerName == "openvslam-socket:latest")
+            {
+                args = $"{ExecCmdOption} ./run.sh";
+            }
+            return await RunProcessAsync(BaseProgram, args, riseCustomEvents);
         }
 
         public async Task<int> SendCommandToContainerAsync(string containerId, string command)
@@ -31,16 +49,21 @@ namespace vBenchSLAM.Core
         public async Task<int> PullContainer(string containerInfo)
         {
             var args = $@"{ExecCmdOption} ""{Prefix} docker pull {containerInfo}""";
-            return await RunProcessAsync(BaseProgram, args);
+            return await RunProcessAsync(BaseProgram, args, false);
         }
-        
+
         public async Task<int> BuildImage(string containerName)
         {
             var args = $@"{ExecCmdOption} ""{Prefix} docker container create {containerName}""";
-            return await RunProcessAsync(BaseProgram, args);
+            return await RunProcessAsync(BaseProgram, args, false);
         }
 
         public async Task<int> RunProcessAsync(string fileName, string args)
+        {
+            return await RunProcessAsync(fileName, args, true);
+        }
+
+        private async Task<int> RunProcessAsync(string fileName, string args, bool riseCustomEvents)
         {
             var startInfo = new ProcessStartInfo
             {
@@ -51,26 +74,23 @@ namespace vBenchSLAM.Core
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
             };
-            using (var process = new VBenchProcess
+            using (var process = new VBenchProcess(startInfo, riseCustomEvents))
             {
-                StartInfo = startInfo,
-                EnableRaisingEvents = true
-            })
-            {
-                OnProcessRegistered(new ProcessRegisteredEventArgs(process));
-                return await RunProcessAsync(process).ConfigureAwait(false);
+                // if (riseCustomEvents)
+                //     OnProcessRegistered(new ProcessRegisteredEventArgs(process));
+
+                return await RunProcessAsync(process).ConfigureAwait(true);
             }
         }
 
         private static Task<int> RunProcessAsync(VBenchProcess process)
         {
             var tcs = new TaskCompletionSource<int>();
-
-            // process.Exited += (s, ea) =>
-            // {
-            //     tcs.SetResult(process.ExitCode);
-            //     Console.WriteLine($"Process has exited with code: {process.ExitCode}");
-            // };
+            process.Exited += (s, ea) =>
+            {
+                Console.WriteLine($"Process has exited with code: {process.ExitCode}");
+                tcs.SetResult(process.ExitCode);
+            };
             process.OutputDataReceived += ProcessOnOutputDataReceived;
             process.ErrorDataReceived += ProcessOnErrorDataReceived;
 
@@ -84,25 +104,24 @@ namespace vBenchSLAM.Core
 
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
+            
+            //await process.WaitForExitAsync();
 
             return tcs.Task;
         }
-
-        #region Events
 
         private static void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             Console.WriteLine(e.Data);
         }
+
         private static void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Data) == false)
             {
                 Console.WriteLine("ERR: " + e.Data);
             }
-            
         }
-        #endregion
 
         private void OnProcessRegistered(ProcessRegisteredEventArgs e)
         {

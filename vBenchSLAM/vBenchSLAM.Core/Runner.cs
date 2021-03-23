@@ -15,18 +15,18 @@ namespace vBenchSLAM.Core
         {
             _mapperType = mapperType;
             _dockerManager = dockerManager;
-            CreateMapper(mapperType, dockerManager);
+            CreateMapper();
         }
 
-        private void CreateMapper(MapperTypeEnum mapperType, IDockerManager dockerManager)
+        private void CreateMapper()
         {
-            switch (mapperType)
+            switch (_mapperType)
             {
                 case MapperTypeEnum.OpenVslam:
-                    _mapper = new OpenVslamMapper(dockerManager);
+                    _mapper = new OpenVslamMapper(_dockerManager);
                     break;
                 default:
-                    throw  new InvalidEnumArgumentException($"Unresolved mapper type: {mapperType}");
+                    throw  new InvalidEnumArgumentException($"Unresolved mapper type: {_mapperType}");
             }
         }
 

@@ -1,9 +1,7 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
-using Microsoft.VisualBasic;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.Events;
 using vBenchSLAM.Addins.ExtensionMethods;
@@ -17,7 +15,6 @@ namespace vBenchSLAM.Core.SystemMonitor
         private readonly VBenchProcess _process;
         private readonly Timer _timer;
         private string _tmpFilePath;
-        //private PerformanceCounter _performanceCounter;
         private decimal _prevCpuUsageTime;
         private DateTime _prevTimeCheck;
 
@@ -29,12 +26,12 @@ namespace vBenchSLAM.Core.SystemMonitor
             process.Exited += ProcessOnExited;
             _timer = new Timer
             {
-                Interval = 1000
+                Interval = 500
             };
             _timer.Elapsed += TimerOnElapsed;
         }
 
-        private void RecordProcessUsage()
+        private async Task RecordProcessUsage()
         {
             var currTime = DateTime.Now;
             var currCpuUsageTime = (decimal)_process.TotalProcessorTime.TotalMilliseconds;
@@ -43,35 +40,55 @@ namespace vBenchSLAM.Core.SystemMonitor
             {
                 var timePassed = (decimal)(currTime - _prevTimeCheck).TotalMilliseconds;
                 var currCpuMs = (currCpuUsageTime - _prevCpuUsageTime);
-                decimal procCpuUsage = currCpuMs * 100 / (Environment.ProcessorCount * timePassed);
+                var procCpuUsage = currCpuMs * 100 / (Environment.ProcessorCount * timePassed);
                 var model = new ResourceUsageModel(procCpuUsage, _process.WorkingSet64);
-                SaveUsageToFileAsync(model);
+                await SaveUsageToFileAsync(model);
             }
 
             _prevTimeCheck = currTime;
             _prevCpuUsageTime = currCpuUsageTime;
-
         }
 
         private async Task SaveUsageToFileAsync(ResourceUsageModel model)
         {
-            var dir = Directory.GetParent(_tmpFilePath);
-            if (dir?.Parent != null && dir.Parent.Exists == false)
+            try
             {
-                Directory.CreateDirectory(dir.Parent.FullName);
+                var dir = Directory.GetParent(_tmpFilePath);
+                if (dir != null && dir.Exists == false)
+                {
+                    Directory.CreateDirectory(dir.FullName);
+                }
+
+                try
+                {
+                    if (File.Exists(_tmpFilePath) == false)
+                    {
+                        File.Create(_tmpFilePath);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+                await using (StreamWriter writer = File.Exists(_tmpFilePath) ? File.AppendText(_tmpFilePath) : File.CreateText(_tmpFilePath))
+                {
+                    await writer.WriteLineAsync(model.ParseAsCsvLiteral());
+                }
             }
-            await using (StreamWriter writer = File.AppendText(_tmpFilePath))
+            catch (Exception ex)
             {
-                await writer.WriteLineAsync(model.ParseAsCsvLiteral());
+                Console.WriteLine($"Could not access the file: {_tmpFilePath}, error: {ex}");
             }
         }
 
         private void ProcessOnProcessStarted(object sender, ProcessStartedEventArgs e)
         {
+            // left just in case
             // _performanceCounter = new PerformanceCounter("Process", "% Processor Time",
             //     e.Process.ProcessName, true);
             var currTime = DateTime.Now;
-            _tmpFilePath = @$"{DirectoryHepler.GetTempPath()}/monitors/{currTime.FormatAsFileNameCode()}.csv";
+            var tmpPath = DirectoryHelper.GetTempPath();
+            _tmpFilePath = @$"{tmpPath}monitors/{currTime.FormatAsFileNameCode()}.csv";
 
             _timer.Start();
         }
@@ -81,9 +98,9 @@ namespace vBenchSLAM.Core.SystemMonitor
             _removeFromRegistryAction?.Invoke(this);
         }
 
-        private void TimerOnElapsed(object sender, ElapsedEventArgs e)
+        private async void TimerOnElapsed(object sender, ElapsedEventArgs e)
         {
-            RecordProcessUsage();
+             await RecordProcessUsage();
         }
 
         public void Dispose()
@@ -91,7 +108,6 @@ namespace vBenchSLAM.Core.SystemMonitor
             _timer.Stop();
             _process?.Dispose();
             _timer?.Dispose();
-            //_performanceCounter?.Dispose();
         }
     }
 }
