@@ -1,7 +1,4 @@
-using System;
 using System.IO;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using vBenchSLAM.Core.Mappers;
 using vBenchSLAM.Core.Mappers.Base;
@@ -19,6 +16,17 @@ namespace vBenchSLAM.Core.ProcessRunner
                 return await base.StartContainerViaCommandLineAsync(containerName, startParameters, containerCommand);
             }
              
+            var fInfo = await CreateScriptFile(containerName, startParameters, containerCommand);
+
+            var result = await RunProcessAsync(BaseProgram, $"{ExecCmdOption} ./{fInfo.Name}", false);
+
+            File.Delete(fInfo.FullName);
+
+            return result;
+        }
+
+        private async Task<FileInfo> CreateScriptFile(string containerName, string startParameters, string containerCommand)
+        {
             var fInfo = new FileInfo("run.sh");
             if (fInfo.Exists)
             {
@@ -32,14 +40,9 @@ namespace vBenchSLAM.Core.ProcessRunner
                 sw.WriteLine($"echo 'executing command: {cmd}'");
                 sw.WriteLine(cmd);
             }
-            //TODO: set file permissions and test
+
             await SetAsExecutable(fInfo);
-
-            var result = await RunProcessAsync(BaseProgram, $"{ExecCmdOption} ./{fInfo.Name}", false);
-
-            File.Delete(fInfo.FullName);
-
-            return result;
+            return fInfo;
         }
 
         private async Task SetAsExecutable(FileInfo fInfo)
