@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
 using vBenchSLAM.Core.DockerCore;
@@ -43,9 +44,30 @@ namespace vBenchSLAM.Core.Mappers
         private async Task<bool> Run()
         {
             var retVal = true;
-            //ContainerListResponse socketContainer = null;
+            ContainerListResponse socketContainer = null;
             try
             {
+                var command = PrepareStartCommand();
+                var host = new HostConfig()
+                {
+                    Binds = new List<string>
+                    {
+                        "/home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples"
+                    },
+                    NetworkMode = "host"
+                    //AutoRemove = true
+                };
+                var config = new Config()
+                {
+                    Cmd = new List<string>()
+                    {
+                        command
+                    },
+                    Image = GetFullImageName(ViewerContainerImage),
+                    AttachStderr = true,
+                    AttachStdout = true,
+                };
+
                 var started = await DockerManager.StartContainerViaCommandLineAsync(
                     GetFullImageName(ServerContainerImage),
                     "--rm -d --net=host");
@@ -57,29 +79,18 @@ namespace vBenchSLAM.Core.Mappers
                     return false;
 
                 StartViewerWindow();
+                var createParams = new CreateContainerParameters(config)
+                {
+                    HostConfig = host,
 
-                var command = PrepareStartCommand();
+                };
 
-                #region ToTest
+                var res = await DockerManager.Client.Containers.CreateContainerAsync(createParams);
 
-                // var config = new Config()
-                // {
-                //     Cmd = new List<string>()
-                //     {
-                //         command
-                //     },
-                //     Image = GetFullImageName(ViewerContainerImage),
-                //     AttachStderr = true,
-                //     AttachStdout = true,
-                //     Volumes = new Dictionary<string, EmptyStruct>()
-                //     {
-                //         {"/home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples", new EmptyStruct()}
-                //     }
-                // };
-                //
-                // var res = await DockerManager.Client.Containers.CreateContainerAsync(new CreateContainerParameters(config));
-                //
-                // socketContainer = await DockerManager.GetContainerByIdAsync(res.ID);
+                socketContainer = await DockerManager.GetContainerByIdAsync(res.ID);
+                started &= await DockerManager.StartContainerAsync(socketContainer.ID);
+
+                var exited = await DockerManager.Client.Containers.WaitContainerAsync(socketContainer.ID);
                 // if (socketContainer is null)
                 // {
                 //     return false;
@@ -91,36 +102,33 @@ namespace vBenchSLAM.Core.Mappers
                 //     Stdout = true,
                 //     Stream = true
                 // };
-                // //var token = new CancellationTokenSource();
+                // var token = new CancellationTokenSource();
                 // using (var stream = await DockerManager.Client.Containers.AttachContainerAsync(socketContainer.ID, true, attachParams))
                 // {
-                //     using (var sr = new StreamReader(stream, ))
-                //     {
-                //         
-                //     }    
+                //     var output = await stream.ReadOutputToEndAsync(token.Token);
                 // }
-                //
-                // started &= await DockerManager.StartContainerAsync(socketContainer.ID);
-                
-                #endregion
 
-                var startParams =
-                    "--rm -it --net=host --gpus all -v /home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples";
-                
-                await DockerManager.StartContainerViaCommandLineAsync(GetFullImageName(ViewerContainerImage),
-                    startParams, command);
-                var socketContainer =
-                    await DockerManager.GetContainerByNameAsync(GetFullImageName(ViewerContainerImage));
+
+                #region Old
+
+                // var startParams =
+                //     "--rm -it --net=host --gpus all -v /home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples";
+                //
+                // await DockerManager.StartContainerViaCommandLineAsync(GetFullImageName(ViewerContainerImage),
+                //     startParams, command);
+                // var socketContainer =
+                //     await DockerManager.GetContainerByNameAsync(GetFullImageName(ViewerContainerImage));
+
+                #endregion
             }
             finally
             {
                 retVal &= await ParallelStopContainersAsync(ServerContainerImage);
-                // if (socketContainer is not null)
-                // {
-                //     await DockerManager.StopContainerAsync(socketContainer.ID);
-                //     var removeParams = new ContainerRemoveParameters();
-                //     await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID, removeParams);
-                // }
+                if (socketContainer is not null)
+                {
+                    await DockerManager.StopContainerAsync(socketContainer.ID);
+                    await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID, new ContainerRemoveParameters());
+                }
             }
 
             return retVal;

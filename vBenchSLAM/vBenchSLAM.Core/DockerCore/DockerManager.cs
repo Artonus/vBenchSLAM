@@ -68,7 +68,7 @@ namespace vBenchSLAM.Core.DockerCore
         {
             var parameters = new ContainerStopParameters()
             {
-                WaitBeforeKillSeconds = 10
+                WaitBeforeKillSeconds = 5
             };
             var success = await Client.Containers.StopContainerAsync(containerId, parameters);
             return success;
