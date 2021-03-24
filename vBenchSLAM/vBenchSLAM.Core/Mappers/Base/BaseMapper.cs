@@ -17,7 +17,7 @@ namespace vBenchSLAM.Core.Mappers.Base
             DockerManager = dockerManager;
         }
 
-        protected static string GetFullImageName(string image)
+        public static string GetFullImageName(string image)
         {
             return $"{Settings.VBenchSlamRepositoryName}:{image}";
         }

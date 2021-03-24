@@ -11,8 +11,8 @@ namespace vBenchSLAM.Core.Mappers
 {
     public class OpenVslamMapper : BaseMapper, IMapper
     {
-        private const string ServerContainerImage = "openvslam-server";
-        private const string ViewerContainerImage = "openvslam-socket";
+        public const string ServerContainerImage = "openvslam-server";
+        public const string ViewerContainerImage = "openvslam-socket";
         private const string FullName = "";
 
         public MapperTypeEnum MapperType => MapperTypeEnum.OpenVslam;
@@ -76,7 +76,7 @@ namespace vBenchSLAM.Core.Mappers
             {
                 var started = await DockerManager.StartContainerViaCommandLineAsync(
                     GetFullImageName(ServerContainerImage),
-                    "--rm -d --net=host replaceME");
+                    "--rm -d --net=host");
 
                 var serverContainer =
                     await DockerManager.GetContainerByNameAsync(GetFullImageName(ServerContainerImage));
@@ -85,9 +85,11 @@ namespace vBenchSLAM.Core.Mappers
                     return false;
 
                 StartViewerWindow();
-                
+
                 var command = PrepareStartCommand();
+
                 #region ToTest
+
                 // var config = new Config()
                 // {
                 //     Cmd = new List<string>()
@@ -129,17 +131,15 @@ namespace vBenchSLAM.Core.Mappers
                 //
                 // started &= await DockerManager.StartContainerAsync(socketContainer.ID);
 
-                
                 #endregion
-                
-                var cmd =
-                    "--rm -it --net=host --gpus all -v /home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples " +
-                    "replaceME " + command;
-                await DockerManager.StartContainerViaCommandLineAsync(GetFullImageName(ViewerContainerImage), cmd);
+
+                var startParams =
+                    "--rm -it --net=host --gpus all -v /home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples";
+
+                await DockerManager.StartContainerViaCommandLineAsync(GetFullImageName(ViewerContainerImage),
+                    startParams, command);
                 var socketContainer =
                     await DockerManager.GetContainerByNameAsync(GetFullImageName(ViewerContainerImage));
-
-                
             }
             finally
             {
@@ -151,6 +151,7 @@ namespace vBenchSLAM.Core.Mappers
                 //     await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID, removeParams);
                 // }
             }
+
             return retVal;
         }
 

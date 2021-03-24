@@ -3,18 +3,17 @@ using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers;
 using vBenchSLAM.Core.Mappers.Abstract;
+using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core
 {
     public class Runner
     {
         private readonly MapperTypeEnum _mapperType;
-        private readonly IDockerManager _dockerManager;
         private IMapper _mapper;
-        public Runner(MapperTypeEnum mapperType, IDockerManager dockerManager)
+        public Runner(MapperTypeEnum mapperType)
         {
             _mapperType = mapperType;
-            _dockerManager = dockerManager;
             CreateMapper();
         }
 
@@ -23,7 +22,7 @@ namespace vBenchSLAM.Core
             switch (_mapperType)
             {
                 case MapperTypeEnum.OpenVslam:
-                    _mapper = new OpenVslamMapper(_dockerManager);
+                    _mapper = new OpenVslamMapper(new DockerManager(new OpenVslamProcessRunner()));
                     break;
                 default:
                     throw  new InvalidEnumArgumentException($"Unresolved mapper type: {_mapperType}");

@@ -7,6 +7,7 @@ using Docker.DotNet.Models;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.Events;
 using vBenchSLAM.Core.SystemMonitor;
+using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core.DockerCore
 {
@@ -14,16 +15,16 @@ namespace vBenchSLAM.Core.DockerCore
     {
         protected readonly List<ProcessMonitor> ProcessMonitors;
         public IDockerClient Client { get; }
-        protected readonly ProcessRunner Runner;
+        protected readonly IProcessRunner Runner;
 
-        public DockerManager()
+        public DockerManager(IProcessRunner runner)
         {
+            
             var uri = GetWslUri();
             Client = Settings.IsWsl
                 ? new DockerClientConfiguration(uri).CreateClient()
                 : new DockerClientConfiguration().CreateClient();
-
-            Runner = new ProcessRunner();
+            Runner = runner;
             Runner.ProcessRegistered += RunnerProcessRegistered;
 
             ProcessMonitors = new List<ProcessMonitor>();
@@ -55,9 +56,9 @@ namespace vBenchSLAM.Core.DockerCore
             return success;
         }
 
-        public async Task<bool> StartContainerViaCommandLineAsync(string containerName, string cmdArgs = "")
+        public async Task<bool> StartContainerViaCommandLineAsync(string containerName, string startParameters = "", string containerCommand = "")
         {
-            await Runner.StartContainerViaCommandLineAsync(containerName, cmdArgs, false);
+            await Runner.StartContainerViaCommandLineAsync(containerName, startParameters, containerCommand);
             //Client.Containers.GetContainerStatsAsync()
             //TODO: return real value
             return true;
