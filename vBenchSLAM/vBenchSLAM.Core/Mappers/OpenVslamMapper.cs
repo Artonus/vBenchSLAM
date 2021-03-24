@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Docker.DotNet.Models;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers.Abstract;
@@ -40,37 +43,6 @@ namespace vBenchSLAM.Core.Mappers
         private async Task<bool> Run()
         {
             var retVal = true;
-            // var serverContainer =
-            //     await _dockerManager.GetContainerByNameAsync(GetFullImageName(ServerContainerImage));
-            // if (serverContainer is null)
-            // {
-            //     serverContainer =
-            //         await _dockerManager.DownloadAndBuildContainer(Settings.VBenchSlamRepositoryName,
-            //             ServerContainerImage);
-            // }
-
-            // var socketContainer =
-            //     await _dockerManager.GetContainerByNameAsync(GetFullImageName(ViewerContainerImage));
-            // if (socketContainer is null)
-            // {
-            //     socketContainer =
-            //         await _dockerManager.DownloadAndBuildContainer(Settings.VBenchSlamRepositoryName,
-            //             ViewerContainerImage);
-            //     if (socketContainer is null)
-            //     {
-            //         throw new MapperImageNotFoundException(ViewerContainerImage, "Unable to locate the image");
-            //     }
-            // }
-
-            // if (socketContainer.Mounts.Count == 0)
-            // {
-            //     socketContainer.Mounts.Add(new MountPoint
-            //     {
-            //         Source = "/home/Bartek/Works/vBenchSLAM/Samples", //TODO: temporary folder path
-            //         Destination = "/openvslam/build/samples",
-            //         RW = true
-            //     });
-            // }
             //ContainerListResponse socketContainer = null;
             try
             {
@@ -96,14 +68,13 @@ namespace vBenchSLAM.Core.Mappers
                 //     {
                 //         command
                 //     },
-                //     Image = "openvslam-socket:latest",
+                //     Image = GetFullImageName(ViewerContainerImage),
                 //     AttachStderr = true,
                 //     AttachStdout = true,
                 //     Volumes = new Dictionary<string, EmptyStruct>()
                 //     {
                 //         {"/home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples", new EmptyStruct()}
-                //     },
-                //     
+                //     }
                 // };
                 //
                 // var res = await DockerManager.Client.Containers.CreateContainerAsync(new CreateContainerParameters(config));
@@ -130,12 +101,12 @@ namespace vBenchSLAM.Core.Mappers
                 // }
                 //
                 // started &= await DockerManager.StartContainerAsync(socketContainer.ID);
-
+                
                 #endregion
 
                 var startParams =
                     "--rm -it --net=host --gpus all -v /home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples";
-
+                
                 await DockerManager.StartContainerViaCommandLineAsync(GetFullImageName(ViewerContainerImage),
                     startParams, command);
                 var socketContainer =

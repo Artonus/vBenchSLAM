@@ -26,7 +26,7 @@ namespace vBenchSLAM.Core.SystemMonitor
             process.Exited += ProcessOnExited;
             _timer = new Timer
             {
-                Interval = 500
+                Interval = 2000
             };
             _timer.Elapsed += TimerOnElapsed;
         }
@@ -34,11 +34,11 @@ namespace vBenchSLAM.Core.SystemMonitor
         private async Task RecordProcessUsage()
         {
             var currTime = DateTime.Now;
-            var currCpuUsageTime = (decimal)_process.TotalProcessorTime.TotalMilliseconds;
+            var currCpuUsageTime = (decimal) _process.TotalProcessorTime.TotalMilliseconds;
 
-            if (_prevTimeCheck != default && _prevCpuUsageTime != default)
+            if (_prevTimeCheck != default)
             {
-                var timePassed = (decimal)(currTime - _prevTimeCheck).TotalMilliseconds;
+                var timePassed = (decimal) (currTime - _prevTimeCheck).TotalMilliseconds;
                 var currCpuMs = (currCpuUsageTime - _prevCpuUsageTime);
                 var procCpuUsage = currCpuMs * 100 / (Environment.ProcessorCount * timePassed);
                 var model = new ResourceUsageModel(procCpuUsage, _process.WorkingSet64);
@@ -53,29 +53,24 @@ namespace vBenchSLAM.Core.SystemMonitor
         {
             try
             {
-                var dir = Directory.GetParent(_tmpFilePath);
-                if (dir != null && dir.Exists == false)
+                var fInfo = new FileInfo(_tmpFilePath);
+                if (fInfo.Exists == false)
                 {
-                    Directory.CreateDirectory(dir.FullName);
-                }
-
-                try
-                {
-                    if (File.Exists(_tmpFilePath) == false)
+                    if (string.IsNullOrEmpty(fInfo.DirectoryName) == false 
+                        && Directory.Exists(fInfo.DirectoryName) == false)
                     {
-                        File.Create(_tmpFilePath);
+                        Directory.CreateDirectory(fInfo.DirectoryName);
                     }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-                await using (StreamWriter writer = File.Exists(_tmpFilePath) ? File.AppendText(_tmpFilePath) : File.CreateText(_tmpFilePath))
+
+                await using (StreamWriter writer = fInfo.Exists
+                    ? File.AppendText(fInfo.FullName)
+                    : File.CreateText(fInfo.FullName))
                 {
                     await writer.WriteLineAsync(model.ParseAsCsvLiteral());
                 }
             }
-            catch (Exception ex)
+            catch (IOException ex)
             {
                 Console.WriteLine($"Could not access the file: {_tmpFilePath}, error: {ex}");
             }
@@ -100,7 +95,7 @@ namespace vBenchSLAM.Core.SystemMonitor
 
         private async void TimerOnElapsed(object sender, ElapsedEventArgs e)
         {
-             await RecordProcessUsage();
+            await RecordProcessUsage();
         }
 
         public void Dispose()

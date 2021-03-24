@@ -26,9 +26,11 @@ namespace vBenchSLAM.Core.ProcessRunner
         /// <summary>
         /// <inheritdoc cref="IProcessRunner.StartContainerViaCommandLineAsync"/>
         /// </summary>
-        public virtual async Task<int> StartContainerViaCommandLineAsync(string containerName, string startParameters, string containerCommand = "")
+        public virtual async Task<int> StartContainerViaCommandLineAsync(string containerName, string startParameters,
+            string containerCommand = "")
         {
-            var args = $"{ExecCmdOption} \"{Prefix} {GetDockerRunCommand(containerName, startParameters, containerCommand)}\"";
+            var args =
+                $"{ExecCmdOption} \"{Prefix} {GetDockerRunCommand(containerName, startParameters, containerCommand)}\"";
             return await RunProcessAsync(BaseProgram, args, false);
         }
 
@@ -69,8 +71,8 @@ namespace vBenchSLAM.Core.ProcessRunner
             Console.WriteLine($"{fileName} {args}");
             using (var process = new VBenchProcess(startInfo, riseCustomEvents))
             {
-                // if (riseCustomEvents)
-                //     OnProcessRegistered(new ProcessRegisteredEventArgs(process));
+                if (riseCustomEvents)
+                    OnProcessRegistered(new ProcessRegisteredEventArgs(process));
 
                 return await RunProcessAsync(process).ConfigureAwait(true);
             }
@@ -79,11 +81,25 @@ namespace vBenchSLAM.Core.ProcessRunner
         protected static Task<int> RunProcessAsync(VBenchProcess process)
         {
             var tcs = new TaskCompletionSource<int>();
-            process.Exited += (s, ea) =>
+            void OnProcessExited(object sender, EventArgs ea)
             {
-                Console.WriteLine($"Process has exited with code: {process.ExitCode}");
-                tcs.SetResult(process.ExitCode);
-            };
+                int exitCode = 1;
+                try
+                {
+                    exitCode = process.ExitCode;
+                    Console.WriteLine($"Process has exited with code: {process.ExitCode}");
+                }
+                catch (InvalidOperationException e)
+                {
+                    Console.WriteLine(e);
+                }
+                finally
+                {
+                    tcs.SetResult(exitCode);
+                }
+            }
+            
+            process.Exited += OnProcessExited;
             process.OutputDataReceived += ProcessOnOutputDataReceived;
             process.ErrorDataReceived += ProcessOnErrorDataReceived;
 
@@ -97,7 +113,7 @@ namespace vBenchSLAM.Core.ProcessRunner
 
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-            
+
             //await process.WaitForExitAsync();
 
             return tcs.Task;

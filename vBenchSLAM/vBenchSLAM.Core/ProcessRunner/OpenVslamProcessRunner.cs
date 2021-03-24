@@ -18,7 +18,7 @@ namespace vBenchSLAM.Core.ProcessRunner
              
             var fInfo = await CreateScriptFile(containerName, startParameters, containerCommand);
 
-            var result = await RunProcessAsync(BaseProgram, $"{ExecCmdOption} ./{fInfo.Name}", false);
+            var result = await RunProcessAsync(BaseProgram, $"{ExecCmdOption} ./{fInfo.Name}");
 
             File.Delete(fInfo.FullName);
 
@@ -47,7 +47,7 @@ namespace vBenchSLAM.Core.ProcessRunner
 
         private async Task SetAsExecutable(FileInfo fInfo)
         {
-            await RunProcessAsync(BaseProgram, $"{ExecCmdOption} \"chmod +x {fInfo.Name}\"");
+            await RunProcessAsync(BaseProgram, $"{ExecCmdOption} \"chmod +x {fInfo.Name}\"", false);
 
             #region DoesntWorkOnLinux
 
