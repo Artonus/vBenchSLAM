@@ -14,10 +14,16 @@
 
   <ItemGroup>
     <PackageReference Include="Docker.DotNet" Version="3.125.4" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="5.0.0" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\vBenchSLAM.Addins\vBenchSLAM.Addins.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="SystemMonitor\Abstract" />
   </ItemGroup>
 
 </Project>

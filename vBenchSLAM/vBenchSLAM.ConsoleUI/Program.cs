@@ -13,16 +13,14 @@ namespace vBenchSLAM.ConsoleUI
             {
                 Settings.Initialize();
                 
-                IDockerManager manager = new DockerManager();
+                var runner = new Runner(MapperTypeEnum.OpenVslam);
                 
-                var runner = new Runner(MapperTypeEnum.OpenVslam, manager);
                 runner.Run();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }
-            Console.ReadLine();
         }
     }
 }

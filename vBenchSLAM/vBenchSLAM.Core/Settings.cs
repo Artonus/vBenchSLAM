@@ -17,7 +17,7 @@ namespace vBenchSLAM.Core
         /// <summary>
         /// The name of the repository containing docker images of vSLAM frameworks
         /// </summary>
-        public const string VBenchSLAMRepositoryName = "artonus/vbenchslam";
+        public const string VBenchSlamRepositoryName = "artonus/vbenchslam";
 
         public static bool IsWsl { get; private set; }
 
