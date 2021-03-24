@@ -10,6 +10,7 @@ using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
+using vBenchSLAM.Core.SystemMonitor;
 
 namespace vBenchSLAM.Core.Mappers
 {
@@ -47,7 +48,7 @@ namespace vBenchSLAM.Core.Mappers
             ContainerListResponse socketContainer = null;
             try
             {
-                var command = PrepareStartCommand();
+                var command = GetContainerCommand();
                 var host = new HostConfig()
                 {
                     Binds = new List<string>
@@ -87,39 +88,34 @@ namespace vBenchSLAM.Core.Mappers
 
                 var res = await DockerManager.Client.Containers.CreateContainerAsync(createParams);
 
+                // TODO: attach resource monitor
+                var statParams = new ContainerStatsParameters()
+                {
+                    Stream = true
+                };
+                var reporter = new ResourceReporter();
                 socketContainer = await DockerManager.GetContainerByIdAsync(res.ID);
+
+                
+
                 started &= await DockerManager.StartContainerAsync(socketContainer.ID);
+                var attachParams = new ContainerAttachParameters()
+                {
+                    Stderr = true,
+                    Stdout = true,
+                    Stream = true
+                };
+                DockerManager.Client.Containers.GetContainerStatsAsync(socketContainer.ID, statParams, reporter);
+                var token = new CancellationTokenSource();
+                using (var stream = await DockerManager.Client.Containers.AttachContainerAsync(socketContainer.ID, true, attachParams))
+                {
+                    var output = await stream.ReadOutputToEndAsync(token.Token);
+                    Console.Write(output.stdout);
+                }
 
                 var exited = await DockerManager.Client.Containers.WaitContainerAsync(socketContainer.ID);
-                // if (socketContainer is null)
-                // {
-                //     return false;
-                // }
-                //
-                // var attachParams = new ContainerAttachParameters()
-                // {
-                //     Stderr = true,
-                //     Stdout = true,
-                //     Stream = true
-                // };
-                // var token = new CancellationTokenSource();
-                // using (var stream = await DockerManager.Client.Containers.AttachContainerAsync(socketContainer.ID, true, attachParams))
-                // {
-                //     var output = await stream.ReadOutputToEndAsync(token.Token);
-                // }
 
-
-                #region Old
-
-                // var startParams =
-                //     "--rm -it --net=host --gpus all -v /home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples";
-                //
-                // await DockerManager.StartContainerViaCommandLineAsync(GetFullImageName(ViewerContainerImage),
-                //     startParams, command);
-                // var socketContainer =
-                //     await DockerManager.GetContainerByNameAsync(GetFullImageName(ViewerContainerImage));
-
-                #endregion
+                retVal &= exited.StatusCode == 0;
             }
             finally
             {
@@ -163,7 +159,7 @@ namespace vBenchSLAM.Core.Mappers
             throw new NotImplementedException();
         }
 
-        public string PrepareStartCommand()
+        public string GetContainerCommand()
         {
             //TODO: create temporary folder to store data to run
             var command =
