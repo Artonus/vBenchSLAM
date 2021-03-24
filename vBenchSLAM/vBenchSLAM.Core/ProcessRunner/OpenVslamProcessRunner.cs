@@ -18,7 +18,7 @@ namespace vBenchSLAM.Core.ProcessRunner
             {
                 return await base.StartContainerViaCommandLineAsync(containerName, startParameters, containerCommand);
             }
-
+             
             var fInfo = new FileInfo("run.sh");
             if (fInfo.Exists)
             {
@@ -33,22 +33,28 @@ namespace vBenchSLAM.Core.ProcessRunner
                 sw.WriteLine(cmd);
             }
             //TODO: set file permissions and test
-            //SetAsExecutable(fInfo);
+            await SetAsExecutable(fInfo);
 
-            var result = await base.RunProcessAsync(BaseProgram, $"-c ./{fInfo.Name}");
+            var result = await RunProcessAsync(BaseProgram, $"{ExecCmdOption} ./{fInfo.Name}", false);
 
             File.Delete(fInfo.FullName);
 
             return result;
         }
 
-        private void SetAsExecutable(FileInfo fInfo)
+        private async Task SetAsExecutable(FileInfo fInfo)
         {
-            var fs = new FileSecurity(fInfo.FullName, AccessControlSections.All);
-            var securityId = new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null).Translate(typeof(NTAccount));
-            var accessRule =
-                new FileSystemAccessRule(securityId, FileSystemRights.ExecuteFile, AccessControlType.Allow);
-            fs.AddAccessRule(accessRule);
+            await RunProcessAsync(BaseProgram, $"{ExecCmdOption} \"chmod +x {fInfo.Name}\"");
+
+            #region DoesntWorkOnLinux
+
+            // var fs = new FileSecurity(fInfo.FullName, AccessControlSections.All);
+            // var securityId = new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null).Translate(typeof(NTAccount));
+            // var accessRule =
+            //     new FileSystemAccessRule(securityId, FileSystemRights.ExecuteFile, AccessControlType.Allow);
+            // fs.AddAccessRule(accessRule);
+
+            #endregion
         }
     }
 }

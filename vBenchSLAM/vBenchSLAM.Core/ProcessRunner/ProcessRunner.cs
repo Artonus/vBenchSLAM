@@ -66,6 +66,7 @@ namespace vBenchSLAM.Core.ProcessRunner
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
             };
+            Console.WriteLine($"{fileName} {args}");
             using (var process = new VBenchProcess(startInfo, riseCustomEvents))
             {
                 // if (riseCustomEvents)
@@ -122,7 +123,13 @@ namespace vBenchSLAM.Core.ProcessRunner
 
         protected string GetDockerRunCommand(string containerName, string startParameters, string containerCommand = "")
         {
-            return $"docker run {startParameters} {containerName} {containerCommand}";
+            var cmd = $"docker run {startParameters} {containerName}";
+            if (string.IsNullOrEmpty(containerCommand) == false)
+            {
+                cmd += $" \"{containerCommand}\"";
+            }
+
+            return cmd;
         }
     }
 }
