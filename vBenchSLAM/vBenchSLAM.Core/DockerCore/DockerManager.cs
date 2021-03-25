@@ -13,7 +13,6 @@ namespace vBenchSLAM.Core.DockerCore
 {
     public class DockerManager : IDockerManager
     {
-        protected readonly List<ProcessMonitor> ProcessMonitors;
         public IDockerClient Client { get; }
         protected readonly IProcessRunner Runner;
 
@@ -25,9 +24,6 @@ namespace vBenchSLAM.Core.DockerCore
                 ? new DockerClientConfiguration(uri).CreateClient()
                 : new DockerClientConfiguration().CreateClient();
             Runner = runner;
-            Runner.ProcessRegistered += RunnerProcessRegistered;
-
-            ProcessMonitors = new List<ProcessMonitor>();
         }
 
         private static Uri GetWslUri()
@@ -114,29 +110,6 @@ namespace vBenchSLAM.Core.DockerCore
             var image = await GetContainerByNameAsync(containerInfo);
 
             return image;
-        }
-
-        protected virtual void RunnerProcessRegistered(object sender, ProcessRegisteredEventArgs e)
-        {
-            if (e.Process is not VBenchProcess)
-                return;
-
-            var monitor = new ProcessMonitor((VBenchProcess) e.Process, RemoveProcessFromRegistryAction);
-
-            ProcessMonitors.Add(monitor);
-        }
-
-        /// <summary>
-        /// Function responsible for removing the references for the monitor after the process has exited
-        /// </summary>
-        /// <param name="processMonitor"></param>
-        protected virtual void RemoveProcessFromRegistryAction(ProcessMonitor processMonitor)
-        {
-            if (ProcessMonitors.Contains(processMonitor))
-            {
-                ProcessMonitors.Remove(processMonitor);
-                processMonitor.Dispose();
-            }
         }
     }
 }

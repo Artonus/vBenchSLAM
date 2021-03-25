@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Docker.DotNet;
 using Docker.DotNet.Models;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
@@ -93,10 +94,10 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     Stream = true
                 };
-                var reporter = new ResourceReporter();
+                var reporter = new SystemResource();
                 socketContainer = await DockerManager.GetContainerByIdAsync(res.ID);
 
-                
+
 
                 started &= await DockerManager.StartContainerAsync(socketContainer.ID);
                 var attachParams = new ContainerAttachParameters()
@@ -107,15 +108,14 @@ namespace vBenchSLAM.Core.Mappers
                 };
                 DockerManager.Client.Containers.GetContainerStatsAsync(socketContainer.ID, statParams, reporter);
                 var token = new CancellationTokenSource();
-                using (var stream = await DockerManager.Client.Containers.AttachContainerAsync(socketContainer.ID, true, attachParams))
+                using (var stream =
+                    await DockerManager.Client.Containers.AttachContainerAsync(socketContainer.ID, true, attachParams))
                 {
                     var output = await stream.ReadOutputToEndAsync(token.Token);
                     Console.Write(output.stdout);
-                }
-
+                }                
                 var exited = await DockerManager.Client.Containers.WaitContainerAsync(socketContainer.ID);
-
-                retVal &= exited.StatusCode == 0;
+                retVal &= exited.StatusCode == 0;                
             }
             finally
             {
@@ -163,7 +163,7 @@ namespace vBenchSLAM.Core.Mappers
         {
             //TODO: create temporary folder to store data to run
             var command =
-                "./run_video_slam -v samples/orb_vocab/orb_vocab.dbow2 -c samples/config.yaml -m samples/video.mp4 --auto-term --no-sleep --map-db samples/generated/aist_living_lab_1_map.msg";
+                "./run_video_slam -v samples/orb_vocab/orb_vocab.dbow2 -c samples/config.yaml -m samples/video.mp4 --auto-term --no-sleep --map-db samples/map.msg";
             Console.WriteLine(command);
             return command;
         }
