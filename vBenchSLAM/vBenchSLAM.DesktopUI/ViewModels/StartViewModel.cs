@@ -65,10 +65,10 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         {
             //dataset path
             this.ValidationRule(vm => vm.DatasetPath,
-                path => string.IsNullOrWhiteSpace(path) == false && Directory.Exists(path) == false,
+                path => string.IsNullOrWhiteSpace(path) == false, //&& Directory.Exists(path) == false,
                 "Please select appropriate dataset directory");
             this.ValidationRule(vm => vm.OutputPath,
-                path => string.IsNullOrWhiteSpace(path) == false && Directory.Exists(path) == false,
+                path => string.IsNullOrWhiteSpace(path) == false, //&& Directory.Exists(path) == false,
                 "Please select appropriate output directory");
             this.ValidationRule(vm => vm.SelectedFramework,
                 f => f is not null,

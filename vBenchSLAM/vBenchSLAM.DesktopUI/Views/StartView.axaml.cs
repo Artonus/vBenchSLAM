@@ -28,21 +28,18 @@ namespace vBenchSLAM.DesktopUI.Views
             var btn = sender as Button;
             if (btn is null)
                 return;
-            
-            var dialog = new OpenFileDialog()
-            {
-                AllowMultiple = false
-            };
-            
+
+            var dialog = new OpenFolderDialog();
+
             var result = await dialog.ShowAsync((Window)Parent);
             
             var vm = GetViewModel();
             if (result.Any() && vm is not null)
             {
                 if (btn.Name == nameof(StartViewModel.DatasetPath))
-                    vm.DatasetPath = result.First();
+                    vm.DatasetPath = result;
                 else if (btn.Name == nameof(StartViewModel.OutputPath))
-                    vm.OutputPath = result.First();
+                    vm.OutputPath = result;
             }
         }
         
