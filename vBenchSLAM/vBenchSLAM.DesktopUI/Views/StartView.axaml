@@ -1,0 +1,63 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="clr-namespace:vBenchSLAM.DesktopUI.Models"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
+             x:Class="vBenchSLAM.DesktopUI.Views.StartView"
+             MaxHeight="500" MaxWidth="350">
+    <ScrollViewer>
+        <StackPanel>
+            <Label Margin="5, 10, 5, 0">Selected Dataset:</Label>
+            <DockPanel Margin="5">
+                <Button DockPanel.Dock="Right" Name="DatasetPath"
+                        Width="50" HorizontalContentAlignment="Center"
+                        Click="OpenFileButtonOnClick">...</Button>
+                <TextBox IsReadOnly="True"
+                         Text="{Binding DatasetPath}" Watermark="Dataset path"
+                         Margin="0,0,5,0" MaxWidth="290"/>
+            </DockPanel>
+            <Label Margin="5, 10 ,5, 0">Selected dataset information</Label>
+            <TextBlock Margin="5, 10, 5, 0" Height="100" Text="{Binding DatasetInformation}" />
+            <Label Margin="5, 10, 5, 0">Selected Framework:</Label>
+            <DockPanel LastChildFill="False" HorizontalAlignment="Stretch">
+                <ComboBox Margin="5, 10, 5, 0" Width="300"
+                          Items="{Binding FrameworkList}"
+                          SelectedItem="{Binding SelectedFramework}"
+                          >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="models:FrameworkModel">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </DockPanel>
+            <Label Margin="5, 10, 5, 0">Benchmark result path:</Label>
+            <DockPanel Margin="5">
+                <Button DockPanel.Dock="Right" Name="OutputPath"
+                        Width="50" HorizontalContentAlignment="Center"
+                        Click="OpenFileButtonOnClick">...</Button>
+                <TextBox IsReadOnly="True"
+                         Text="{Binding OutputPath}" Watermark="Output path"
+                         Margin="0,0,5,0" MaxWidth="290" />
+            </DockPanel>
+            <Button Margin="5,0,5,0" Width="300" HorizontalAlignment="Center"
+                    HorizontalContentAlignment="Center" Name="BtnStart"
+                    Click="BtnStartOnClick">
+                Start
+            </Button>
+            <Border Margin="0,20,0,0" BorderBrush="Black">
+                <StackPanel>
+                    <Button Margin="5,0,5,0" Width="300" HorizontalAlignment="Center"
+                            HorizontalContentAlignment="Center">
+                        Show run statistics
+                    </Button>
+                    <Button Margin="5,10,5,0" Width="300" HorizontalAlignment="Center"
+                            HorizontalContentAlignment="Center">
+                        Load previous statistics
+                    </Button>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

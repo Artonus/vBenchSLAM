@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers;
@@ -7,7 +8,7 @@ using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core
 {
-    public class Runner
+    public class Runner : IDisposable
     {
         private readonly MapperTypeEnum _mapperType;
         private IMapper _mapper;
@@ -33,5 +34,24 @@ namespace vBenchSLAM.Core
         {
             _mapper.Start();
         }
+
+        #region IDisposable implementation
+
+        private void ReleaseUnmanagedResources()
+        {
+            _mapper = null;
+        }
+
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
+        }
+
+        ~Runner()
+        {
+            ReleaseUnmanagedResources();
+        }
+        #endregion
     }
 }

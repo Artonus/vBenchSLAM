@@ -11,7 +11,7 @@ using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core.DockerCore
 {
-    public class DockerManager : IDockerManager
+    public class DockerManager : IDockerManager, IDisposable
     {
         public IDockerClient Client { get; }
         protected readonly IProcessRunner Runner;
@@ -110,6 +110,11 @@ namespace vBenchSLAM.Core.DockerCore
             var image = await GetContainerByNameAsync(containerInfo);
 
             return image;
+        }
+        
+        public void Dispose()
+        {
+            _client?.Dispose();
         }
     }
 }
