@@ -11,7 +11,7 @@
             <DockPanel Margin="5">
                 <Button DockPanel.Dock="Right" Name="DatasetPath"
                         Width="50" HorizontalContentAlignment="Center"
-                        Click="ButtonOnClick">...</Button>
+                        Click="OpenFileButtonOnClick">...</Button>
                 <TextBox IsReadOnly="True"
                          Text="{Binding DatasetPath}" Watermark="Dataset path"
                          Margin="0,0,5,0" />
@@ -35,14 +35,14 @@
             <DockPanel Margin="5">
                 <Button DockPanel.Dock="Right" Name="OutputPath"
                         Width="50" HorizontalContentAlignment="Center"
-                        Click="ButtonOnClick">...</Button>
+                        Click="OpenFileButtonOnClick">...</Button>
                 <TextBox IsReadOnly="True"
                          Text="{Binding OutputPath}" Watermark="Output path"
                          Margin="0,0,5,0" />
             </DockPanel>
             <Button Margin="5,0,5,0" Width="300" HorizontalAlignment="Center"
-                    HorizontalContentAlignment="Center"
-                    Command="{Binding StartFrameworkCommand}">
+                    HorizontalContentAlignment="Center" Name="BtnStart"
+                    Click="BtnStartOnClick">
                 Start
             </Button>
             <Border Margin="0,20,0,0" BorderBrush="Black">

@@ -79,7 +79,6 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         {
             if (HasErrors)
             {
-                
                 return;
             }
                 
