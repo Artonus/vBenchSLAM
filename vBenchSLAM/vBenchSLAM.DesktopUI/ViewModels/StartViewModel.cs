@@ -81,11 +81,10 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             {
                 return;
             }
-                
             
             var mapperType = GetSelectedMapperType();
-            using (var dockerManager = new DockerManager())
-            using (var runner = new Runner(mapperType, dockerManager))
+            
+            using (var runner = new Runner(mapperType))
             {
                 runner.Run();
             }

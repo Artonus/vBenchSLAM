@@ -114,7 +114,7 @@ namespace vBenchSLAM.Core.DockerCore
         
         public void Dispose()
         {
-            _client?.Dispose();
+            Client?.Dispose();
         }
     }
 }
