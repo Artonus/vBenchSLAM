@@ -10,7 +10,7 @@ namespace vBenchSLAM.Core.ProcessRunner
         /// Asynchronously starts the container using the command line
         /// </summary>
         /// <param name="containerName">The name of the container image including tag</param>
-        /// <param name="startParameters">Start parameters of the container</param>
+        /// <param name="startParameters">Map parameters of the container</param>
         /// <param name="containerCommand">Additional command to be executed by the container</param>
         /// <returns></returns>
         public Task<int> StartContainerViaCommandLineAsync(string containerName, string startParameters, string containerCommand = "");

@@ -1,4 +1,5 @@
 ﻿using vBenchSLAM.Core.Enums;
+using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.Core.Mappers.Abstract
 {
@@ -8,9 +9,8 @@ namespace vBenchSLAM.Core.Mappers.Abstract
         string FullFrameworkName { get; }
         string SaveMap();
         bool ShowMap();
-        bool Start();
+        bool Map();
         bool Stop();
-        
-
+        DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters);
     }
 }

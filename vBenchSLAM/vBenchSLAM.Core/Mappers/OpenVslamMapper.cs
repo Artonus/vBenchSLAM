@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +39,7 @@ namespace vBenchSLAM.Core.Mappers
             throw new NotImplementedException();
         }
 
-        public bool Start()
+        public bool Map()
         {
             return Run().Result;
         }
@@ -164,6 +166,34 @@ namespace vBenchSLAM.Core.Mappers
                 "./run_video_slam -v samples/orb_vocab/orb_vocab.dbow2 -c samples/config.yaml -m samples/video.mp4 --auto-term --no-sleep --map-db samples/map.msg";
             Console.WriteLine(command);
             return command;
+        }
+
+        public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
+        {
+            string vocabFileName = "orb_vocab.dbow2", configFileName = "config.yaml", videoFileName = "video.mp4";
+
+            var allFiles = Directory.GetFiles(parameters.DatasetPath);
+            var fileInfos = allFiles.Select(path => new FileInfo(path)).ToList();
+
+            var vocabFile = fileInfos.SingleOrDefault(f => f.Extension == "dbow2" && f.Name == vocabFileName);
+            if (vocabFile is null || vocabFile.Exists == false)
+            {
+                return new DatasetCheckResult(false, new Exception($"Cannot find the vocabulary file: {vocabFileName}"));
+            }
+
+            var configFIle = fileInfos.SingleOrDefault(f => f.Extension == "yaml" && f.Name == configFileName);
+            if (configFIle is null || configFIle.Exists == false)
+            {
+                return new DatasetCheckResult(false, new Exception($"Cannot find the configuration file: {vocabFileName}"));
+            }
+
+            var videoFile = fileInfos.SingleOrDefault(f => f.Extension == "mp4" && f.Name == videoFileName);
+            if (videoFile is null || videoFile.Exists == false)
+            {
+                return new DatasetCheckResult(false, new Exception($"Cannot find the configuration file: {videoFileName}"));
+            }
+
+            return new DatasetCheckResult(true, null);
         }
     }
 }

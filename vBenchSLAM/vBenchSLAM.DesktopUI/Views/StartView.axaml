@@ -44,7 +44,7 @@
             <Button Margin="5,0,5,0" Width="300" HorizontalAlignment="Center"
                     HorizontalContentAlignment="Center" Name="BtnStart"
                     Click="BtnStartOnClick">
-                Start
+                Map
             </Button>
             <Border Margin="0,20,0,0" BorderBrush="Black">
                 <StackPanel>

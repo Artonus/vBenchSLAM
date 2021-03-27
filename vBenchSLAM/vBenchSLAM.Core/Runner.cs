@@ -17,6 +17,7 @@ namespace vBenchSLAM.Core
         public Runner(RunnerParameters parameters)
         {
             _runnerParameters = parameters;
+            CreateMapper();
         }
 
         private void CreateMapper()
@@ -31,12 +32,25 @@ namespace vBenchSLAM.Core
             }
         }
 
-        public void Run()
+        public RunnerResultModel Run()
         {
-            
-            
-            
-            _mapper.Start();
+            try
+            {
+                var checkResult = _mapper.ValidateDatasetCompleteness(_runnerParameters);
+                if (checkResult.IsValid == false)
+                {
+                    return new RunnerResultModel(false, _runnerParameters.MapperType, string.Empty,
+                        checkResult.Exception);
+                }
+
+                _mapper.Map();
+
+                return new RunnerResultModel(true, _runnerParameters.MapperType, string.Empty, null);
+            }
+            catch (Exception ex)
+            {
+                return new RunnerResultModel(false, _runnerParameters.MapperType, string.Empty, ex);
+            }
         }
 
         #region IDisposable implementation
