@@ -2,6 +2,7 @@
 using vBenchSLAM.Core;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
+using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.ConsoleUI
 {
@@ -12,8 +13,9 @@ namespace vBenchSLAM.ConsoleUI
             try
             {
                 Settings.Initialize();
+                var param = new RunnerParameters(MapperTypeEnum.OpenVslam, string.Empty, string.Empty);
                 
-                var runner = new Runner(MapperTypeEnum.OpenVslam);
+                var runner = new Runner(param);
                 
                 runner.Run();
             }

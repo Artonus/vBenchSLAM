@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reactive;
 using Avalonia;
 using Avalonia.Controls;
@@ -31,8 +32,8 @@ namespace vBenchSLAM.DesktopUI.Views
 
             var dialog = new OpenFolderDialog();
 
-            var result = await dialog.ShowAsync((Window)Parent);
-            
+            var result = await dialog.ShowAsync((Window) Parent);
+
             var vm = GetViewModel();
             if (result.Any() && vm is not null)
             {
@@ -42,25 +43,32 @@ namespace vBenchSLAM.DesktopUI.Views
                     vm.OutputPath = result;
             }
         }
-        
+
 
         private StartViewModel GetViewModel()
         {
             return DataContext as StartViewModel;
         }
 
-        private async void BtnStartOnClick(object? sender, RoutedEventArgs e)
+        private async void BtnStartOnClick(object sender, RoutedEventArgs e)
         {
             var vm = GetViewModel();
             if (vm.HasErrors)
             {
-                await MessageBox.Show((Window)Parent, "Please select all required fields", "Invalid arguments",
+                await MessageBox.Show((Window) Parent, "Please select all required fields", "Invalid arguments",
                     MessageBoxButtons.Ok);
                 return;
             }
 
-            var observer = new AnonymousObserver<Unit>(unit => { });
-            vm.StartFrameworkCommand.Execute().Subscribe(observer);
+            try
+            {
+                var observer = new AnonymousObserver<Unit>(unit => { });
+                vm.StartFrameworkCommand.Execute().Subscribe(observer);
+            }
+            catch (Exception ex)
+            {
+                await MessageBox.Show((Window) Parent, ex.Message, "Invalid dataset arguments", MessageBoxButtons.Ok);
+            }
         }
     }
 }

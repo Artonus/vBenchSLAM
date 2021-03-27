@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Docker.DotNet;
 using Docker.DotNet.Models;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
+using vBenchSLAM.Core.Model;
 using vBenchSLAM.Core.SystemMonitor;
 
 namespace vBenchSLAM.Core.Mappers
@@ -88,8 +87,7 @@ namespace vBenchSLAM.Core.Mappers
                 };
 
                 var res = await DockerManager.Client.Containers.CreateContainerAsync(createParams);
-
-                // TODO: attach resource monitor
+                
                 var statParams = new ContainerStatsParameters()
                 {
                     Stream = true
@@ -112,7 +110,7 @@ namespace vBenchSLAM.Core.Mappers
                     await DockerManager.Client.Containers.AttachContainerAsync(socketContainer.ID, true, attachParams))
                 {
                     var output = await stream.ReadOutputToEndAsync(token.Token);
-                    Console.Write(output.stdout);
+                    Console.Write(output);
                 }                
                 var exited = await DockerManager.Client.Containers.WaitContainerAsync(socketContainer.ID);
                 retVal &= exited.StatusCode == 0;                
