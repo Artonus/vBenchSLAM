@@ -7,10 +7,9 @@ namespace vBenchSLAM.Core.Mappers.Abstract
     {
         MapperTypeEnum MapperType { get; }
         string FullFrameworkName { get; }
-        string SaveMap();
-        bool ShowMap();
         bool Map();
-        bool Stop();
+        
         DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters);
+        void CopyMapToOutputFolder(string outputFolder);
     }
 }

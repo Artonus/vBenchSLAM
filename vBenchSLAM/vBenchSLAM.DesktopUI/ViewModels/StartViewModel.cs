@@ -53,7 +53,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         public StartViewModel(IDataService dataService)
         {
             _dataService = dataService;
-            //ValidationContext = new ValidationContext();
+            
             var availableFrameworks = dataService.GetAvailableFrameworks();
             FrameworkList = new ObservableCollection<FrameworkModel>(availableFrameworks);
 

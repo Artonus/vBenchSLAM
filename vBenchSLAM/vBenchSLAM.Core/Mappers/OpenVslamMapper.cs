@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
+using vBenchSLAM.Addins;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers.Abstract;
@@ -21,22 +22,14 @@ namespace vBenchSLAM.Core.Mappers
         public const string ServerContainerImage = "openvslam-server";
         public const string ViewerContainerImage = "openvslam-socket";
         private const string FullName = "";
+        private const string MapFileName = "map.msg";
+
 
         public MapperTypeEnum MapperType => MapperTypeEnum.OpenVslam;
         public string FullFrameworkName => FullName;
 
         public OpenVslamMapper(IDockerManager dockerManager) : base(dockerManager)
         {
-        }
-
-        public string SaveMap()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool ShowMap()
-        {
-            throw new NotImplementedException();
         }
 
         public bool Map()
@@ -55,7 +48,7 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     Binds = new List<string>
                     {
-                        "/home/bartek/Works/vBenchSLAM/Samples:/openvslam/build/samples"
+                        $"{DirectoryHelper.GetDataFolderPath()}:/openvslam/build/data"
                     },
                     NetworkMode = "host"
                     //AutoRemove = true
@@ -125,6 +118,8 @@ namespace vBenchSLAM.Core.Mappers
                     await DockerManager.StopContainerAsync(socketContainer.ID);
                     await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID, new ContainerRemoveParameters());
                 }
+
+
             }
 
             return retVal;
@@ -154,17 +149,10 @@ namespace vBenchSLAM.Core.Mappers
             }
         }
 
-        public bool Stop()
-        {
-            throw new NotImplementedException();
-        }
-
         public string GetContainerCommand()
         {
-            //TODO: create temporary folder to store data to run
             var command =
-                "./run_video_slam -v samples/orb_vocab/orb_vocab.dbow2 -c samples/config.yaml -m samples/video.mp4 --auto-term --no-sleep --map-db samples/map.msg";
-            Console.WriteLine(command);
+                $"./run_video_slam -v data/orb_vocab.dbow2 -c data/config.yaml -m data/video.mp4 --auto-term --no-sleep --map-db data/{MapFileName}";
             return command;
         }
 
@@ -181,8 +169,8 @@ namespace vBenchSLAM.Core.Mappers
                 return new DatasetCheckResult(false, new Exception($"Cannot find the vocabulary file: {vocabFileName}"));
             }
 
-            var configFIle = fileInfos.SingleOrDefault(f => f.Extension == "yaml" && f.Name == configFileName);
-            if (configFIle is null || configFIle.Exists == false)
+            var configFile = fileInfos.SingleOrDefault(f => f.Extension == "yaml" && f.Name == configFileName);
+            if (configFile is null || configFile.Exists == false)
             {
                 return new DatasetCheckResult(false, new Exception($"Cannot find the configuration file: {vocabFileName}"));
             }
@@ -193,7 +181,27 @@ namespace vBenchSLAM.Core.Mappers
                 return new DatasetCheckResult(false, new Exception($"Cannot find the configuration file: {videoFileName}"));
             }
 
+            CopyToTemporaryFilesFolder(vocabFile, videoFile, configFile);
+
             return new DatasetCheckResult(true, null);
+        }
+
+        private void CopyToTemporaryFilesFolder(params FileInfo[] fileInfos)
+        {
+            var tempFolderPath = DirectoryHelper.GetDataFolderPath();
+            foreach (var file in fileInfos)
+            {
+                var copiedFileDestination = Path.Combine(tempFolderPath, file.Name);
+
+                File.Copy(file.FullName, copiedFileDestination);
+            }
+        }
+
+        public void CopyMapToOutputFolder(string outputFolder)
+        {
+            string mapFile = Path.Combine(DirectoryHelper.GetDataFolderPath(), MapFileName);
+            string destFileName = Path.Combine(outputFolder, MapFileName);
+            File.Copy(mapFile, destFileName);
         }
     }
 }

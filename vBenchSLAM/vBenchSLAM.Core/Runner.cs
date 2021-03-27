@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using vBenchSLAM.Addins;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers;
@@ -44,13 +45,17 @@ namespace vBenchSLAM.Core
                 }
 
                 _mapper.Map();
-
-                return new RunnerResultModel(true, _runnerParameters.MapperType, string.Empty, null);
             }
             catch (Exception ex)
             {
                 return new RunnerResultModel(false, _runnerParameters.MapperType, string.Empty, ex);
             }
+            finally
+            {
+                _mapper.CopyMapToOutputFolder(_runnerParameters.OutputPath);
+                DirectoryHelper.ClearDataFolder();
+            }
+            return new RunnerResultModel(true, _runnerParameters.MapperType, string.Empty, null);
         }
 
         #region IDisposable implementation
