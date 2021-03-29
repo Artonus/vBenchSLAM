@@ -1,38 +1,61 @@
 ﻿using System;
 using System.ComponentModel;
+using vBenchSLAM.Addins;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers;
 using vBenchSLAM.Core.Mappers.Abstract;
+using vBenchSLAM.Core.Model;
 using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core
 {
     public class Runner : IDisposable
     {
-        private readonly MapperTypeEnum _mapperType;
         private IMapper _mapper;
-        public Runner(MapperTypeEnum mapperType)
+        private readonly RunnerParameters _runnerParameters;
+
+        public Runner(RunnerParameters parameters)
         {
-            _mapperType = mapperType;
+            _runnerParameters = parameters;
             CreateMapper();
         }
 
         private void CreateMapper()
         {
-            switch (_mapperType)
+            switch (_runnerParameters.MapperType)
             {
                 case MapperTypeEnum.OpenVslam:
                     _mapper = new OpenVslamMapper(new DockerManager(new OpenVslamProcessRunner()));
                     break;
                 default:
-                    throw  new InvalidEnumArgumentException($"Unresolved mapper type: {_mapperType}");
+                    throw  new InvalidEnumArgumentException($"Unresolved mapper type: {_runnerParameters.MapperType}");
             }
         }
 
-        public void Run()
+        public RunnerResultModel Run()
         {
-            _mapper.Start();
+            try
+            {
+                var checkResult = _mapper.ValidateDatasetCompleteness(_runnerParameters);
+                if (checkResult.IsValid == false)
+                {
+                    return new RunnerResultModel(false, _runnerParameters.MapperType, string.Empty,
+                        checkResult.Exception);
+                }
+
+                _mapper.Map();
+            }
+            catch (Exception ex)
+            {
+                return new RunnerResultModel(false, _runnerParameters.MapperType, string.Empty, ex);
+            }
+            finally
+            {
+                _mapper.CopyMapToOutputFolder(_runnerParameters.OutputPath);
+                DirectoryHelper.ClearDataFolder();
+            }
+            return new RunnerResultModel(true, _runnerParameters.MapperType, string.Empty, null);
         }
 
         #region IDisposable implementation

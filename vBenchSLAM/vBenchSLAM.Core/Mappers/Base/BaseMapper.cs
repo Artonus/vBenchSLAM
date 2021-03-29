@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using vBenchSLAM.Core.DockerCore;
+using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.Core.Mappers.Base
 {
@@ -39,5 +38,7 @@ namespace vBenchSLAM.Core.Mappers.Base
             var container = await DockerManager.GetContainerByNameAsync(GetFullImageName(containerName));
             return await DockerManager.StopContainerAsync(container.ID);
         }
+
+        public abstract DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters);
     }
 }

@@ -7,6 +7,7 @@ using ReactiveUI.Validation.Extensions;
 using vBenchSLAM.Core;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
+using vBenchSLAM.Core.Model;
 using vBenchSLAM.DesktopUI.Models;
 using vBenchSLAM.DesktopUI.Services;
 using vBenchSLAM.DesktopUI.ViewModels.Base;
@@ -52,7 +53,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         public StartViewModel(IDataService dataService)
         {
             _dataService = dataService;
-            //ValidationContext = new ValidationContext();
+            
             var availableFrameworks = dataService.GetAvailableFrameworks();
             FrameworkList = new ObservableCollection<FrameworkModel>(availableFrameworks);
 
@@ -83,8 +84,10 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             }
             
             var mapperType = GetSelectedMapperType();
-            
-            using (var runner = new Runner(mapperType))
+
+            var param = new RunnerParameters(mapperType, DatasetPath, OutputPath);
+
+            using (var runner = new Runner(param))
             {
                 runner.Run();
             }
