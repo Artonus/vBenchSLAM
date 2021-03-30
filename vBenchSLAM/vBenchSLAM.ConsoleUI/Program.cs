@@ -2,6 +2,7 @@
 using vBenchSLAM.Core;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
+using vBenchSLAM.Core.MapParser;
 using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.ConsoleUI
@@ -12,12 +13,16 @@ namespace vBenchSLAM.ConsoleUI
         {
             try
             {
-                Settings.Initialize();
-                var param = new RunnerParameters(MapperTypeEnum.OpenVslam, string.Empty, string.Empty);
+                //Settings.Initialize();
+                //var param = new RunnerParameters(MapperTypeEnum.OpenVslam, string.Empty, string.Empty);
                 
-                var runner = new Runner(param);
+                //var runner = new Runner(param);
                 
-                runner.Run();
+                //runner.Run();
+
+                var parser = new MapParser();
+                parser.LoadObjectFromParsedMap(@"C:\Works\vBenchSLAM\Samples\map.msg",
+                    @"C:\Works\vBenchSLAM\Samples\map_object.txt");
             }
             catch (Exception ex)
             {
