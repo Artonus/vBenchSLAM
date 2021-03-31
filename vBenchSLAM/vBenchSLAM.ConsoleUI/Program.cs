@@ -19,8 +19,7 @@ namespace vBenchSLAM.ConsoleUI
                 //runner.Run();
 
                 var parser = new BaseParser();
-                parser.LoadObjectFromParsedMap(@"C:\Works\vBenchSLAM\Samples\map.msg",
-                    @"C:\Works\vBenchSLAM\Samples\map_object.txt");
+                parser.GetMapDataFromMessagePack(@"C:\Works\vBenchSLAM\Samples\map.msg");
             }
             catch (Exception ex)
             {

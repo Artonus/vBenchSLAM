@@ -11,6 +11,7 @@ using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
+using vBenchSLAM.Core.MapParser;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
 using vBenchSLAM.Core.Model;
@@ -42,6 +43,7 @@ namespace vBenchSLAM.Core.Mappers
         {
             var retVal = true;
             ContainerListResponse socketContainer = null;
+            DateTime startedTime = DateTime.Now, finishedTime = default;
             try
             {
                 var command = GetContainerCommand();
@@ -100,7 +102,11 @@ namespace vBenchSLAM.Core.Mappers
                     Stdout = true,
                     Stream = true
                 };
+#pragma warning disable 4014
+                // we disable the warning because the container stats are supposed to run parallel to the container execution,
+                // which we await later
                 DockerManager.Client.Containers.GetContainerStatsAsync(socketContainer.ID, statParams, reporter);
+#pragma warning restore 4014
                 var token = new CancellationTokenSource();
                 using (var stream =
                     await DockerManager.Client.Containers.AttachContainerAsync(socketContainer.ID, true, attachParams))
@@ -109,6 +115,7 @@ namespace vBenchSLAM.Core.Mappers
                     Console.Write(output);
                 }                
                 var exited = await DockerManager.Client.Containers.WaitContainerAsync(socketContainer.ID);
+                finishedTime = DateTime.Now;
                 retVal &= exited.StatusCode == 0;                
             }
             finally
@@ -119,11 +126,19 @@ namespace vBenchSLAM.Core.Mappers
                     await DockerManager.StopContainerAsync(socketContainer.ID);
                     await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID, new ContainerRemoveParameters());
                 }
-
-
+                // TODO: write the run statistics 
+                SaveMapAndStatistics(startedTime, finishedTime);
             }
 
             return retVal;
+        }
+
+        private void SaveMapAndStatistics(DateTime started, DateTime finished)
+        {
+            var parser = new BaseParser();
+            string mapPath = Path.Combine(DirectoryHelper.GetDataFolderPath(), MapFileName);
+            var mapData = parser.GetMapDataFromMessagePack(mapPath);
+
         }
 
         private void StartViewerWindow()

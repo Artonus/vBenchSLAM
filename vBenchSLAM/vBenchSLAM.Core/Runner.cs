@@ -36,14 +36,14 @@ namespace vBenchSLAM.Core
             }
         }
 
-        public RunnerResultModel Run()
+        public RunnerResult Run()
         {
             try
             {
                 var checkResult = _mapper.ValidateDatasetCompleteness(_runnerParameters);
                 if (checkResult.IsValid == false)
                 {
-                    return new RunnerResultModel(false, _runnerParameters.MapperType, string.Empty,
+                    return new RunnerResult(false, _runnerParameters.MapperType, string.Empty,
                         checkResult.Exception);
                 }
 
@@ -51,14 +51,14 @@ namespace vBenchSLAM.Core
             }
             catch (Exception ex)
             {
-                return new RunnerResultModel(false, _runnerParameters.MapperType, string.Empty, ex);
+                return new RunnerResult(false, _runnerParameters.MapperType, string.Empty, ex);
             }
             finally
             {
                 _mapper.CopyMapToOutputFolder(_runnerParameters.OutputPath);
                 DirectoryHelper.ClearDataFolder();
             }
-            return new RunnerResultModel(true, _runnerParameters.MapperType, string.Empty, null);
+            return new RunnerResult(true, _runnerParameters.MapperType, string.Empty, null);
         }
 
         #region IDisposable implementation

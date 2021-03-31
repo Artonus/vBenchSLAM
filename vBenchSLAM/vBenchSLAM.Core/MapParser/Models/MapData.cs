@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace vBenchSLAM.Core.MapParser.Models
 {
-    public class KeyPoint
+    public class MapData
     {
-        public double ang { get; set; }
-        public short oct { get; set; }
-        public int[] pt { get; set; }
+        public int Keyframes { get; set; }
+        public int Keypoints { get; set; }
+        public int Landmarks { get; set; }
     }
 }

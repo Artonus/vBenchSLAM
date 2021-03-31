@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using MessagePack;
+using Serilog;
+using vBenchSLAM.Core.MapParser.Models;
 
 namespace vBenchSLAM.Core.MapParser
 {
@@ -13,70 +13,86 @@ namespace vBenchSLAM.Core.MapParser
     {
         public BaseParser()
         {
-            
+
         }
 
-        public object ParseMessagePack(string file)
+        public MapData GetMapDataFromMessagePack(string file)
         {
-            object retVal = null;
+            dynamic data;
+            var map = new MapData();
             try
             {
                 var bytes = File.ReadAllBytes(file);
 
-                retVal = MessagePackSerializer.Deserialize<object>(bytes);
+                data = MessagePackSerializer.Deserialize<dynamic>(bytes);
+                
+                
+                if (data["keyframes"] is ICollection keyframesCollection)
+                {
+                    map.Keyframes = keyframesCollection.Count;
+                    int count = 0;
+                    foreach (KeyValuePair<object, object> frame in keyframesCollection)
+                    {
+                        var localCnt = (frame.Value as dynamic)?["n_keypts"];
+                        count += localCnt;
+                    }
+
+                    map.Keypoints = count;
+                }
+
+                if (data["landmarks"] is ICollection landmarkCollection)
+                {
+                    map.Landmarks = landmarkCollection.Count;
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Log.Error(ex, "Failed to serialize");
             }
 
+            return map;
+        }
+
+        private static void Iterate(object obj)
+        {
+            var idic = (IDictionary)obj;
+            foreach (var key in idic.Keys)
+            {
+                if (idic[key] is IDictionary)
+                {
+                    Iterate(idic[key]);
+                }
+                else if (idic[key].GetType().IsArray)
+                {
+                    string arryText = CombineArray(idic[key]);
+                    Console.WriteLine($"Key: {key}, Value: {arryText}");
+                }
+                else
+                    Console.WriteLine($"Key: {key}, Value: {idic[key]}");
+            }
+        }
+
+        private static string CombineArray(object obj)
+        {
+            IEnumerable arr = obj as IEnumerable;
+            if (arr is null)
+            {
+                return $"[]";
+            }
+
+            string retVal = "[";
+            foreach (var entry in arr)
+            {
+                if (entry is IEnumerable)
+                {
+                    retVal += CombineArray(entry) + ",";
+                }
+                else
+                    retVal += entry + ",";
+            }
+
+            retVal += "]";
             return retVal;
-        }
-
-        public void ConvertBinaryToString(string path, string outputPath)
-        {
-            try
-            {
-                var bytes = File.ReadAllBytes(path);
-
-                var json = MessagePackSerializer.ConvertToJson(bytes);
-
-                using (var fw = new StreamWriter(outputPath))
-                {
-                    fw.WriteLine(json);
-                }
-
-
-                Console.WriteLine("Converted to binary");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine();
-            }
-        }
-
-        public void LoadObjectFromParsedMap(string path, string outputPath)
-        {
-            bool retVal = true;
-            try
-            {
-                var bytes = File.ReadAllBytes(path);
-
-                var deserialized = MessagePackSerializer.Deserialize<object>(bytes);
-
-                using (var fw = new StreamWriter(outputPath))
-                {
-                    fw.WriteLine(deserialized);
-                }
-
-
-                Console.WriteLine("Converted to binary");
-            }
-            catch (Exception ex)
-            {
-                retVal = false;
-                Console.WriteLine();
-            }
         }
     }
 }
