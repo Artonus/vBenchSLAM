@@ -45,7 +45,13 @@ namespace vBenchSLAM.Core.Model
         }
         public static ResourceUsage FromCsvLiteral(string line)
         {
-            throw new NotImplementedException();
+            string[] values = line.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+            ulong ramUsage = ulong.Parse(values[0]);
+            ulong maxRam = ulong.Parse(values[1]);
+            decimal ramPercentUsage = decimal.Parse(values[2]);
+            int onlineCpus = int.Parse(values[3]);
+            decimal procUsage = decimal.Parse(values[4]);
+            return new ResourceUsage(procUsage, onlineCpus, ramUsage, maxRam, ramPercentUsage);
         }
     }
 }

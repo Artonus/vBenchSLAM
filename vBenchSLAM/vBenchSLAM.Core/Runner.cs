@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
@@ -14,9 +15,11 @@ namespace vBenchSLAM.Core
     {
         private IMapper _mapper;
         private readonly RunnerParameters _runnerParameters;
+        private readonly ILogger _logger;
 
         public Runner(RunnerParameters parameters)
         {
+            _logger = Log.Logger;
             _runnerParameters = parameters;
             CreateMapper();
         }
@@ -26,7 +29,7 @@ namespace vBenchSLAM.Core
             switch (_runnerParameters.MapperType)
             {
                 case MapperTypeEnum.OpenVslam:
-                    _mapper = new OpenVslamMapper(new DockerManager(new OpenVslamProcessRunner()));
+                    _mapper = new OpenVslamMapper(new DockerManager(new OpenVslamProcessRunner()), _logger);
                     break;
                 default:
                     throw  new InvalidEnumArgumentException($"Unresolved mapper type: {_runnerParameters.MapperType}");

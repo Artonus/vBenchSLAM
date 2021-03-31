@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Serilog;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Model;
 
@@ -10,10 +11,12 @@ namespace vBenchSLAM.Core.Mappers.Base
     {
         protected string RunParameters;
         protected readonly IDockerManager DockerManager;
+        protected readonly ILogger Logger;
 
-        protected BaseMapper(IDockerManager dockerManager)
+        protected BaseMapper(IDockerManager dockerManager, ILogger logger)
         {
             DockerManager = dockerManager;
+            Logger = logger;
         }
 
         public static string GetFullImageName(string image)

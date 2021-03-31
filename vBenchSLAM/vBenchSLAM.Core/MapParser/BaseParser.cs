@@ -9,16 +9,32 @@ using MessagePack;
 
 namespace vBenchSLAM.Core.MapParser
 {
-    public class MapParser
+    public class BaseParser
     {
-        public MapParser()
+        public BaseParser()
         {
             
         }
 
+        public object ParseMessagePack(string file)
+        {
+            object retVal = null;
+            try
+            {
+                var bytes = File.ReadAllBytes(file);
+
+                retVal = MessagePackSerializer.Deserialize<object>(bytes);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            return retVal;
+        }
+
         public void ConvertBinaryToString(string path, string outputPath)
         {
-            bool retVal = true;
             try
             {
                 var bytes = File.ReadAllBytes(path);
@@ -35,7 +51,6 @@ namespace vBenchSLAM.Core.MapParser
             }
             catch (Exception ex)
             {
-                retVal = false;
                 Console.WriteLine();
             }
         }

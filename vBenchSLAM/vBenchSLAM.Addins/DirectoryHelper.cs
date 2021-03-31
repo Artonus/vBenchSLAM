@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace vBenchSLAM.Addins
@@ -28,6 +29,11 @@ namespace vBenchSLAM.Addins
                 File.Delete(file);
             }
             Directory.Delete(dir, true);
+        }
+
+        public static string GetAppDataFolder()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "vBenchSLAM");
         }
     }
 }

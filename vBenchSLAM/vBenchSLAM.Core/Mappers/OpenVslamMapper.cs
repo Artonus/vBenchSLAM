@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
+using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
@@ -28,7 +29,7 @@ namespace vBenchSLAM.Core.Mappers
         public MapperTypeEnum MapperType => MapperTypeEnum.OpenVslam;
         public string FullFrameworkName => FullName;
 
-        public OpenVslamMapper(IDockerManager dockerManager) : base(dockerManager)
+        public OpenVslamMapper(IDockerManager dockerManager, ILogger logger) : base(dockerManager, logger)
         {
         }
 
@@ -87,7 +88,7 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     Stream = true
                 };
-                var reporter = new SystemResource();
+                var reporter = new SystemResource(Logger);
                 socketContainer = await DockerManager.GetContainerByIdAsync(res.ID);
 
 
