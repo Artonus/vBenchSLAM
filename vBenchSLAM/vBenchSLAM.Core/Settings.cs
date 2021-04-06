@@ -22,7 +22,10 @@ namespace vBenchSLAM.Core
         /// The name of the repository containing docker images of vSLAM frameworks
         /// </summary>
         public const string VBenchSlamRepositoryName = "artonus/vbenchslam";
-
+        /// <summary>
+        /// The name of te file that stores the log of all the successful runs
+        /// </summary>
+        public const string RunLogFileName = "runLog.txt";
         public static bool IsWsl { get; private set; }
 
         public static bool IsUnix { get; private set; }

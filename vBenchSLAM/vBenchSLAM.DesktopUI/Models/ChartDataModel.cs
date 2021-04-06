@@ -1,4 +1,5 @@
 ﻿using System;
+using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.DesktopUI.Models
 {
@@ -15,5 +16,7 @@ namespace vBenchSLAM.DesktopUI.Models
         public int Ram { get; set; }
         public decimal AvgCpuUsage { get; set; }
         public decimal AvgRamUsage { get; set; }
+
+        public ResourceUsage[] ResourceUsages { get; set; }
     }
 }

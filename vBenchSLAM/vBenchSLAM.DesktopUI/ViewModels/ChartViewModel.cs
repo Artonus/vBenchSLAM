@@ -21,20 +21,11 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         public ChartViewModel(IDataService dataService)
         {
             _dataService = dataService;
-            DataModel = new ChartDataModel()
-            {
-                Keyframes = 23,
-                Keypoints = 48,
-                Landmarks = 10,
-                AvgCpuUsage = 95.3M,
-                AvgRamUsage = 45.7M,
-                Cores = 6,
-                Cpu = "Amd Ryzen 3600",
-                Finished = DateTime.Now,
-                Framework = MapperTypeEnum.OpenVslam.GetStringValue(),
-                Ram = 123456,
-                Started = DateTime.Now.AddMinutes(-3)
-            };
+        }
+
+        public ChartViewModel(IDataService dataService, string runId) : this(dataService)
+        {
+            DataModel = dataService.GetRunDataForChart(runId);
         }
     }
 }

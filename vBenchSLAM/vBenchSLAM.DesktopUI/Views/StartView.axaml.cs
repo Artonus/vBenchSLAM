@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using ReactiveUI;
 using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.DesktopUI.ViewModels;
@@ -75,17 +74,29 @@ namespace vBenchSLAM.DesktopUI.Views
 
         private void ShowCurrentRunStats(object sender, RoutedEventArgs e)
         {
-            var chart = new ChartWindow
-            {
-                DataContext = new ChartWindowViewModel(GetViewModel().DataService)
-            };
-            
-            chart.Show((Window)this.Parent);
+            OpenChartWindow();
         }
 
         private void ShowRunStats(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            OpenChartWindow(false);
+        }
+
+        private void OpenChartWindow(bool openOnlyLatest = true)
+        {
+            var dataService = GetViewModel().DataService;
+            var runs = dataService.GetRunLog();
+            var runsToOpen = openOnlyLatest ? runs : new List<string>(new[] { runs.Last() });
+            foreach (var runId in runsToOpen)
+            {
+                var chart = new ChartWindow
+                {
+                    DataContext = new ChartWindowViewModel(GetViewModel().DataService, runId)
+                };
+            
+                chart.Show((Window)this.Parent);    
+            }
+            
         }
     }
 }

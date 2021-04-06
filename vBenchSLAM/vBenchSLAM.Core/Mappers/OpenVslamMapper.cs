@@ -129,7 +129,6 @@ namespace vBenchSLAM.Core.Mappers
                     await DockerManager.StopContainerAsync(socketContainer.ID);
                     await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID, new ContainerRemoveParameters());
                 }
-                // TODO: write down the run statistics
                 SaveMapAndStatistics(startedTime, finishedTime, resourceUsageFileName);
             }
 

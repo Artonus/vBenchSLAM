@@ -14,9 +14,9 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _content, value);
         }
 
-        public ChartWindowViewModel(IDataService dataService)
+        public ChartWindowViewModel(IDataService dataService, string runId)
         {
-            Content = new ChartViewModel(dataService);
+            Content = new ChartViewModel(dataService, runId);
         }
     }
 }

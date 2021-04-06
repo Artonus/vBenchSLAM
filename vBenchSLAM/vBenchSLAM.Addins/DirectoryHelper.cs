@@ -48,5 +48,9 @@ namespace vBenchSLAM.Addins
         {
             return @$"{GetTempPath()}monitors/";
         }
+        public static string GetUserDocumentsFolder()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "vBenchSLAM");
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Docker.DotNet.Models;
 using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.ExtensionMethods;
@@ -58,10 +59,8 @@ namespace vBenchSLAM.Core.Mappers.Base
             var mapData = parser.GetMapDataFromMessagePack(mapPath);
 
             string documentsPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "vBenchSLAM",
-                Path.GetFileNameWithoutExtension(resourceUsageFileName));
-
+               DirectoryHelper.GetUserDocumentsFolder(),
+               Path.GetFileNameWithoutExtension(resourceUsageFileName));
 
             string currFileLocation = Path.Combine(DirectoryHelper.GetMonitorsPath(), resourceUsageFileName);
             string destinationLocation = Path.Combine(documentsPath, resourceUsageFileName);
@@ -70,6 +69,7 @@ namespace vBenchSLAM.Core.Mappers.Base
 
             File.Copy(currFileLocation, destinationLocation);
             SaveMap(mapData, started, finished, documentsPath);
+            LogRun(resourceUsageFileName);
         }
 
         protected void SaveMap(ICsvParsable parsable, DateTime started, DateTime finished, string documentsPath)
@@ -82,6 +82,16 @@ namespace vBenchSLAM.Core.Mappers.Base
                 stream.WriteLine($"{started.ToLongTimeString()};{finished.ToLongTimeString()};{mapper.MapperType.GetStringValue()}");
                 stream.WriteLine(parsable.GetCsvHeaderRow());
                 stream.WriteLine(parsable.ParseAsCsvLiteral());
+            }
+        }
+        private void LogRun(string resourceUsageFileName)
+        {
+            var logFile = new FileInfo(Path.Combine(DirectoryHelper.GetUserDocumentsFolder(), Settings.RunLogFileName));
+            using (StreamWriter writer = logFile.Exists
+                ? File.AppendText(logFile.FullName)
+                : File.CreateText(logFile.FullName))
+            {
+                writer.WriteLine(Path.GetFileNameWithoutExtension(resourceUsageFileName));
             }
         }
     }

@@ -65,7 +65,7 @@
                         <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0">Cores: </Label>
                         <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0">RAM: </Label>
                         <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0">Average CPU usage: </Label>
-                        <Label HorizontalAlignment="Right" Grid.Row="4" Grid.Column="0">Average CPU usage: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="4" Grid.Column="0">Average RAM usage: </Label>
                         <!--Values-->
                         <TextBlock HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" Text="{Binding Cpu}"></TextBlock>
                         <TextBlock HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" Text="{Binding Cores}"></TextBlock>
