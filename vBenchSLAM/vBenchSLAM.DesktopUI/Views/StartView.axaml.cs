@@ -70,5 +70,17 @@ namespace vBenchSLAM.DesktopUI.Views
                 await MessageBox.Show((Window) Parent, ex.Message, "Invalid dataset arguments", MessageBoxButtons.Ok);
             }
         }
+
+        private void ShowCurrentRunStats(object sender, RoutedEventArgs e)
+        {
+            var chart = new ChartWindow(GetViewModel().DataService);
+
+            chart.Show();
+        }
+
+        private void ShowRunStats(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
