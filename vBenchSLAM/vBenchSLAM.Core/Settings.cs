@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
+using vBenchSLAM.Addins;
 
 namespace vBenchSLAM.Core
 {
@@ -28,6 +32,12 @@ namespace vBenchSLAM.Core
             CheckWsl();
             IsUnix = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
                      RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+                .WriteTo.File(Path.Combine(DirectoryHelper.GetAppDataFolder(), "logs/vBenchSLAM.log"))
+                .CreateLogger();
         }
 
         private static bool CheckWsl()

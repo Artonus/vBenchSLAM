@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
+using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core.Model;
@@ -10,13 +11,13 @@ namespace vBenchSLAM.Core.SystemMonitor
 {
     public class SystemResource : IProgress<ContainerStatsResponse>
     {
+        private readonly ILogger _logger;
         private readonly string _tmpFilePath;
 
-        public SystemResource()
+        public SystemResource(string outputFileName, ILogger logger)
         {
-            var currTime = DateTime.Now;
-            var tmpPath = DirectoryHelper.GetTempPath();
-            _tmpFilePath = @$"{tmpPath}monitors/{currTime.FormatAsFileNameCode()}.csv";
+            _logger = logger;
+            _tmpFilePath = Path.Combine(DirectoryHelper.GetMonitorsPath(), outputFileName);
         }
 
         public async void Report(ContainerStatsResponse value)
@@ -43,7 +44,10 @@ namespace vBenchSLAM.Core.SystemMonitor
                         // possible division by 0 exception while saving data
                         await writer.WriteLineAsync(usage.ParseAsCsvLiteral());
                     }
-                    catch (InvalidOperationException e) { }
+                    catch (InvalidOperationException ex)
+                    {
+                        _logger.Error(ex, "Could not calculate the performance for the current iteration");
+                    }
                 }
             }
             catch (IOException ex)

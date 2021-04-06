@@ -1,8 +1,7 @@
 ﻿using System;
+using Serilog;
 using vBenchSLAM.Core;
-using vBenchSLAM.Core.DockerCore;
-using vBenchSLAM.Core.Enums;
-using vBenchSLAM.Core.Model;
+using vBenchSLAM.Core.MapParser;
 
 namespace vBenchSLAM.ConsoleUI
 {
@@ -13,15 +12,18 @@ namespace vBenchSLAM.ConsoleUI
             try
             {
                 Settings.Initialize();
-                var param = new RunnerParameters(MapperTypeEnum.OpenVslam, string.Empty, string.Empty);
+                //var param = new RunnerParameters(MapperTypeEnum.OpenVslam, string.Empty, string.Empty);
                 
-                var runner = new Runner(param);
+                //var runner = new Runner(param);
                 
-                runner.Run();
+                //runner.Run();
+
+                var parser = new BaseParser();
+                parser.GetMapDataFromMessagePack(@"C:\Works\vBenchSLAM\Samples\map.msg");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Log.Debug(ex, "General exception");
             }
         }
     }
