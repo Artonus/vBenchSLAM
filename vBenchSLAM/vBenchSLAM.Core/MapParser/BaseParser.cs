@@ -18,13 +18,12 @@ namespace vBenchSLAM.Core.MapParser
 
         public MapData GetMapDataFromMessagePack(string file)
         {
-            dynamic data;
             var map = new MapData();
             try
             {
-                var bytes = File.ReadAllBytes(file);
+                byte[] bytes = File.ReadAllBytes(file);
 
-                data = MessagePackSerializer.Deserialize<dynamic>(bytes);
+                dynamic data = MessagePackSerializer.Deserialize<dynamic>(bytes);
                 
                 
                 if (data["keyframes"] is ICollection keyframesCollection)

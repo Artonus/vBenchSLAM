@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 using Docker.DotNet.Models;
 using Serilog;
 using vBenchSLAM.Addins;
+using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.MapParser;
+using vBenchSLAM.Core.MapParser.Models;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
 using vBenchSLAM.Core.Model;
@@ -23,12 +25,12 @@ namespace vBenchSLAM.Core.Mappers
     {
         public const string ServerContainerImage = "openvslam-server";
         public const string ViewerContainerImage = "openvslam-socket";
-        private const string FullName = "";
-        private const string MapFileName = "map.msg";
 
 
         public MapperTypeEnum MapperType => MapperTypeEnum.OpenVslam;
-        public string FullFrameworkName => FullName;
+        public string MapFileName => "map.msg";
+
+        public string FullFrameworkName => nameof(OpenVslamMapper);
 
         public OpenVslamMapper(IDockerManager dockerManager, ILogger logger) : base(dockerManager, logger)
         {
@@ -44,6 +46,8 @@ namespace vBenchSLAM.Core.Mappers
             var retVal = true;
             ContainerListResponse socketContainer = null;
             DateTime startedTime = DateTime.Now, finishedTime = default;
+
+            string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
             try
             {
                 var command = GetContainerCommand();
@@ -81,16 +85,15 @@ namespace vBenchSLAM.Core.Mappers
                 var createParams = new CreateContainerParameters(config)
                 {
                     HostConfig = host,
-
                 };
 
                 var res = await DockerManager.Client.Containers.CreateContainerAsync(createParams);
-                
+
                 var statParams = new ContainerStatsParameters()
                 {
                     Stream = true
                 };
-                var reporter = new SystemResource(Logger);
+                var reporter = new SystemResource(resourceUsageFileName, Logger);
                 socketContainer = await DockerManager.GetContainerByIdAsync(res.ID);
 
 
@@ -113,10 +116,10 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     var output = await stream.ReadOutputToEndAsync(token.Token);
                     Console.Write(output);
-                }                
+                }
                 var exited = await DockerManager.Client.Containers.WaitContainerAsync(socketContainer.ID);
                 finishedTime = DateTime.Now;
-                retVal &= exited.StatusCode == 0;                
+                retVal &= exited.StatusCode == 0;
             }
             finally
             {
@@ -126,19 +129,11 @@ namespace vBenchSLAM.Core.Mappers
                     await DockerManager.StopContainerAsync(socketContainer.ID);
                     await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID, new ContainerRemoveParameters());
                 }
-                // TODO: write the run statistics 
-                SaveMapAndStatistics(startedTime, finishedTime);
+                // TODO: write down the run statistics
+                SaveMapAndStatistics(startedTime, finishedTime, resourceUsageFileName);
             }
 
             return retVal;
-        }
-
-        private void SaveMapAndStatistics(DateTime started, DateTime finished)
-        {
-            var parser = new BaseParser();
-            string mapPath = Path.Combine(DirectoryHelper.GetDataFolderPath(), MapFileName);
-            var mapData = parser.GetMapDataFromMessagePack(mapPath);
-
         }
 
         private void StartViewerWindow()
@@ -154,7 +149,7 @@ namespace vBenchSLAM.Core.Mappers
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") {CreateNoWindow = true});
+                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     Process.Start("xdg-open", url);

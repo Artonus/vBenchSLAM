@@ -35,5 +35,18 @@ namespace vBenchSLAM.Addins
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "vBenchSLAM");
         }
+
+        public static void CreateDirectoryIfNotExists(string documentsPath)
+        {
+            if (Directory.Exists(documentsPath) == false)
+            {
+                Directory.CreateDirectory(documentsPath);
+            }
+        }
+
+        public static string GetMonitorsPath()
+        {
+            return @$"{GetTempPath()}monitors/";
+        }
     }
 }

@@ -14,12 +14,10 @@ namespace vBenchSLAM.Core.SystemMonitor
         private readonly ILogger _logger;
         private readonly string _tmpFilePath;
 
-        public SystemResource(ILogger logger)
+        public SystemResource(string outputFileName, ILogger logger)
         {
             _logger = logger;
-            var currTime = DateTime.Now;
-            var tmpPath = DirectoryHelper.GetTempPath();
-            _tmpFilePath = @$"{tmpPath}monitors/{currTime.FormatAsFileNameCode()}.csv";
+            _tmpFilePath = Path.Combine(DirectoryHelper.GetMonitorsPath(), outputFileName);
         }
 
         public async void Report(ContainerStatsResponse value)

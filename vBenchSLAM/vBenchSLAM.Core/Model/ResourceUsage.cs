@@ -2,7 +2,7 @@ using System;
 
 namespace vBenchSLAM.Core.Model
 {
-    public class ResourceUsage
+    public class ResourceUsage : ICsvParsable
     {
         /// <summary>
         /// RAM usage in bytes
@@ -34,6 +34,12 @@ namespace vBenchSLAM.Core.Model
             OnlineCPUs = onlineCPUs;
         }
 
+        public string GetCsvHeaderRow()
+        {
+            return
+                $"{nameof(RamUsage)};{nameof(MaxRamAvailable)};{nameof(RamPercentUsage)};{nameof(OnlineCPUs)};{nameof(ProcUsage)}";
+        }
+
         public string ParseAsCsvLiteral()
         {
             return $"{RamUsage};{MaxRamAvailable};{Math.Round(RamPercentUsage, 2)};{OnlineCPUs};{Math.Round(ProcUsage, 2)}";
@@ -43,7 +49,7 @@ namespace vBenchSLAM.Core.Model
         {
             return model.ParseAsCsvLiteral();
         }
-        public static ResourceUsage FromCsvLiteral(string line)
+        public ResourceUsage FromCsvLiteral(string line)
         {
             string[] values = line.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
             ulong ramUsage = ulong.Parse(values[0]);

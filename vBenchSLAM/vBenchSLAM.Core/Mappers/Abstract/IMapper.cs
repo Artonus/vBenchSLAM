@@ -6,7 +6,9 @@ namespace vBenchSLAM.Core.Mappers.Abstract
     public interface IMapper
     {
         MapperTypeEnum MapperType { get; }
-        string FullFrameworkName { get; }
+
+        string MapFileName { get; }
+
         bool Map();
         
         DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters);
