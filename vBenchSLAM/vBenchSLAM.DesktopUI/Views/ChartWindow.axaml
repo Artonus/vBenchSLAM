@@ -8,8 +8,7 @@
         Icon="/Assets/avalonia-logo.ico"    
         Width="800" Height="600"
         MaxWidth="800" MaxHeight="600"
-        CanResize="True"
+        CanResize="False"
         Title="vBenchSLAM chart"
         Content="{Binding Content}">
-    
 </Window>

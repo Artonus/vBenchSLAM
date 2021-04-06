@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using ReactiveUI;
+using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.DesktopUI.ViewModels;
 using vBenchSLAM.DesktopUI.Windows;
@@ -67,6 +68,7 @@ namespace vBenchSLAM.DesktopUI.Views
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Invalid dataset arguments");
                 await MessageBox.Show((Window) Parent, ex.Message, "Invalid dataset arguments", MessageBoxButtons.Ok);
             }
         }

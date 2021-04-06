@@ -3,29 +3,82 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ScottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
+             xmlns:vm="using:vBenchSLAM.DesktopUI.ViewModels"
+             xmlns:m="using:vBenchSLAM.DesktopUI.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="vBenchSLAM.DesktopUI.Views.ChartView"
+             x:CompileBindings="True"
+             x:DataType="vm:ChartViewModel"
              Width="800" Height="600">
     <DockPanel Margin="10">
         <DockPanel DockPanel.Dock="Top" Height="300">
-            <ScottPlot:AvaPlot Margin="5" DockPanel.Dock="Left" Name="RamUsagePlot" Width="400"/>
+            <ScottPlot:AvaPlot DockPanel.Dock="Left" Name="RamUsagePlot" Width="400"/>
             <ScottPlot:AvaPlot DockPanel.Dock="Right" Name="CpuUsagePlot" Width="400"/>
         </DockPanel>
-        <DockPanel DockPanel.Dock="Top">
-            <ScottPlot:AvaPlot  Name="plt1" Width="400"/>
-        </DockPanel>
+        <StackPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+            <DockPanel>
+                <Border BorderBrush="Black" DockPanel.Dock="Left">
+                    <Grid DataContext="{Binding DataModel}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!--Labels-->
+                        <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0">Started: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0">Finished: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0">Keyframes: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0">KeyPoints: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="4" Grid.Column="0">Landmarks: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="5" Grid.Column="0">Framework: </Label>
+                        <!--Values-->
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" Text="{Binding Started}"></TextBlock>
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" Text="{Binding Finished}"></TextBlock>
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1" Text="{Binding Keyframes}"></TextBlock>
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="3" Grid.Column="1" Text="{Binding Keypoints}"></TextBlock>
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="4" Grid.Column="1" Text="{Binding Landmarks}"></TextBlock>
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="5" Grid.Column="1" Text="{Binding Framework}"></TextBlock>
+                    </Grid>
+                </Border>
+                <Border BorderBrush="Black" DockPanel.Dock="Right">
+                    <Grid DataContext="{Binding DataModel}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!--Labels-->
+                        <Label HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0">CPU: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0">Cores: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0">RAM: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0">Average CPU usage: </Label>
+                        <Label HorizontalAlignment="Right" Grid.Row="4" Grid.Column="0">Average CPU usage: </Label>
+                        <!--Values-->
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" Text="{Binding Cpu}"></TextBlock>
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" Text="{Binding Cores}"></TextBlock>
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1" Text="{Binding Ram}"></TextBlock>
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="3" Grid.Column="1" Text="{Binding AvgCpuUsage}"></TextBlock>
+                        <TextBlock HorizontalAlignment="Left" Grid.Row="4" Grid.Column="1" Text="{Binding AvgRamUsage} "></TextBlock>
+                    </Grid>
+                </Border>
+            </DockPanel>
+            
+        </StackPanel>
     </DockPanel>
     <!--<Grid Margin="2">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <ScottPlot:AvaPlot Grid.Row="0" Grid.Column="0" wid Name="RamUsagePlot" />
-        <ScottPlot:AvaPlot Grid.Row="0" Grid.Column="1" Name="CpuUsagePlot" />
+        
     </Grid>-->
 </UserControl>
