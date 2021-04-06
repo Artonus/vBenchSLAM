@@ -16,11 +16,6 @@ namespace vBenchSLAM.DesktopUI.Views
 #endif
         }
 
-        public ChartWindow(IDataService dataService) : this()
-        {
-            
-        }
-
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);

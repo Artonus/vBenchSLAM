@@ -2,21 +2,30 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:scottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
+             xmlns:ScottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="vBenchSLAM.DesktopUI.Views.ChartView"
-             Width="400" Height="600">
-  <Grid Margin="2">
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="200"/>
-      <ColumnDefinition Width="200"/>
-    </Grid.ColumnDefinitions>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="200"/>
-      <RowDefinition Height="200"/>
-      <RowDefinition Height="200"/>
-    </Grid.RowDefinitions>
-    <scottPlot:AvaPlot Grid.Row="0" Grid.Column="0" Name="RamUsagePlot"></scottPlot:AvaPlot>
-    <scottPlot:AvaPlot Grid.Row="0" Grid.Column="1" Name="CpuUsagePlot"></scottPlot:AvaPlot>
-  </Grid>
+             Width="800" Height="600">
+    <DockPanel Margin="10">
+        <DockPanel DockPanel.Dock="Top" Height="300">
+            <ScottPlot:AvaPlot Margin="5" DockPanel.Dock="Left" Name="RamUsagePlot" Width="400"/>
+            <ScottPlot:AvaPlot DockPanel.Dock="Right" Name="CpuUsagePlot" Width="400"/>
+        </DockPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <ScottPlot:AvaPlot  Name="plt1" Width="400"/>
+        </DockPanel>
+    </DockPanel>
+    <!--<Grid Margin="2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ScottPlot:AvaPlot Grid.Row="0" Grid.Column="0" wid Name="RamUsagePlot" />
+        <ScottPlot:AvaPlot Grid.Row="0" Grid.Column="1" Name="CpuUsagePlot" />
+    </Grid>-->
 </UserControl>
