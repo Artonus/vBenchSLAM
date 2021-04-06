@@ -73,8 +73,8 @@ namespace vBenchSLAM.DesktopUI.Views
 
         private void ShowCurrentRunStats(object sender, RoutedEventArgs e)
         {
-            var chart = new ChartWindow(GetViewModel().DataService);
-
+            var chart = new ChartWindow();
+            chart.DataContext = new ChartViewModel(GetViewModel().DataService);
             chart.Show();
         }
 
