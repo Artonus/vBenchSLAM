@@ -26,6 +26,10 @@ namespace vBenchSLAM.Core
         /// The name of te file that stores the log of all the successful runs
         /// </summary>
         public const string RunLogFileName = "runLog.txt";
+        /// <summary>
+        /// The name of the file that stores the run and framework specific information
+        /// </summary>
+        public const string RunDataFileName = "data.csv";
         public static bool IsWsl { get; private set; }
 
         public static bool IsUnix { get; private set; }

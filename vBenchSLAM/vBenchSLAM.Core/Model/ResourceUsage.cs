@@ -49,7 +49,7 @@ namespace vBenchSLAM.Core.Model
         {
             return model.ParseAsCsvLiteral();
         }
-        public ResourceUsage FromCsvLiteral(string line)
+        public static ResourceUsage FromCsvLiteral(string line)
         {
             string[] values = line.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
             ulong ramUsage = ulong.Parse(values[0]);

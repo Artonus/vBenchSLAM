@@ -74,7 +74,7 @@ namespace vBenchSLAM.Core.Mappers.Base
 
         protected void SaveMap(ICsvParsable parsable, DateTime started, DateTime finished, string documentsPath)
         {
-            string dataPath = Path.Combine(documentsPath, "data.csv");
+            string dataPath = Path.Combine(documentsPath, Settings.RunDataFileName);
             using (StreamWriter stream = File.CreateText(dataPath))
             {
                 var mapper = this as IMapper;

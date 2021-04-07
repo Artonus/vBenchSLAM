@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.DesktopUI.Models
@@ -13,10 +14,10 @@ namespace vBenchSLAM.DesktopUI.Models
         public string Framework { get; set; }
         public string Cpu { get; set; }
         public int Cores { get; set; }
-        public int Ram { get; set; }
+        public ulong Ram { get; set; }
         public decimal AvgCpuUsage { get; set; }
         public decimal AvgRamUsage { get; set; }
 
-        public ResourceUsage[] ResourceUsages { get; set; }
+        public List<ResourceUsage> ResourceUsages { get; set; } = new();
     }
 }
