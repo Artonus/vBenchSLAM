@@ -53,7 +53,7 @@ namespace vBenchSLAM.DesktopUI.ExtensionMethods
             model.Cores = Environment.ProcessorCount;
             model.Ram = model.ResourceUsages.First().MaxRamAvailable;
             //TODO: get cpu name
-            //model.Cpu
+            model.Cpu = string.Empty;
             return model;
         }
 

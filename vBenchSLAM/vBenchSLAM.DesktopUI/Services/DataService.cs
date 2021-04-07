@@ -35,7 +35,9 @@ namespace vBenchSLAM.DesktopUI.Services
 
             return logFile.Exists ? File.ReadAllLines(logFile.FullName).ToList() : new();
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IDataService.GetRunDataForChart"/>
+        /// </summary>
         public ChartDataModel GetRunDataForChart(string runId)
         {
             string dir = DirectoryHelper.GetUserDocumentsFolder();

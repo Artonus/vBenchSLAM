@@ -87,6 +87,7 @@ namespace vBenchSLAM.DesktopUI.Views
             var dataService = GetViewModel().DataService;
             var runs = dataService.GetRunLog();
             var runsToOpen = openOnlyLatest ? runs : new List<string>(new[] { runs.Last() });
+
             foreach (var runId in runsToOpen)
             {
                 var chart = new ChartWindow
