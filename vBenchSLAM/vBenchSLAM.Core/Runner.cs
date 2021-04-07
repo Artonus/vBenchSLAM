@@ -38,9 +38,10 @@ namespace vBenchSLAM.Core
 
         public RunnerResult Run()
         {
+            DatasetCheckResult checkResult = null;
             try
             {
-                var checkResult = _mapper.ValidateDatasetCompleteness(_runnerParameters);
+                checkResult = _mapper.ValidateDatasetCompleteness(_runnerParameters);
                 if (checkResult.IsValid == false)
                 {
                     return new RunnerResult(false, _runnerParameters.MapperType, string.Empty,
@@ -55,7 +56,10 @@ namespace vBenchSLAM.Core
             }
             finally
             {
-                _mapper.CopyMapToOutputFolder(_runnerParameters.OutputPath);
+                if (checkResult is not null && checkResult.IsValid)
+                    _mapper.CopyMapToOutputFolder(_runnerParameters.OutputPath);
+             
+                
                 DirectoryHelper.ClearDataFolder();
             }
             return new RunnerResult(true, _runnerParameters.MapperType, string.Empty, null);

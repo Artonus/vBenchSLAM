@@ -47,8 +47,7 @@ namespace vBenchSLAM.DesktopUI.Services
 
             ChartDataModel model = ReadRunDataFromFiles(dir, runId);
 
-            //TODO
-            throw new NotImplementedException();
+            return model;
         }
 
         /// <summary>

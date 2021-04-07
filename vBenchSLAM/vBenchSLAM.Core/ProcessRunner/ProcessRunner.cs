@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.Events;
@@ -74,7 +75,7 @@ namespace vBenchSLAM.Core.ProcessRunner
                 if (riseCustomEvents)
                     OnProcessRegistered(new ProcessRegisteredEventArgs(process));
 
-                return await RunProcessAsync(process).ConfigureAwait(true);
+                return await RunProcessAsync(process).ConfigureAwait(false);
             }
         }
 
@@ -104,6 +105,7 @@ namespace vBenchSLAM.Core.ProcessRunner
             process.ErrorDataReceived += ProcessOnErrorDataReceived;
 
             bool started = process.Start();
+            Thread.Sleep(200);
             if (!started)
             {
                 //you may allow for the process to be re-used (started = false) 

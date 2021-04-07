@@ -1,9 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Reactive;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Validation.Extensions;
+using Serilog;
+using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
@@ -47,9 +52,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             get => _outputPath;
             set => this.RaiseAndSetIfChanged(ref _outputPath, value);
         }
-
-        public ReactiveCommand<Unit, Unit> StartFrameworkCommand { get; }
-
+        
         public StartViewModel(IDataService dataService)
         {
             DataService = dataService;
@@ -57,8 +60,13 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             var availableFrameworks = dataService.GetAvailableFrameworks();
             FrameworkList = new ObservableCollection<FrameworkModel>(availableFrameworks);
 
-            StartFrameworkCommand = ReactiveCommand.Create(StartFrameworkCommandHandler);
+            //StartFrameworkCommand = ReactiveCommand.Create(StartFrameworkBenchmark);
 
+#if DEBUG
+            DatasetPath = "/home/bartek/Works/vBenchSLAM/Samples";
+            OutputPath = "/home/bartek/Works/vBenchSLAM/Samples/Output";
+            SelectedFramework = availableFrameworks.First(f => f.Id == (int) MapperTypeEnum.OpenVslam);
+#endif
             PrepareValidationConstraints();
         }
 
@@ -76,7 +84,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
                 "Please select desired framework");
         }
 
-        private void StartFrameworkCommandHandler()
+        public async Task StartFrameworkBenchmark()
         {
             if (HasErrors)
             {
@@ -85,11 +93,21 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             
             var mapperType = GetSelectedMapperType();
 
-            var param = new RunnerParameters(mapperType, DatasetPath, OutputPath);
-
+            var param = new RunnerParameters(mapperType, OutputPath ,DatasetPath);
+            RunnerResult result = null;
             using (var runner = new Runner(param))
             {
-                runner.Run();
+                result = runner.Run();
+
+            }
+
+            if (result.IsSuccess)
+            {
+                Log.Information($"Successfully completed the benchmark of the {mapperType.GetStringValue()} algorithm");
+            }
+            else
+            {
+                throw new Exception("The algorithm did not run properly!", result.Exception);
             }
         }
 

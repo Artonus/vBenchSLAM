@@ -48,6 +48,7 @@ namespace vBenchSLAM.Core.Mappers
             DateTime startedTime = DateTime.Now, finishedTime = default;
 
             string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
+            //TODO: cleanup
             try
             {
                 var command = GetContainerCommand();
@@ -69,12 +70,30 @@ namespace vBenchSLAM.Core.Mappers
                     Image = GetFullImageName(ViewerContainerImage),
                     AttachStderr = true,
                     AttachStdout = true,
+
+                };
+                var serverHostConfig = new HostConfig()
+                {
+                    NetworkMode = "host",
+                    //AutoRemove = true
+                    
+                };
+                var serverConfig = new Config()
+                {
+                    Image = GetFullImageName(ServerContainerImage)
+                };
+                var serverCreateParams = new CreateContainerParameters(serverConfig)
+                {
+                    HostConfig = serverHostConfig
                 };
 
-                var started = await DockerManager.StartContainerViaCommandLineAsync(
+                 var started = await DockerManager.StartContainerViaCommandLineAsync(
                     GetFullImageName(ServerContainerImage),
                     "--rm -d --net=host");
-
+                // var serverContainerStartResult =
+                //     await DockerManager.Client.Containers.CreateContainerAsync(serverCreateParams);
+                //
+                // var started = await DockerManager.StartContainerAsync(serverContainerStartResult.ID);
                 var serverContainer =
                     await DockerManager.GetContainerByNameAsync(GetFullImageName(ServerContainerImage));
 
@@ -117,9 +136,14 @@ namespace vBenchSLAM.Core.Mappers
                     var output = await stream.ReadOutputToEndAsync(token.Token);
                     Console.Write(output);
                 }
+
                 var exited = await DockerManager.Client.Containers.WaitContainerAsync(socketContainer.ID);
                 finishedTime = DateTime.Now;
                 retVal &= exited.StatusCode == 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Something went wrong: ");
             }
             finally
             {
@@ -173,19 +197,19 @@ namespace vBenchSLAM.Core.Mappers
             var allFiles = Directory.GetFiles(parameters.DatasetPath);
             var fileInfos = allFiles.Select(path => new FileInfo(path)).ToList();
 
-            var vocabFile = fileInfos.SingleOrDefault(f => f.Extension == "dbow2" && f.Name == vocabFileName);
+            var vocabFile = fileInfos.SingleOrDefault(f => f.Extension == ".dbow2" && f.Name == vocabFileName);
             if (vocabFile is null || vocabFile.Exists == false)
             {
                 return new DatasetCheckResult(false, new Exception($"Cannot find the vocabulary file: {vocabFileName}"));
             }
 
-            var configFile = fileInfos.SingleOrDefault(f => f.Extension == "yaml" && f.Name == configFileName);
+            var configFile = fileInfos.SingleOrDefault(f => f.Extension == ".yaml" && f.Name == configFileName);
             if (configFile is null || configFile.Exists == false)
             {
-                return new DatasetCheckResult(false, new Exception($"Cannot find the configuration file: {vocabFileName}"));
+                return new DatasetCheckResult(false, new Exception($"Cannot find the configuration file: {configFileName}"));
             }
 
-            var videoFile = fileInfos.SingleOrDefault(f => f.Extension == "mp4" && f.Name == videoFileName);
+            var videoFile = fileInfos.SingleOrDefault(f => f.Extension == ".mp4" && f.Name == videoFileName);
             if (videoFile is null || videoFile.Exists == false)
             {
                 return new DatasetCheckResult(false, new Exception($"Cannot find the configuration file: {videoFileName}"));
@@ -202,7 +226,10 @@ namespace vBenchSLAM.Core.Mappers
             foreach (var file in fileInfos)
             {
                 var copiedFileDestination = Path.Combine(tempFolderPath, file.Name);
-
+                if (File.Exists(copiedFileDestination))
+                {
+                    File.Delete(copiedFileDestination);
+                }
                 File.Copy(file.FullName, copiedFileDestination);
             }
         }

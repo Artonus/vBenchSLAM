@@ -35,7 +35,7 @@ namespace vBenchSLAM.DesktopUI.Views
             var result = await dialog.ShowAsync((Window) Parent);
 
             var vm = GetViewModel();
-            if (result.Any() && vm is not null)
+            if (result is not null && result.Any())
             {
                 if (btn.Name == nameof(StartViewModel.DatasetPath))
                     vm.DatasetPath = result;
@@ -62,8 +62,7 @@ namespace vBenchSLAM.DesktopUI.Views
 
             try
             {
-                var observer = new AnonymousObserver<Unit>(unit => { });
-                vm.StartFrameworkCommand.Execute().Subscribe(observer);
+                await vm.StartFrameworkBenchmark();
             }
             catch (Exception ex)
             {
@@ -82,10 +81,14 @@ namespace vBenchSLAM.DesktopUI.Views
             OpenChartWindow(false);
         }
 
-        private void OpenChartWindow(bool openOnlyLatest = true)
+        private async void OpenChartWindow(bool openOnlyLatest = true)
         {
             var dataService = GetViewModel().DataService;
             var runs = dataService.GetRunLog();
+            if (runs.Any() == false)
+            {
+                await MessageBox.Show((Window) Parent, "Couldn't find any runs. Make sure that you run the algorithm first.", "No benchmark data found", MessageBoxButtons.Ok);
+            }
             var runsToOpen = openOnlyLatest ? runs : new List<string>(new[] { runs.Last() });
 
             foreach (var runId in runsToOpen)

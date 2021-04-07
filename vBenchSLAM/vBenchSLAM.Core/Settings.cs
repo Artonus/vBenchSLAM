@@ -40,10 +40,11 @@ namespace vBenchSLAM.Core
             IsUnix = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
                      RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
+            string logFilePath = Path.Combine(DirectoryHelper.GetAppDataFolder(), "logs/vBenchSLAM.log"); 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console(theme: AnsiConsoleTheme.Code)
-                .WriteTo.File(Path.Combine(DirectoryHelper.GetAppDataFolder(), "logs/vBenchSLAM.log"))
+                .WriteTo.File(logFilePath)
                 .CreateLogger();
         }
 
