@@ -16,7 +16,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
 {
     public class StartViewModel : ViewModelBase
     {
-        private readonly IDataService _dataService;
+        public IDataService DataService { get; }
         private FrameworkModel _selectedFramework;
         private string _datasetInformation;
         private string _datasetPath;
@@ -52,7 +52,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
 
         public StartViewModel(IDataService dataService)
         {
-            _dataService = dataService;
+            DataService = dataService;
             
             var availableFrameworks = dataService.GetAvailableFrameworks();
             FrameworkList = new ObservableCollection<FrameworkModel>(availableFrameworks);

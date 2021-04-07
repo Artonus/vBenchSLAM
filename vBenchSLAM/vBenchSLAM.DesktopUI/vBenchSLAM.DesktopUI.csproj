@@ -20,10 +20,15 @@
         <PackageReference Include="Avalonia.Diagnostics" Version="0.10.0" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />
         <PackageReference Include="ReactiveUI.Validation" Version="2.1.1" />
-        <PackageReference Include="ScottPlot.Avalonia" Version="4.0.48" />
+        <PackageReference Include="ScottPlot.Avalonia" Version="4.1.11-beta" />
         <PackageReference Include="Serilog" Version="2.10.0" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\vBenchSLAM.Core\vBenchSLAM.Core.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Update="Views\ChartView.axaml.cs">
+        <DependentUpon>ChartView.axaml</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

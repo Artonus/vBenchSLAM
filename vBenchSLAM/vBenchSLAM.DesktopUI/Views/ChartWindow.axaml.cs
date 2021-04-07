@@ -1,14 +1,19 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using vBenchSLAM.DesktopUI.Services;
 
 namespace vBenchSLAM.DesktopUI.Views
 {
-    public class TodoListView : UserControl
+    public class ChartWindow : Window
     {
-        public TodoListView()
+
+        public ChartWindow()
         {
             InitializeComponent();
+#if DEBUG
+            this.AttachDevTools();
+#endif
         }
 
         private void InitializeComponent()

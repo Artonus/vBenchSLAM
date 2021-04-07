@@ -49,11 +49,13 @@
             <Border Margin="0,20,0,0" BorderBrush="Black">
                 <StackPanel>
                     <Button Margin="5,0,5,0" Width="300" HorizontalAlignment="Center"
-                            HorizontalContentAlignment="Center">
+                            HorizontalContentAlignment="Center"
+                            Click="ShowCurrentRunStats" Name="CurrentRun">
                         Show run statistics
                     </Button>
                     <Button Margin="5,10,5,0" Width="300" HorizontalAlignment="Center"
-                            HorizontalContentAlignment="Center">
+                            HorizontalContentAlignment="Center"
+                            Click="ShowRunStats">
                         Load previous statistics
                     </Button>
                 </StackPanel>

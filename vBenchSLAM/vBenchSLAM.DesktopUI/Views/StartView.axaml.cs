@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using ReactiveUI;
+using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.DesktopUI.ViewModels;
 using vBenchSLAM.DesktopUI.Windows;
@@ -67,8 +67,37 @@ namespace vBenchSLAM.DesktopUI.Views
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Invalid dataset arguments");
                 await MessageBox.Show((Window) Parent, ex.Message, "Invalid dataset arguments", MessageBoxButtons.Ok);
             }
+        }
+
+        private void ShowCurrentRunStats(object sender, RoutedEventArgs e)
+        {
+            OpenChartWindow();
+        }
+
+        private void ShowRunStats(object sender, RoutedEventArgs e)
+        {
+            OpenChartWindow(false);
+        }
+
+        private void OpenChartWindow(bool openOnlyLatest = true)
+        {
+            var dataService = GetViewModel().DataService;
+            var runs = dataService.GetRunLog();
+            var runsToOpen = openOnlyLatest ? runs : new List<string>(new[] { runs.Last() });
+
+            foreach (var runId in runsToOpen)
+            {
+                var chart = new ChartWindow
+                {
+                    DataContext = new ChartWindowViewModel(GetViewModel().DataService, runId)
+                };
+            
+                chart.Show((Window)this.Parent);    
+            }
+            
         }
     }
 }
