@@ -36,21 +36,62 @@ namespace vBenchSLAM.Core.Mappers
         {
         }
 
-        public bool Map()
+        public async Task<bool> Map()
         {
-            return Run().Result;
+            return await Run();
         }
 
-        private async Task<bool> Run()
+        public async Task<bool> Run()
         {
             var retVal = true;
-            ContainerListResponse socketContainer = null;
+            ContainerListResponse socketContainer = null, serverContainer = null;
             DateTime startedTime = DateTime.Now, finishedTime = default;
 
             string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
             //TODO: cleanup
             try
             {
+                var images = await DockerManager.Client.Images.ListImagesAsync(new());
+                var viewerImage = images
+                    .FirstOrDefault(i => i.RepoTags[0] == GetFullImageName(ViewerContainerImage));
+                if (viewerImage is null) //image is not present at the current user's machine
+                {
+                    await DockerManager.PullImageAsync(GetFullImageName(ViewerContainerImage));
+                }
+
+                var serverImage = images
+                    .FirstOrDefault(i => i.RepoTags[0] == GetFullImageName(ServerContainerImage));
+                if (serverImage is null) //image is not present at the current user's machine
+                {
+                    await DockerManager.PullImageAsync(GetFullImageName(ServerContainerImage));
+                }
+
+                var srvHost = new HostConfig()
+                {
+                    NetworkMode = "host",
+                    AutoRemove = true
+                };
+                var srvCfg = new Config()
+                {
+                    Image = GetFullImageName(ServerContainerImage)
+                };
+                var srvCreateParams = new CreateContainerParameters(srvCfg)
+                {
+                    HostConfig = srvHost,
+                    Name = "openvslam_server"
+                };
+
+
+                // var started = await DockerManager.StartContainerViaCommandLineAsync(
+                //     GetFullImageName(ServerContainerImage), "--rm -d --net=host");
+                CreateContainerResponse srvRes =
+                    await DockerManager.Client.Containers.CreateContainerAsync(srvCreateParams);
+                socketContainer = await DockerManager.GetContainerByIdAsync(srvRes.ID);
+
+                var started = await DockerManager.StartContainerAsync(socketContainer.ID);
+                serverContainer = await DockerManager.GetContainerByNameAsync(GetFullImageName(ServerContainerImage));
+                StartViewerWindow();
+
                 var command = GetContainerCommand();
                 var host = new HostConfig()
                 {
@@ -70,52 +111,19 @@ namespace vBenchSLAM.Core.Mappers
                     Image = GetFullImageName(ViewerContainerImage),
                     AttachStderr = true,
                     AttachStdout = true,
-
                 };
-                var serverHostConfig = new HostConfig()
-                {
-                    NetworkMode = "host",
-                    //AutoRemove = true
-                    
-                };
-                var serverConfig = new Config()
-                {
-                    Image = GetFullImageName(ServerContainerImage)
-                };
-                var serverCreateParams = new CreateContainerParameters(serverConfig)
-                {
-                    HostConfig = serverHostConfig
-                };
-
-                 var started = await DockerManager.StartContainerViaCommandLineAsync(
-                    GetFullImageName(ServerContainerImage),
-                    "--rm -d --net=host");
-                // var serverContainerStartResult =
-                //     await DockerManager.Client.Containers.CreateContainerAsync(serverCreateParams);
-                //
-                // var started = await DockerManager.StartContainerAsync(serverContainerStartResult.ID);
-                var serverContainer =
-                    await DockerManager.GetContainerByNameAsync(GetFullImageName(ServerContainerImage));
-
-                if (started == false)
-                    return false;
-
-                StartViewerWindow();
                 var createParams = new CreateContainerParameters(config)
                 {
                     HostConfig = host,
+                    Name = "openvslam_viewer"
                 };
-
-                var res = await DockerManager.Client.Containers.CreateContainerAsync(createParams);
-
+                CreateContainerResponse res = await DockerManager.Client.Containers.CreateContainerAsync(createParams);
+                socketContainer = await DockerManager.GetContainerByIdAsync(res.ID);
                 var statParams = new ContainerStatsParameters()
                 {
                     Stream = true
                 };
                 var reporter = new SystemResource(resourceUsageFileName, Logger);
-                socketContainer = await DockerManager.GetContainerByIdAsync(res.ID);
-
-
 
                 started &= await DockerManager.StartContainerAsync(socketContainer.ID);
                 var attachParams = new ContainerAttachParameters()
@@ -147,12 +155,16 @@ namespace vBenchSLAM.Core.Mappers
             }
             finally
             {
+                //TODO: maybe also remove the container in the parallel function
                 retVal &= await ParallelStopContainersAsync(ServerContainerImage);
                 if (socketContainer is not null)
                 {
                     await DockerManager.StopContainerAsync(socketContainer.ID);
-                    await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID, new ContainerRemoveParameters());
+                    await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID,
+                        new ContainerRemoveParameters());
                 }
+
+                //TODO: memory allocation issue
                 SaveMapAndStatistics(startedTime, finishedTime, resourceUsageFileName);
             }
 
@@ -172,7 +184,7 @@ namespace vBenchSLAM.Core.Mappers
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") {CreateNoWindow = true});
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     Process.Start("xdg-open", url);
@@ -200,19 +212,22 @@ namespace vBenchSLAM.Core.Mappers
             var vocabFile = fileInfos.SingleOrDefault(f => f.Extension == ".dbow2" && f.Name == vocabFileName);
             if (vocabFile is null || vocabFile.Exists == false)
             {
-                return new DatasetCheckResult(false, new Exception($"Cannot find the vocabulary file: {vocabFileName}"));
+                return new DatasetCheckResult(false,
+                    new Exception($"Cannot find the vocabulary file: {vocabFileName}"));
             }
 
             var configFile = fileInfos.SingleOrDefault(f => f.Extension == ".yaml" && f.Name == configFileName);
             if (configFile is null || configFile.Exists == false)
             {
-                return new DatasetCheckResult(false, new Exception($"Cannot find the configuration file: {configFileName}"));
+                return new DatasetCheckResult(false,
+                    new Exception($"Cannot find the configuration file: {configFileName}"));
             }
 
             var videoFile = fileInfos.SingleOrDefault(f => f.Extension == ".mp4" && f.Name == videoFileName);
             if (videoFile is null || videoFile.Exists == false)
             {
-                return new DatasetCheckResult(false, new Exception($"Cannot find the configuration file: {videoFileName}"));
+                return new DatasetCheckResult(false,
+                    new Exception($"Cannot find the configuration file: {videoFileName}"));
             }
 
             CopyToTemporaryFilesFolder(vocabFile, videoFile, configFile);
@@ -230,6 +245,7 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     File.Delete(copiedFileDestination);
                 }
+
                 File.Copy(file.FullName, copiedFileDestination);
             }
         }

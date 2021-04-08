@@ -1,4 +1,5 @@
-﻿using vBenchSLAM.Core.Enums;
+﻿using System.Threading.Tasks;
+using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.Core.Mappers.Abstract
@@ -9,7 +10,7 @@ namespace vBenchSLAM.Core.Mappers.Abstract
 
         string MapFileName { get; }
 
-        bool Map();
+        Task<bool> Map();
         
         DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters);
         void CopyMapToOutputFolder(string outputFolder);

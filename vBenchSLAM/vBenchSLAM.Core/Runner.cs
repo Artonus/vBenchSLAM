@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Core.DockerCore;
@@ -36,7 +37,7 @@ namespace vBenchSLAM.Core
             }
         }
 
-        public RunnerResult Run()
+        public async Task<RunnerResult> Run()
         {
             DatasetCheckResult checkResult = null;
             try
@@ -48,7 +49,7 @@ namespace vBenchSLAM.Core
                         checkResult.Exception);
                 }
 
-                _mapper.Map();
+                await _mapper.Map();
             }
             catch (Exception ex)
             {

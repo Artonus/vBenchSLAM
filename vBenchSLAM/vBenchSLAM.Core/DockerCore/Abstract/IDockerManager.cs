@@ -13,6 +13,7 @@ namespace vBenchSLAM.Core.DockerCore
         Task<bool> StartContainerViaCommandLineAsync(string containerName, string startParameters = "", string containerCommand = "");
         Task<bool> StopContainerAsync(string containerId);
         Task<bool> SendCommandAsync(string containerId, string command);
+        Task PullImageAsync(string image); 
         Task<ContainerListResponse> GetContainerByNameAsync(string containerName);
         Task<ContainerListResponse> GetContainerByIdAsync(string containerId);
         Task<ContainerListResponse> DownloadAndBuildContainer(string repository, string containerName);

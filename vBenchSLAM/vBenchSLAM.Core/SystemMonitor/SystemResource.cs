@@ -44,7 +44,7 @@ namespace vBenchSLAM.Core.SystemMonitor
                         // possible division by 0 exception while saving data
                         await writer.WriteLineAsync(usage.ParseAsCsvLiteral());
                     }
-                    catch (InvalidOperationException ex)
+                    catch (Exception ex)
                     {
                         _logger.Error(ex, "Could not calculate the performance for the current iteration");
                     }
@@ -58,7 +58,7 @@ namespace vBenchSLAM.Core.SystemMonitor
 
         private ResourceUsage CalculateResourceUsage(ContainerStatsResponse stats)
         {
-            ulong ramUsage = 0, availableMem =0; 
+            decimal ramUsage = 0, availableMem =0; 
             decimal ramPercentUsage = 0;
             if (stats.MemoryStats.Stats is not null)
             {
@@ -67,11 +67,11 @@ namespace vBenchSLAM.Core.SystemMonitor
                 ramPercentUsage = ramUsage / availableMem * 100;    
             }  
             //TODO: cpu % usage returns sth over 300%
-            ulong cpuDelta = stats.CPUStats.CPUUsage.TotalUsage - stats.PreCPUStats.CPUUsage.TotalUsage;
-            ulong sysCpuDelta = stats.CPUStats.SystemUsage - stats.PreCPUStats.SystemUsage; 
-            ulong onlineCPUs = stats.CPUStats.OnlineCPUs; 
+            decimal cpuDelta = stats.CPUStats.CPUUsage.TotalUsage - stats.PreCPUStats.CPUUsage.TotalUsage;
+            decimal sysCpuDelta = stats.CPUStats.SystemUsage - stats.PreCPUStats.SystemUsage; 
+            decimal onlineCPUs = stats.CPUStats.OnlineCPUs; 
             decimal cpuUsage = cpuDelta / sysCpuDelta * onlineCPUs * 100;
-            return new ResourceUsage(cpuUsage, Convert.ToInt32(onlineCPUs), ramUsage, availableMem, ramPercentUsage);
+            return new ResourceUsage(cpuUsage, Convert.ToInt32(onlineCPUs), (ulong)ramUsage, (ulong)availableMem, ramPercentUsage);
         }
 
         private FileInfo PrepareFile()

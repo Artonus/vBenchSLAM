@@ -80,6 +80,11 @@ namespace vBenchSLAM.Core.DockerCore
             return true;
         }
 
+        public async Task PullImageAsync(string image)
+        {
+            await Runner.PullContainer(image);
+        }
+
         public virtual async Task<ContainerListResponse> GetContainerByNameAsync(string containerName)
         {
             var containers = await ListContainersAsync();

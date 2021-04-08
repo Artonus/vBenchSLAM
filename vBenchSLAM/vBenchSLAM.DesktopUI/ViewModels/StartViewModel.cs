@@ -97,8 +97,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             RunnerResult result = null;
             using (var runner = new Runner(param))
             {
-                result = runner.Run();
-
+                result = await runner.Run();
             }
 
             if (result.IsSuccess)
