@@ -89,7 +89,8 @@ namespace vBenchSLAM.DesktopUI.Views
             {
                 await MessageBox.Show((Window) Parent, "Couldn't find any runs. Make sure that you run the algorithm first.", "No benchmark data found", MessageBoxButtons.Ok);
             }
-            var runsToOpen = openOnlyLatest ? runs : new List<string>(new[] { runs.Last() });
+
+            var runsToOpen = openOnlyLatest ? new List<string>(new[] {runs.Last()}) : runs;
 
             foreach (var runId in runsToOpen)
             {
@@ -98,7 +99,7 @@ namespace vBenchSLAM.DesktopUI.Views
                     DataContext = new ChartWindowViewModel(GetViewModel().DataService, runId)
                 };
             
-                chart.Show((Window)this.Parent);    
+                chart.Show((Window)this.Parent);
             }
             
         }

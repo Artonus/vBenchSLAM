@@ -10,11 +10,11 @@ namespace vBenchSLAM.Core.Model
     public class RunnerResult
     {
         public bool IsSuccess { get; }
-        public MapperTypeEnum Mapper { get; }
+        public MapperType Mapper { get; }
         public string CreatedMapPath { get; }
         public Exception Exception { get; }
 
-        public RunnerResult(bool isSuccess, MapperTypeEnum mapper, string createdMapPath, Exception exception)
+        public RunnerResult(bool isSuccess, MapperType mapper, string createdMapPath, Exception exception)
         {
             IsSuccess = isSuccess;
             Mapper = mapper;

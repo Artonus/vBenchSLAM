@@ -29,7 +29,7 @@ namespace vBenchSLAM.Core
         {
             switch (_runnerParameters.MapperType)
             {
-                case MapperTypeEnum.OpenVslam:
+                case MapperType.OpenVslam:
                     _mapper = new OpenVslamMapper(new DockerManager(new OpenVslamProcessRunner()), _logger);
                     break;
                 default:

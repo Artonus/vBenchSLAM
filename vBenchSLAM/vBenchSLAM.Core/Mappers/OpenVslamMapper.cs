@@ -27,7 +27,7 @@ namespace vBenchSLAM.Core.Mappers
         public const string ViewerContainerImage = "openvslam-socket";
 
 
-        public MapperTypeEnum MapperType => MapperTypeEnum.OpenVslam;
+        public MapperType MapperType => MapperType.OpenVslam;
         public string MapFileName => "map.msg";
 
         public string FullFrameworkName => nameof(OpenVslamMapper);
@@ -123,7 +123,7 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     Stream = true
                 };
-                var reporter = new SystemResource(resourceUsageFileName, Logger);
+                var reporter = new SystemResourceMonitor(resourceUsageFileName, Logger);
 
                 started &= await DockerManager.StartContainerAsync(socketContainer.ID);
                 var attachParams = new ContainerAttachParameters()
@@ -241,12 +241,7 @@ namespace vBenchSLAM.Core.Mappers
             foreach (var file in fileInfos)
             {
                 var copiedFileDestination = Path.Combine(tempFolderPath, file.Name);
-                if (File.Exists(copiedFileDestination))
-                {
-                    File.Delete(copiedFileDestination);
-                }
-
-                File.Copy(file.FullName, copiedFileDestination);
+                FileHelper.SafeCopy(file.FullName, copiedFileDestination);
             }
         }
 
@@ -254,7 +249,7 @@ namespace vBenchSLAM.Core.Mappers
         {
             string mapFile = Path.Combine(DirectoryHelper.GetDataFolderPath(), MapFileName);
             string destFileName = Path.Combine(outputFolder, MapFileName);
-            File.Copy(mapFile, destFileName);
+            FileHelper.SafeCopy(mapFile, destFileName);
         }
     }
 }

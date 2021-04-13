@@ -18,7 +18,7 @@ namespace vBenchSLAM.DesktopUI.Services
         public IEnumerable<FrameworkModel> GetAvailableFrameworks()
         {
             var retVals = new List<FrameworkModel>();
-            foreach (MapperTypeEnum value in Enum.GetValues(typeof(MapperTypeEnum)))
+            foreach (MapperType value in Enum.GetValues(typeof(MapperType)))
             {
                 retVals.Add(new FrameworkModel() { Name = value.ToString(), Id = (int)value });
             }
@@ -60,8 +60,10 @@ namespace vBenchSLAM.DesktopUI.Services
         {
             var runDir = Path.Combine(dir, runId);
             var files = Directory.GetFiles(runDir, "*", SearchOption.TopDirectoryOnly);
-
-            return files.Length >= 2 && files.Contains(Settings.RunDataFileName) && files.Contains($"{runId}.csv");
+            
+            return files.Length >= 2 
+                   && files.Contains(Path.Combine(runDir, Settings.RunDataFileName)) 
+                   && files.Contains(Path.Combine(runDir, $"{runId}.csv"));
         }
 
         private ChartDataModel ReadRunDataFromFiles(string dir, string runId)

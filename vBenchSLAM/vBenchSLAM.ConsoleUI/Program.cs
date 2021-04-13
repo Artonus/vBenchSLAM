@@ -12,7 +12,7 @@ namespace vBenchSLAM.ConsoleUI
             try
             {
                 Settings.Initialize();
-                //var param = new RunnerParameters(MapperTypeEnum.OpenVslam, string.Empty, string.Empty);
+                //var param = new RunnerParameters(MapperType.OpenVslam, string.Empty, string.Empty);
                 
                 //var runner = new Runner(param);
                 

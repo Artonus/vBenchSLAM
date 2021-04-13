@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -79,7 +80,7 @@ namespace vBenchSLAM.Core.Mappers.Base
             {
                 var mapper = this as IMapper;
                 stream.WriteLine($"Started;Finished;Mapper");
-                stream.WriteLine($"{started.ToLongTimeString()};{finished.ToLongTimeString()};{mapper.MapperType.GetStringValue()}");
+                stream.WriteLine($"{started.ToString(CultureInfo.InvariantCulture)};{finished.ToString(CultureInfo.InvariantCulture)};{mapper.MapperType.GetStringValue()}");
                 stream.WriteLine(parsable.GetCsvHeaderRow());
                 stream.WriteLine(parsable.ParseAsCsvLiteral());
             }

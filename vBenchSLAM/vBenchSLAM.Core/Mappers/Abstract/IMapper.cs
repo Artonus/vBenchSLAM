@@ -6,7 +6,7 @@ namespace vBenchSLAM.Core.Mappers.Abstract
 {
     public interface IMapper
     {
-        MapperTypeEnum MapperType { get; }
+        MapperType MapperType { get; }
 
         string MapFileName { get; }
 

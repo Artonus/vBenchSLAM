@@ -65,7 +65,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
 #if DEBUG
             DatasetPath = "/home/bartek/Works/vBenchSLAM/Samples";
             OutputPath = "/home/bartek/Works/vBenchSLAM/Samples/Output";
-            SelectedFramework = availableFrameworks.First(f => f.Id == (int) MapperTypeEnum.OpenVslam);
+            SelectedFramework = availableFrameworks.First(f => f.Id == (int) MapperType.OpenVslam);
 #endif
             PrepareValidationConstraints();
         }
@@ -110,9 +110,9 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             }
         }
 
-        private MapperTypeEnum GetSelectedMapperType()
+        private MapperType GetSelectedMapperType()
         {
-            return (MapperTypeEnum)SelectedFramework.Id; 
+            return (MapperType)SelectedFramework.Id; 
         }
     }
 }

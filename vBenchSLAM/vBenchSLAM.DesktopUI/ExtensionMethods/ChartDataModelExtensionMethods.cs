@@ -59,8 +59,8 @@ namespace vBenchSLAM.DesktopUI.ExtensionMethods
 
         public static ChartDataModel CalculateUsageAverages(this ChartDataModel model)
         {
-            model.AvgCpuUsage = model.ResourceUsages.Average(r => r.ProcUsage);
-            model.AvgRamUsage = model.ResourceUsages.Average(r => r.RamPercentUsage);
+            model.AvgCpuUsage = Math.Round(model.ResourceUsages.Average(r => r.ProcUsage), 2);
+            model.AvgRamUsage = Math.Round(model.ResourceUsages.Average(r => r.RamPercentUsage), 2);
             return model;
         }
     }

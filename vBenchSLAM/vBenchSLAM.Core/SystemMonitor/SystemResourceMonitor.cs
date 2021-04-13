@@ -9,12 +9,12 @@ using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.Core.SystemMonitor
 {
-    public class SystemResource : IProgress<ContainerStatsResponse>
+    public class SystemResourceMonitor : IProgress<ContainerStatsResponse>
     {
         private readonly ILogger _logger;
         private readonly string _tmpFilePath;
 
-        public SystemResource(string outputFileName, ILogger logger)
+        public SystemResourceMonitor(string outputFileName, ILogger logger)
         {
             _logger = logger;
             _tmpFilePath = Path.Combine(DirectoryHelper.GetMonitorsPath(), outputFileName);
@@ -42,7 +42,10 @@ namespace vBenchSLAM.Core.SystemMonitor
                     {
                         var usage = CalculateResourceUsage(stats);
                         // possible division by 0 exception while saving data
-                        await writer.WriteLineAsync(usage.ParseAsCsvLiteral());
+                        if (usage is not null)
+                        {
+                            await writer.WriteLineAsync(usage.ParseAsCsvLiteral());
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -65,7 +68,13 @@ namespace vBenchSLAM.Core.SystemMonitor
                 ramUsage = stats.MemoryStats.Usage - stats.MemoryStats.Stats["cache"];
                 availableMem = stats.MemoryStats.Limit;
                 ramPercentUsage = ramUsage / availableMem * 100;    
-            }  
+            }
+
+            if (stats.MemoryStats.Limit == default)
+            {
+                // if didn't receive any data, then do not create the record
+                return default;
+            }
             //TODO: cpu % usage returns sth over 300%
             decimal cpuDelta = stats.CPUStats.CPUUsage.TotalUsage - stats.PreCPUStats.CPUUsage.TotalUsage;
             decimal sysCpuDelta = stats.CPUStats.SystemUsage - stats.PreCPUStats.SystemUsage; 
