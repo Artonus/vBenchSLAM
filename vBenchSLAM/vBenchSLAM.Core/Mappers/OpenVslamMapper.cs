@@ -197,14 +197,15 @@ namespace vBenchSLAM.Core.Mappers
 
         public string GetContainerCommand()
         {
+            //todo: make program accept any sequence
             var command =
-                $"./run_video_slam -v data/orb_vocab.dbow2 -c data/config.yaml -m data/video.mp4 --auto-term --no-sleep --map-db data/{MapFileName}";
+                $"./run_kitti_slam -v data/orb_vocab.dbow2 -d data/sequence -c data/config.yaml --auto-term --no-sleep --map-db data/{MapFileName}";
             return command;
         }
 
         public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
-            string vocabFileName = "orb_vocab.dbow2", configFileName = "config.yaml", videoFileName = "video.mp4";
+            string vocabFileName = "orb_vocab.dbow2", configFileName = "config.yaml", videoFileName = "video.mp4", sequenceFolderName = "sequence";
 
             var allFiles = Directory.GetFiles(parameters.DatasetPath);
             var fileInfos = allFiles.Select(path => new FileInfo(path)).ToList();
@@ -223,14 +224,21 @@ namespace vBenchSLAM.Core.Mappers
                     new Exception($"Cannot find the configuration file: {configFileName}"));
             }
 
-            var videoFile = fileInfos.SingleOrDefault(f => f.Extension == ".mp4" && f.Name == videoFileName);
-            if (videoFile is null || videoFile.Exists == false)
+            var sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
+            if (sequencePath.Exists == false)
             {
                 return new DatasetCheckResult(false,
-                    new Exception($"Cannot find the configuration file: {videoFileName}"));
+                         new Exception($"Cannot find the sequence folder: {videoFileName}"));
             }
+            
+            // var videoFile = fileInfos.SingleOrDefault(f => f.Extension == ".mp4" && f.Name == videoFileName);
+            // if (videoFile is null || videoFile.Exists == false)
+            // {
+            //     return new DatasetCheckResult(false,
+            //         new Exception($"Cannot find the configuration file: {videoFileName}"));
+            // }
 
-            CopyToTemporaryFilesFolder(vocabFile, videoFile, configFile);
+            CopyToTemporaryFilesFolder(vocabFile, configFile);
 
             return new DatasetCheckResult(true, null);
         }
@@ -243,6 +251,12 @@ namespace vBenchSLAM.Core.Mappers
                 var copiedFileDestination = Path.Combine(tempFolderPath, file.Name);
                 FileHelper.SafeCopy(file.FullName, copiedFileDestination);
             }
+        }
+
+        private void CopySequenceFolder(DirectoryInfo sequenceFolderName)
+        {
+            var destSequenceFolderPath =new DirectoryInfo(Path.Combine(DirectoryHelper.GetDataFolderPath(), sequenceFolderName.Name));
+            DirectoryHelper.CopyFullDir(sequenceFolderName, destSequenceFolderPath);
         }
 
         public void CopyMapToOutputFolder(string outputFolder)
