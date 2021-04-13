@@ -239,7 +239,8 @@ namespace vBenchSLAM.Core.Mappers
             // }
 
             CopyToTemporaryFilesFolder(vocabFile, configFile);
-
+            CopySequenceFolder(sequencePath);
+            
             return new DatasetCheckResult(true, null);
         }
 

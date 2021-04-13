@@ -1,0 +1,3 @@
+FROM  celinachild/orbslam2:latest as orbslam
+WORKDIR /home/ORB_SLAM2
+ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
