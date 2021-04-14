@@ -49,14 +49,16 @@ namespace vBenchSLAM.Core.Mappers.Base
             var container = await DockerManager.GetContainerByNameAsync(GetFullImageName(containerName));
             return await DockerManager.StopContainerAsync(container.ID);
         }
-
+        
+        public abstract string GetContainerCommand();
         public abstract DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters);
+        
 
         protected void SaveMapAndStatistics(DateTime started, DateTime finished, string resourceUsageFileName)
         {
             var parser = new BaseParser();
             var mapper = this as IMapper;
-            string mapPath = Path.Combine(DirectoryHelper.GetDataFolderPath(), mapper?.MapFileName);
+            string mapPath = Path.Combine(DirectoryHelper.GetDataFolderPath(), mapper?.MapFileName ?? throw new InvalidOperationException());
             var mapData = parser.GetMapDataFromMessagePack(mapPath);
 
             string documentsPath = Path.Combine(
@@ -94,6 +96,23 @@ namespace vBenchSLAM.Core.Mappers.Base
             {
                 writer.WriteLine(Path.GetFileNameWithoutExtension(resourceUsageFileName));
             }
+        }
+
+
+        protected void CopyToTemporaryFilesFolder(params FileInfo[] fileInfos)
+        {
+            var tempFolderPath = DirectoryHelper.GetDataFolderPath();
+            foreach (var file in fileInfos)
+            {
+                var copiedFileDestination = Path.Combine(tempFolderPath, file.Name);
+                FileHelper.SafeCopy(file.FullName, copiedFileDestination);
+            }
+        }
+
+        protected void CopySequenceFolder(DirectoryInfo sequenceFolderName)
+        {
+            var destSequenceFolderPath =new DirectoryInfo(Path.Combine(DirectoryHelper.GetDataFolderPath(), sequenceFolderName.Name));
+            DirectoryHelper.CopyFullDir(sequenceFolderName, destSequenceFolderPath);
         }
     }
 }

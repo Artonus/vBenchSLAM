@@ -25,8 +25,6 @@ namespace vBenchSLAM.Core.Mappers
     {
         public const string ServerContainerImage = "openvslam-server";
         public const string ViewerContainerImage = "openvslam-socket";
-
-
         public MapperType MapperType => MapperType.OpenVslam;
         public string MapFileName => "map.msg";
 
@@ -37,11 +35,6 @@ namespace vBenchSLAM.Core.Mappers
         }
 
         public async Task<bool> Map()
-        {
-            return await Run();
-        }
-
-        public async Task<bool> Run()
         {
             var retVal = true;
             ContainerListResponse socketContainer = null, serverContainer = null;
@@ -195,7 +188,7 @@ namespace vBenchSLAM.Core.Mappers
             }
         }
 
-        public string GetContainerCommand()
+        public override string GetContainerCommand()
         {
             //todo: make program accept any sequence
             var command =
@@ -242,22 +235,6 @@ namespace vBenchSLAM.Core.Mappers
             CopySequenceFolder(sequencePath);
             
             return new DatasetCheckResult(true, null);
-        }
-
-        private void CopyToTemporaryFilesFolder(params FileInfo[] fileInfos)
-        {
-            var tempFolderPath = DirectoryHelper.GetDataFolderPath();
-            foreach (var file in fileInfos)
-            {
-                var copiedFileDestination = Path.Combine(tempFolderPath, file.Name);
-                FileHelper.SafeCopy(file.FullName, copiedFileDestination);
-            }
-        }
-
-        private void CopySequenceFolder(DirectoryInfo sequenceFolderName)
-        {
-            var destSequenceFolderPath =new DirectoryInfo(Path.Combine(DirectoryHelper.GetDataFolderPath(), sequenceFolderName.Name));
-            DirectoryHelper.CopyFullDir(sequenceFolderName, destSequenceFolderPath);
         }
 
         public void CopyMapToOutputFolder(string outputFolder)
