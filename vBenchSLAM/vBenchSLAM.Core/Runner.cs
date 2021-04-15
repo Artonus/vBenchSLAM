@@ -30,10 +30,10 @@ namespace vBenchSLAM.Core
             switch (_runnerParameters.MapperType)
             {
                 case MapperType.OpenVslam:
-                    _mapper = new OpenVslamMapper(new DockerManager(new OpenVslamProcessRunner()), _logger);
+                    _mapper = new OpenVslamMapper(new OpenVslamProcessRunner(), _logger);
                     break;
                 case MapperType.OrbSlam:
-                    _mapper = new OrbSlamMapper(new DockerManager(new ProcessRunner.ProcessRunner()), _logger);
+                    _mapper = new OrbSlamMapper(new OrbSlamProcessRunner(), _logger);
                     break;
                 default:
                     throw  new InvalidEnumArgumentException($"Unresolved mapper type: {_runnerParameters.MapperType}");

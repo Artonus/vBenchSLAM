@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
 using vBenchSLAM.Core.Model;
+using vBenchSLAM.Core.ProcessRunner;
 using vBenchSLAM.Core.SystemMonitor;
 
 namespace vBenchSLAM.Core.Mappers
@@ -22,8 +24,10 @@ namespace vBenchSLAM.Core.Mappers
         public MapperType MapperType => MapperType.OrbSlam;
         public string MapFileName => "KeyFrameTrajectory.txt";
 
-        public OrbSlamMapper(IDockerManager dockerManager, ILogger logger) : base(dockerManager, logger)
+        private readonly OrbSlamProcessRunner _processRunner;
+        public OrbSlamMapper(OrbSlamProcessRunner processRunner, ILogger logger) : base(processRunner, logger)
         {
+            _processRunner = processRunner;
         }
 
         public async Task<bool> Map()
@@ -34,6 +38,7 @@ namespace vBenchSLAM.Core.Mappers
             string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
             try
             {
+                await _processRunner.EnablePangolinViewer();
                 mapperContainer = await PrepareAndStartContainer();
                 var statParams = new ContainerStatsParameters()
                 {
@@ -64,10 +69,9 @@ namespace vBenchSLAM.Core.Mappers
                 }
 
                 var exited = await DockerManager.Client.Containers.WaitContainerAsync(mapperContainer.ID);
+                Logger.Information("Mapping has finished");
                 finishedTime = DateTime.Now;
                 retVal &= exited.StatusCode == 0;
-                //TODO: wait for exit
-                //TODO: parse created map
             }
             catch (Exception ex)
             {
@@ -82,7 +86,7 @@ namespace vBenchSLAM.Core.Mappers
                     await DockerManager.Client.Containers.RemoveContainerAsync(mapperContainer.ID,
                         new ContainerRemoveParameters());
                 }
-
+                //TODO: validate the map
                 SaveMapAndStatistics(startedTime, finishedTime, resourceUsageFileName);
             }
 
@@ -108,7 +112,12 @@ namespace vBenchSLAM.Core.Mappers
                 },
                 Image = GetFullImageName(MapperContainerImage),
                 AttachStderr = true,
-                AttachStdout = true
+                AttachStdout = true,
+                Env = new List<string>
+                {
+                    $"DISPLAY=unix{Environment.GetEnvironmentVariable("DISPLAY")}",
+                    "NVIDIA_DRIVER_CAPABILITIES=all"
+                }
             };
             var createParams = new CreateContainerParameters(cfg)
             {
@@ -136,17 +145,12 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     new DeviceRequest
                     {
+                        //TODO: check for the correct data
                         Driver = "nvidia", Capabilities = new List<IList<string>>
                         {
-                            new List<string> {"all"}
+                            new List<string> {"compute", "compat32", "graphics", "utility", "video", "display"}
                         },
-                        Count = -1,
-                        //TODO: get valid dpu id
-                        DeviceIDs = new List<string> {"GPU-fef8089b-4820-abfc-e83e-94318197576e"},
-                        Options = new Dictionary<string, string>
-                        {
-                            {"--gpus", "all"},
-                        }
+                        Count = 1
                     }
                 }
             };
@@ -162,12 +166,41 @@ namespace vBenchSLAM.Core.Mappers
 
         public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
-            throw new System.NotImplementedException();
+            string vocabFileName = "ORBvoc.txt", configFileName = "config-orb.yaml", sequenceFolderName = "sequence";
+
+            var allFiles = Directory.GetFiles(parameters.DatasetPath);
+            var fileInfos = allFiles.Select(path => new FileInfo(path)).ToList();
+
+            var vocabFile = fileInfos.SingleOrDefault(f => f.Extension == ".txt" && f.Name == vocabFileName);
+            if (vocabFile is null || vocabFile.Exists == false)
+            {
+                return new DatasetCheckResult(false,
+                    new Exception($"Cannot find the vocabulary file: {vocabFileName}"));
+            }
+
+            var configFile = fileInfos.SingleOrDefault(f => f.Extension == ".yaml" && f.Name == configFileName);
+            if (configFile is null || configFile.Exists == false)
+            {
+                return new DatasetCheckResult(false,
+                    new Exception($"Cannot find the configuration file: {configFileName}"));
+            }
+
+            var sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
+            if (sequencePath.Exists == false)
+            {
+                return new DatasetCheckResult(false,
+                    new Exception($"Cannot find the sequence folder"));
+            }
+
+            CopyToTemporaryFilesFolder(vocabFile, configFile);
+            CopySequenceFolder(sequencePath);
+            
+            return new DatasetCheckResult(true, null);
         }
 
         public void CopyMapToOutputFolder(string outputFolder)
         {
-            throw new System.NotImplementedException();
+            CopyMapToOutputFolder(outputFolder, MapFileName);
         }
     }
 }

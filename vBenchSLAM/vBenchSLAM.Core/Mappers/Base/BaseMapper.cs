@@ -19,11 +19,12 @@ namespace vBenchSLAM.Core.Mappers.Base
     {
         protected string RunParameters;
         protected readonly IDockerManager DockerManager;
+        
         protected readonly ILogger Logger;
 
-        protected BaseMapper(IDockerManager dockerManager, ILogger logger)
+        protected BaseMapper(ProcessRunner.ProcessRunner processRunner, ILogger logger)
         {
-            DockerManager = dockerManager;
+            DockerManager = new DockerManager(processRunner);
             Logger = logger;
         }
 
@@ -87,6 +88,7 @@ namespace vBenchSLAM.Core.Mappers.Base
                 stream.WriteLine(parsable.ParseAsCsvLiteral());
             }
         }
+        
         private void LogRun(string resourceUsageFileName)
         {
             var logFile = new FileInfo(Path.Combine(DirectoryHelper.GetUserDocumentsFolder(), Settings.RunLogFileName));
@@ -97,7 +99,6 @@ namespace vBenchSLAM.Core.Mappers.Base
                 writer.WriteLine(Path.GetFileNameWithoutExtension(resourceUsageFileName));
             }
         }
-
 
         protected void CopyToTemporaryFilesFolder(params FileInfo[] fileInfos)
         {
@@ -113,6 +114,13 @@ namespace vBenchSLAM.Core.Mappers.Base
         {
             var destSequenceFolderPath =new DirectoryInfo(Path.Combine(DirectoryHelper.GetDataFolderPath(), sequenceFolderName.Name));
             DirectoryHelper.CopyFullDir(sequenceFolderName, destSequenceFolderPath);
+        }
+
+        public void CopyMapToOutputFolder(string outputFolder, string mapFileName)
+        {
+            string mapFile = Path.Combine(DirectoryHelper.GetDataFolderPath(), mapFileName);
+            string destFileName = Path.Combine(outputFolder, mapFileName);
+            FileHelper.SafeCopy(mapFile, destFileName);
         }
     }
 }

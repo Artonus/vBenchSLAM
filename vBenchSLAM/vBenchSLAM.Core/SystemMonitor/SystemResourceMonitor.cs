@@ -45,6 +45,7 @@ namespace vBenchSLAM.Core.SystemMonitor
                         if (usage is not null)
                         {
                             await writer.WriteLineAsync(usage.ParseAsCsvLiteral());
+                            _logger.Debug("Logged resource usage");
                         }
                     }
                     catch (Exception ex)
@@ -61,6 +62,7 @@ namespace vBenchSLAM.Core.SystemMonitor
 
         private ResourceUsage CalculateResourceUsage(ContainerStatsResponse stats)
         {
+            
             decimal ramUsage = 0, availableMem =0; 
             decimal ramPercentUsage = 0;
             if (stats.MemoryStats.Stats is not null)
@@ -76,10 +78,20 @@ namespace vBenchSLAM.Core.SystemMonitor
                 return default;
             }
             //TODO: cpu % usage returns sth over 300%
+            decimal cpuUsage = 0; 
             decimal cpuDelta = stats.CPUStats.CPUUsage.TotalUsage - stats.PreCPUStats.CPUUsage.TotalUsage;
             decimal sysCpuDelta = stats.CPUStats.SystemUsage - stats.PreCPUStats.SystemUsage; 
-            decimal onlineCPUs = stats.CPUStats.OnlineCPUs; 
-            decimal cpuUsage = cpuDelta / sysCpuDelta * onlineCPUs * 100;
+            decimal onlineCPUs = stats.CPUStats.OnlineCPUs;
+            if (onlineCPUs == default)
+            {
+                onlineCPUs = stats.CPUStats.CPUUsage.PercpuUsage.Count;
+            }
+
+            if (sysCpuDelta > 0 && cpuDelta > 0)
+            {
+                cpuUsage = cpuDelta / sysCpuDelta * onlineCPUs * 100;    
+            }
+            
             return new ResourceUsage(cpuUsage, Convert.ToInt32(onlineCPUs), (ulong)ramUsage, (ulong)availableMem, ramPercentUsage);
         }
 

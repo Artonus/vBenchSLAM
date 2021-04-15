@@ -28,9 +28,7 @@ namespace vBenchSLAM.Core.Mappers
         public MapperType MapperType => MapperType.OpenVslam;
         public string MapFileName => "map.msg";
 
-        public string FullFrameworkName => nameof(OpenVslamMapper);
-
-        public OpenVslamMapper(IDockerManager dockerManager, ILogger logger) : base(dockerManager, logger)
+        public OpenVslamMapper(ProcessRunner.ProcessRunner processRunner, ILogger logger) : base(processRunner, logger)
         {
         }
 
@@ -221,15 +219,8 @@ namespace vBenchSLAM.Core.Mappers
             if (sequencePath.Exists == false)
             {
                 return new DatasetCheckResult(false,
-                         new Exception($"Cannot find the sequence folder: {videoFileName}"));
+                         new Exception($"Cannot find the sequence folder"));
             }
-            
-            // var videoFile = fileInfos.SingleOrDefault(f => f.Extension == ".mp4" && f.Name == videoFileName);
-            // if (videoFile is null || videoFile.Exists == false)
-            // {
-            //     return new DatasetCheckResult(false,
-            //         new Exception($"Cannot find the configuration file: {videoFileName}"));
-            // }
 
             CopyToTemporaryFilesFolder(vocabFile, configFile);
             CopySequenceFolder(sequencePath);
@@ -239,9 +230,7 @@ namespace vBenchSLAM.Core.Mappers
 
         public void CopyMapToOutputFolder(string outputFolder)
         {
-            string mapFile = Path.Combine(DirectoryHelper.GetDataFolderPath(), MapFileName);
-            string destFileName = Path.Combine(outputFolder, MapFileName);
-            FileHelper.SafeCopy(mapFile, destFileName);
+            CopyMapToOutputFolder(outputFolder, MapFileName);
         }
     }
 }

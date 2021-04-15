@@ -32,7 +32,7 @@ namespace vBenchSLAM.DesktopUI.Views
             AvaloniaXamlLoader.Load(this);
         }
         
-        private void OnDataContextChanged(object? sender, EventArgs e)
+        private void OnDataContextChanged(object sender, EventArgs e)
         {
             if (_hasLoadedChartData == false)
             {
