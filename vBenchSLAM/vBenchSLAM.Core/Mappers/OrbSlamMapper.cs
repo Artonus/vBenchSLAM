@@ -160,7 +160,7 @@ namespace vBenchSLAM.Core.Mappers
         {
             string command =
                 $"./Examples/Monocular/mono_kitti data/ORBvoc.txt data/config-orb.yaml data/sequence " +
-                $"&& cp {MapFileName} data/{MapFileName}";
+                $"; cp {MapFileName} data/{MapFileName}";
             return command;
         }
 
