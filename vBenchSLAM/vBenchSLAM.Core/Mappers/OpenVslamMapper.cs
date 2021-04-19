@@ -30,6 +30,7 @@ namespace vBenchSLAM.Core.Mappers
 
         public OpenVslamMapper(ProcessRunner.ProcessRunner processRunner, ILogger logger) : base(processRunner, logger)
         {
+            Parser = new OpenVslamParser();
         }
 
         public async Task<bool> Map()

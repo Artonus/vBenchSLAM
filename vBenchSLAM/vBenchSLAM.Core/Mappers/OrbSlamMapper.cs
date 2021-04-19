@@ -10,6 +10,7 @@ using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Enums;
+using vBenchSLAM.Core.MapParser;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
 using vBenchSLAM.Core.Model;
@@ -28,6 +29,7 @@ namespace vBenchSLAM.Core.Mappers
         public OrbSlamMapper(OrbSlamProcessRunner processRunner, ILogger logger) : base(processRunner, logger)
         {
             _processRunner = processRunner;
+            Parser = new OrbSlamParser();
         }
 
         public async Task<bool> Map()

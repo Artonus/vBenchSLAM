@@ -21,6 +21,7 @@ namespace vBenchSLAM.Core.Mappers.Base
         protected readonly IDockerManager DockerManager;
         
         protected readonly ILogger Logger;
+        protected BaseParser Parser;
 
         protected BaseMapper(ProcessRunner.ProcessRunner processRunner, ILogger logger)
         {
@@ -57,10 +58,9 @@ namespace vBenchSLAM.Core.Mappers.Base
 
         protected void SaveMapAndStatistics(DateTime started, DateTime finished, string resourceUsageFileName)
         {
-            var parser = new BaseParser();
             var mapper = this as IMapper;
             string mapPath = Path.Combine(DirectoryHelper.GetDataFolderPath(), mapper?.MapFileName ?? throw new InvalidOperationException());
-            var mapData = parser.GetMapDataFromMessagePack(mapPath);
+            var mapData = Parser.ParseMap(mapPath);
 
             string documentsPath = Path.Combine(
                DirectoryHelper.GetUserDocumentsFolder(),
