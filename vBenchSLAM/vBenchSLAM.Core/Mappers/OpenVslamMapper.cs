@@ -25,23 +25,15 @@ namespace vBenchSLAM.Core.Mappers
     {
         public const string ServerContainerImage = "openvslam-server";
         public const string ViewerContainerImage = "openvslam-socket";
-
-
         public MapperType MapperType => MapperType.OpenVslam;
         public string MapFileName => "map.msg";
 
-        public string FullFrameworkName => nameof(OpenVslamMapper);
-
-        public OpenVslamMapper(IDockerManager dockerManager, ILogger logger) : base(dockerManager, logger)
+        public OpenVslamMapper(ProcessRunner.ProcessRunner processRunner, ILogger logger) : base(processRunner, logger)
         {
+            Parser = new OpenVslamParser();
         }
 
         public async Task<bool> Map()
-        {
-            return await Run();
-        }
-
-        public async Task<bool> Run()
         {
             var retVal = true;
             ContainerListResponse socketContainer = null, serverContainer = null;
@@ -195,16 +187,17 @@ namespace vBenchSLAM.Core.Mappers
             }
         }
 
-        public string GetContainerCommand()
+        public override string GetContainerCommand()
         {
+            //todo: make program accept any sequence
             var command =
-                $"./run_video_slam -v data/orb_vocab.dbow2 -c data/config.yaml -m data/video.mp4 --auto-term --no-sleep --map-db data/{MapFileName}";
+                $"./run_kitti_slam -v data/orb_vocab.dbow2 -d data/sequence -c data/config.yaml --auto-term --no-sleep --map-db data/{MapFileName}";
             return command;
         }
 
         public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
-            string vocabFileName = "orb_vocab.dbow2", configFileName = "config.yaml", videoFileName = "video.mp4";
+            string vocabFileName = "orb_vocab.dbow2", configFileName = "config.yaml", videoFileName = "video.mp4", sequenceFolderName = "sequence";
 
             var allFiles = Directory.GetFiles(parameters.DatasetPath);
             var fileInfos = allFiles.Select(path => new FileInfo(path)).ToList();
@@ -223,33 +216,22 @@ namespace vBenchSLAM.Core.Mappers
                     new Exception($"Cannot find the configuration file: {configFileName}"));
             }
 
-            var videoFile = fileInfos.SingleOrDefault(f => f.Extension == ".mp4" && f.Name == videoFileName);
-            if (videoFile is null || videoFile.Exists == false)
+            var sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
+            if (sequencePath.Exists == false)
             {
                 return new DatasetCheckResult(false,
-                    new Exception($"Cannot find the configuration file: {videoFileName}"));
+                         new Exception($"Cannot find the sequence folder"));
             }
 
-            CopyToTemporaryFilesFolder(vocabFile, videoFile, configFile);
-
+            CopyToTemporaryFilesFolder(vocabFile, configFile);
+            CopySequenceFolder(sequencePath);
+            
             return new DatasetCheckResult(true, null);
-        }
-
-        private void CopyToTemporaryFilesFolder(params FileInfo[] fileInfos)
-        {
-            var tempFolderPath = DirectoryHelper.GetDataFolderPath();
-            foreach (var file in fileInfos)
-            {
-                var copiedFileDestination = Path.Combine(tempFolderPath, file.Name);
-                FileHelper.SafeCopy(file.FullName, copiedFileDestination);
-            }
         }
 
         public void CopyMapToOutputFolder(string outputFolder)
         {
-            string mapFile = Path.Combine(DirectoryHelper.GetDataFolderPath(), MapFileName);
-            string destFileName = Path.Combine(outputFolder, MapFileName);
-            FileHelper.SafeCopy(mapFile, destFileName);
+            CopyMapToOutputFolder(outputFolder, MapFileName);
         }
     }
 }

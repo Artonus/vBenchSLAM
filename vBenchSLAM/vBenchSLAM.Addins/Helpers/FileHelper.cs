@@ -9,11 +9,7 @@ namespace vBenchSLAM.Addins
         /// </summary>
         public static void SafeCopy(string source, string destination)
         {
-            if (File.Exists(destination))
-            {
-                File.Delete(destination);
-            }
-            File.Copy(source, destination);
+            File.Copy(source, destination, true);
         }
     }
 }

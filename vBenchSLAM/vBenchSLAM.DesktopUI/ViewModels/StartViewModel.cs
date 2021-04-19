@@ -63,9 +63,9 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             //StartFrameworkCommand = ReactiveCommand.Create(StartFrameworkBenchmark);
 
 #if DEBUG
-            DatasetPath = "/home/bartek/Works/vBenchSLAM/Samples";
+            DatasetPath = "/home/bartek/Works/vBenchSLAM/Samples/Kitty";
             OutputPath = "/home/bartek/Works/vBenchSLAM/Samples/Output";
-            SelectedFramework = availableFrameworks.First(f => f.Id == (int) MapperType.OpenVslam);
+            SelectedFramework = availableFrameworks.First(f => f.Id == (int) MapperType.OrbSlam);
 #endif
             PrepareValidationConstraints();
         }

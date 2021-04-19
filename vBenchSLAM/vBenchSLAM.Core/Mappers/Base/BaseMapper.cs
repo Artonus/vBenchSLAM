@@ -19,11 +19,13 @@ namespace vBenchSLAM.Core.Mappers.Base
     {
         protected string RunParameters;
         protected readonly IDockerManager DockerManager;
+        
         protected readonly ILogger Logger;
+        protected BaseParser Parser;
 
-        protected BaseMapper(IDockerManager dockerManager, ILogger logger)
+        protected BaseMapper(ProcessRunner.ProcessRunner processRunner, ILogger logger)
         {
-            DockerManager = dockerManager;
+            DockerManager = new DockerManager(processRunner);
             Logger = logger;
         }
 
@@ -49,15 +51,16 @@ namespace vBenchSLAM.Core.Mappers.Base
             var container = await DockerManager.GetContainerByNameAsync(GetFullImageName(containerName));
             return await DockerManager.StopContainerAsync(container.ID);
         }
-
+        
+        public abstract string GetContainerCommand();
         public abstract DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters);
+        
 
         protected void SaveMapAndStatistics(DateTime started, DateTime finished, string resourceUsageFileName)
         {
-            var parser = new BaseParser();
             var mapper = this as IMapper;
-            string mapPath = Path.Combine(DirectoryHelper.GetDataFolderPath(), mapper?.MapFileName);
-            var mapData = parser.GetMapDataFromMessagePack(mapPath);
+            string mapPath = Path.Combine(DirectoryHelper.GetDataFolderPath(), mapper?.MapFileName ?? throw new InvalidOperationException());
+            var mapData = Parser.ParseMap(mapPath);
 
             string documentsPath = Path.Combine(
                DirectoryHelper.GetUserDocumentsFolder(),
@@ -85,6 +88,7 @@ namespace vBenchSLAM.Core.Mappers.Base
                 stream.WriteLine(parsable.ParseAsCsvLiteral());
             }
         }
+        
         private void LogRun(string resourceUsageFileName)
         {
             var logFile = new FileInfo(Path.Combine(DirectoryHelper.GetUserDocumentsFolder(), Settings.RunLogFileName));
@@ -94,6 +98,29 @@ namespace vBenchSLAM.Core.Mappers.Base
             {
                 writer.WriteLine(Path.GetFileNameWithoutExtension(resourceUsageFileName));
             }
+        }
+
+        protected void CopyToTemporaryFilesFolder(params FileInfo[] fileInfos)
+        {
+            var tempFolderPath = DirectoryHelper.GetDataFolderPath();
+            foreach (var file in fileInfos)
+            {
+                var copiedFileDestination = Path.Combine(tempFolderPath, file.Name);
+                FileHelper.SafeCopy(file.FullName, copiedFileDestination);
+            }
+        }
+
+        protected void CopySequenceFolder(DirectoryInfo sequenceFolderName)
+        {
+            var destSequenceFolderPath =new DirectoryInfo(Path.Combine(DirectoryHelper.GetDataFolderPath(), sequenceFolderName.Name));
+            DirectoryHelper.CopyFullDir(sequenceFolderName, destSequenceFolderPath);
+        }
+
+        public void CopyMapToOutputFolder(string outputFolder, string mapFileName)
+        {
+            string mapFile = Path.Combine(DirectoryHelper.GetDataFolderPath(), mapFileName);
+            string destFileName = Path.Combine(outputFolder, mapFileName);
+            FileHelper.SafeCopy(mapFile, destFileName);
         }
     }
 }

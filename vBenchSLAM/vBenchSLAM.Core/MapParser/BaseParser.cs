@@ -9,48 +9,14 @@ using vBenchSLAM.Core.MapParser.Models;
 
 namespace vBenchSLAM.Core.MapParser
 {
-    public class BaseParser
+    public abstract class BaseParser
     {
         public BaseParser()
         {
 
         }
 
-        public MapData GetMapDataFromMessagePack(string file)
-        {
-            var map = new MapData();
-            try
-            {
-                byte[] bytes = File.ReadAllBytes(file);
-
-                dynamic data = MessagePackSerializer.Deserialize<dynamic>(bytes);
-                
-                
-                if (data["keyframes"] is ICollection keyframesCollection)
-                {
-                    map.Keyframes = keyframesCollection.Count;
-                    int count = 0;
-                    foreach (KeyValuePair<object, object> frame in keyframesCollection)
-                    {
-                        var localCnt = (frame.Value as dynamic)?["n_keypts"];
-                        count += localCnt;
-                    }
-
-                    map.Keypoints = count;
-                }
-
-                if (data["landmarks"] is ICollection landmarkCollection)
-                {
-                    map.Landmarks = landmarkCollection.Count;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Failed to serialize");
-            }
-
-            return map;
-        }
+        public abstract MapData ParseMap(string file);
 
         private static void Iterate(object obj)
         {

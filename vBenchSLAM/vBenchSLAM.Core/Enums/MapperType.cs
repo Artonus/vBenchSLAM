@@ -5,6 +5,8 @@ namespace vBenchSLAM.Core.Enums
     public enum MapperType
     {
         [StringValue("OpenVSLAM")]
-        OpenVslam
+        OpenVslam,
+        [StringValue("ORBSLAM2")]
+        OrbSlam
     }
 }
