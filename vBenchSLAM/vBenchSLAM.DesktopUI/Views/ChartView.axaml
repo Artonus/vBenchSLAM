@@ -9,7 +9,7 @@
              x:Class="vBenchSLAM.DesktopUI.Views.ChartView"
              x:CompileBindings="True"
              x:DataType="vm:ChartViewModel"
-             Width="800" Height="600"
+             Width="800" Height="1000"
              >
     <DockPanel Margin="10">
         <DockPanel DockPanel.Dock="Top" Height="300">
@@ -76,7 +76,27 @@
                     </Grid>
                 </Border>
             </DockPanel>
-            
+            <DockPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0">Fatal problems:</Label>
+                    <TextBlock Grid.Row="1" Name="FatalProblems" Text="{Binding Fatal}"></TextBlock>
+                    <Label Grid.Row="2">May need an improvement:</Label>
+                    <TextBlock Grid.Row="3" Name="Improvements" Text="{Binding Improvements}"></TextBlock>
+                    <Label Grid.Row="4">Looks good:</Label>
+                    <TextBlock Grid.Row="5" Name="AlreadyGood" Text="{Binding AlreadyGood}"></TextBlock>
+                </Grid>
+            </DockPanel>
         </StackPanel>
     </DockPanel>
     <!--<Grid Margin="2">

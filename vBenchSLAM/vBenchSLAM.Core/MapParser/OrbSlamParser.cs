@@ -14,13 +14,12 @@ namespace vBenchSLAM.Core.MapParser
             {
                 // the line in the file has the following structure:
                 // timestamp CameraX CameraY CameraZ RotationX RotationY RotationZ RotationW
-                string line;
                 while (fr.ReadLine() is not null)
                 {
                     mapData.Keyframes++;
                 }
             }
-
+            
             return mapData;
         }
     }
