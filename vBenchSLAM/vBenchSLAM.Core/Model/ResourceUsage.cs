@@ -11,27 +11,32 @@ namespace vBenchSLAM.Core.Model
         /// <summary>
         /// Total RAM available in bytes
         /// </summary>
-        public ulong MaxRamAvailable { get; set; }
+        public ulong MaxRamAvailable { get; init; }
         /// <summary>
         /// RAM usage in %
         /// </summary>
-        public decimal RamPercentUsage { get; set; }
+        public decimal RamPercentUsage { get; init; }
         /// <summary>
         /// Number of active processor logical units
         /// </summary>
-        public int OnlineCPUs { get; set; }
+        public int OnlineCPUs { get; init; }
         /// <summary>
         /// CPU usage as % of all CPU usage
         /// </summary>
         public decimal ProcUsage { get; }
+        /// <summary>
+        /// GPU usage as % of all GPU usage
+        /// </summary>
+        public decimal GPUUsage { get; }
         
-        public ResourceUsage(decimal procUsage, int onlineCPUs, ulong ramUsage, ulong maxRamAvailable, decimal ramPercentUsage)
+        public ResourceUsage(decimal procUsage, int onlineCPUs, ulong ramUsage, ulong maxRamAvailable, decimal ramPercentUsage, decimal gpuUsage)
         {
             ProcUsage = procUsage;
             RamUsage = ramUsage;
             MaxRamAvailable = maxRamAvailable;
             RamPercentUsage = ramPercentUsage;
             OnlineCPUs = onlineCPUs;
+            GPUUsage = gpuUsage;
         }
 
         public string GetCsvHeaderRow()
@@ -42,7 +47,7 @@ namespace vBenchSLAM.Core.Model
 
         public string ParseAsCsvLiteral()
         {
-            return $"{RamUsage};{MaxRamAvailable};{Math.Round(RamPercentUsage, 2)};{OnlineCPUs};{Math.Round(ProcUsage, 2)}";
+            return $"{RamUsage};{MaxRamAvailable};{Math.Round(RamPercentUsage, 2)};{OnlineCPUs};{Math.Round(ProcUsage, 2)};{Math.Round(GPUUsage, 2)}";
         }
 
         public static string AsCsvLiteral(ResourceUsage model)
@@ -57,7 +62,8 @@ namespace vBenchSLAM.Core.Model
             decimal ramPercentUsage = decimal.Parse(values[2]);
             int onlineCpus = int.Parse(values[3]);
             decimal procUsage = decimal.Parse(values[4]);
-            return new ResourceUsage(procUsage, onlineCpus, ramUsage, maxRam, ramPercentUsage);
+            decimal gpuUsage = decimal.Parse(values[5]);
+            return new ResourceUsage(procUsage, onlineCpus, ramUsage, maxRam, ramPercentUsage, gpuUsage);
         }
     }
 }

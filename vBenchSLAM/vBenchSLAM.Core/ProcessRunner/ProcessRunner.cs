@@ -15,13 +15,13 @@ namespace vBenchSLAM.Core.ProcessRunner
 
         protected string BaseProgram { get; }
         protected string ExecCmdOption { get; }
-        protected string Prefix { get; }
+        protected string CommandPrefix { get; }
 
         public ProcessRunner()
         {
             BaseProgram = Settings.IsUnix ? "/bin/bash" : "cmd.exe";
             ExecCmdOption = Settings.IsUnix ? "-c" : "/C";
-            Prefix = Settings.IsWsl ? "wsl " : string.Empty;
+            CommandPrefix = Settings.IsWsl ? "wsl " : string.Empty;
         }
 
         /// <summary>
@@ -31,25 +31,25 @@ namespace vBenchSLAM.Core.ProcessRunner
             string containerCommand = "")
         {
             var args =
-                $"{ExecCmdOption} \"{Prefix} {GetDockerRunCommand(containerName, startParameters, containerCommand)}\"";
+                $"{ExecCmdOption} \"{CommandPrefix} {GetDockerRunCommand(containerName, startParameters, containerCommand)}\"";
             return await RunProcessAsync(BaseProgram, args, false);
         }
 
         public virtual async Task<int> SendCommandToContainerAsync(string containerId, string command)
         {
-            var args = $@"{ExecCmdOption} ""{Prefix} docker exec -it {containerId} bash -c {command}""";
+            var args = $@"{ExecCmdOption} ""{CommandPrefix} docker exec -it {containerId} bash -c {command}""";
             return await RunProcessAsync(BaseProgram, args);
         }
 
         public virtual async Task<int> PullContainer(string containerInfo)
         {
-            var args = $@"{ExecCmdOption} ""{Prefix} docker pull {containerInfo}""";
+            var args = $@"{ExecCmdOption} ""{CommandPrefix} docker pull {containerInfo}""";
             return await RunProcessAsync(BaseProgram, args, false);
         }
 
         public virtual async Task<int> BuildImage(string containerName)
         {
-            var args = $@"{ExecCmdOption} ""{Prefix} docker container create {containerName}""";
+            var args = $@"{ExecCmdOption} ""{CommandPrefix} docker container create {containerName}""";
             return await RunProcessAsync(BaseProgram, args, false);
         }
 
@@ -148,6 +148,30 @@ namespace vBenchSLAM.Core.ProcessRunner
             }
 
             return cmd;
+        }
+
+        public string CaptureCommandOutput(string command)
+        {
+            var proc = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = BaseProgram,
+                    Arguments = $"{ExecCmdOption} \"{CommandPrefix} {command}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+            proc.Start();
+            string output = string.Empty;
+            
+            while (proc.StandardOutput.EndOfStream == false)
+            {
+                output += proc.StandardOutput.ReadLine();
+            }
+
+            return output;
         }
     }
 }

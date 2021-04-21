@@ -21,6 +21,7 @@ namespace vBenchSLAM.DesktopUI.Models
 
         public decimal AvgCpuUsage { get; set; }
         public decimal AvgRamUsage { get; set; }
+        public decimal AvgGpuUsage { get; set; }
 
         public List<ResourceUsage> ResourceUsages { get; set; } = new();
     }
