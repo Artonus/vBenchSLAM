@@ -6,7 +6,7 @@ namespace vBenchSLAM.Core.Enums
     {
         [StringValue("OpenVSLAM")]
         OpenVslam,
-        [StringValue("ORBSLAM2")]
+        [StringValue("ORB_SLAM2")]
         OrbSlam
     }
 }

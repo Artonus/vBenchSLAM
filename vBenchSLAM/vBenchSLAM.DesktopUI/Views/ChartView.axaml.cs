@@ -7,8 +7,10 @@ using Avalonia.Media;
 using ScottPlot;
 using ScottPlot.Avalonia;
 using ScottPlot.Renderable;
+using vBenchSLAM.Addins;
 using vBenchSLAM.DesktopUI.ViewModels;
 using Color = System.Drawing.Color;
+using Size = vBenchSLAM.Addins.Size;
 
 namespace vBenchSLAM.DesktopUI.Views
 {
@@ -19,6 +21,8 @@ namespace vBenchSLAM.DesktopUI.Views
     }
     public class ChartView : UserControl
     {
+
+        private readonly Size _displaySize = Size.GB;
         private bool _hasLoadedChartData;
         public ChartView()
         {
@@ -38,6 +42,30 @@ namespace vBenchSLAM.DesktopUI.Views
             {
                 LoadData();
                 _hasLoadedChartData = true;
+
+                HideRecommendationLabels();
+            }
+        }
+
+        private void HideRecommendationLabels()
+        {
+            var vm = GetViewModel();
+            if (string.IsNullOrEmpty(vm.Fatal))
+            {
+                var fatalLabel = this.Find<Label>("FatalLabel");
+                fatalLabel.IsVisible = false;
+            }
+            
+            if (string.IsNullOrEmpty(vm.Improvements))
+            {
+                var improvementsLabel = this.Find<Label>("ImprovementsLabel");
+                improvementsLabel.IsVisible = false;
+            }
+            
+            if (string.IsNullOrEmpty(vm.AlreadyGood))
+            {
+                var alreadyGoodLabel = this.Find<Label>("AlreadyGoodLabel");
+                alreadyGoodLabel.IsVisible = false;
             }
         }
 
@@ -53,12 +81,13 @@ namespace vBenchSLAM.DesktopUI.Views
             if (dataModel is null)
                 return;
 
+            
             AvaPlot ramUsagePlot = this.Find<AvaPlot>("RamUsagePlot");
             AvaPlot cpuUsagePlot = this.Find<AvaPlot>("CpuUsagePlot");
             double[] axisXdata = Enumerable.Range(0, dataModel.ResourceUsages.Count).Select(e => (double)e).ToArray();
 
-            double[] ramAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.RamUsage)).ToArray();
-            double[] maxRamAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.MaxRamAvailable)).ToArray();
+            double[] ramAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(SizeHelper.SizeValue(u.RamUsage, _displaySize))).ToArray();
+            double[] maxRamAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(SizeHelper.SizeValue(u.MaxRamAvailable, _displaySize))).ToArray();
             double[] cpuAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.ProcUsage)).ToArray();
             double[] ramPercentAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.RamPercentUsage)).ToArray();
             ramUsagePlot.Plot.AddScatter(axisXdata, ramAxisYdata, Color.Blue, 2F, label: "RAM usage");
@@ -84,7 +113,7 @@ namespace vBenchSLAM.DesktopUI.Views
 
         private void StylePlot(Plot plt, ChartType chartType)
         {
-            plt.XLabel("Ticks");
+            plt.XLabel("Run duration in seconds");
             if (chartType == ChartType.Cpu)
             {
                 plt.YLabel("% CPU usage");
@@ -92,7 +121,7 @@ namespace vBenchSLAM.DesktopUI.Views
 
             if (chartType == ChartType.Ram)
             {
-                plt.YLabel("RAM memory");
+                plt.YLabel($"RAM memory in {_displaySize}");
             }
 
         }

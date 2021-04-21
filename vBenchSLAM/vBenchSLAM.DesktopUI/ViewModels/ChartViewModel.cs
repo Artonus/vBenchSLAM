@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia.Media;
 using ReactiveUI;
 using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core.Enums;
@@ -27,6 +28,13 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _fatal, value);
         }
 
+        private IBrush _fatalColorBrush;
+        public IBrush FatalColorBrush
+        {
+            get => _fatalColorBrush;
+            set => this.RaiseAndSetIfChanged(ref _fatalColorBrush, value);
+        }
+
         private string _improvements;
 
         public string Improvements
@@ -34,6 +42,13 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             get => _improvements;
             set => this.RaiseAndSetIfChanged(ref _improvements, value);
         }
+        private IBrush _improvementsColorBrush;
+        public IBrush ImprovementsColorBrush
+        {
+            get => _improvementsColorBrush;
+            set => this.RaiseAndSetIfChanged(ref _improvementsColorBrush, value);
+        }
+        
         
         private string _alreadyGood;
 
@@ -42,11 +57,21 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             get => _alreadyGood;
             set => this.RaiseAndSetIfChanged(ref _alreadyGood, value);
         }
+        
+        private IBrush _alreadyGoodColorBrush;
+        public IBrush AlreadyGoodColorBrush
+        {
+            get => _alreadyGoodColorBrush;
+            set => this.RaiseAndSetIfChanged(ref _alreadyGoodColorBrush, value);
+        }
 
 
         public ChartViewModel(IDataService dataService)
         {
             _dataService = dataService;
+            FatalColorBrush = Brushes.Red;
+            ImprovementsColorBrush = Brushes.Orange;
+            AlreadyGoodColorBrush = Brushes.Green;
         }
 
         public ChartViewModel(IDataService dataService, string runId) : this(dataService)
@@ -78,33 +103,30 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             else if (data.AvgCpuUsage >= maxCpuUsage * 0.5M && data.AvgCpuUsage <= maxCpuUsage * 0.9M)
             {
                 Improvements +=
-                    $"Your machine has utilized {data.AvgCpuUsage}% of {maxCpuUsage} CPU available. You may want to consider using the more powerful CPU in the future or use the GPU. {Environment.NewLine}";
+                    $"Your machine has utilized {data.AvgCpuUsage} of maximum {maxCpuUsage}% CPU available. You may want to consider using the more powerful CPU in the future or use the algorithm that can utilise the GPU. {Environment.NewLine}";
             }
             else if (data.AvgCpuUsage >= maxCpuUsage * 0.9M)
             {
                 Fatal +=
-                    $"Your machine has crossed the CPU utilization of {maxCpuUsage * 0.9M}% of CPU. Your machine may experience delays on the frames computation and loss in the quality of the map. {Environment.NewLine}";
+                    $"Your machine has crossed the average CPU utilization of {maxCpuUsage * 0.9M}% of CPU. Your machine may experience delays on the frames computation and loss in the quality of the map. {Environment.NewLine}";
             }
         }
         private void PrepareMemoryRecommendations(ChartDataModel data)
         {
-            var maxMemory = data.Ram;
-            
-            if (data.AvgCpuUsage < 50)
+            if (data.AvgRamUsage < 50)
             {
                 AlreadyGood += $"Your machine has more RAM then needed to run the algorithm. {Environment.NewLine}";
             }
-            else if (data.AvgCpuUsage is >= 50 and <= 90)
+            else if (data.AvgRamUsage is >= 50 and < 90)
             {
                 Improvements +=
                     $"Your machine has enough RAM to easily run the the algorithm. It is not needed to add more of it. {Environment.NewLine}";
             }
-            else if (data.AvgCpuUsage >= 90)
+            else if (data.AvgRamUsage >= 90)
             {
                 Fatal +=
                     $"Your machine has crossed the RAM utilization of 90%. When running longer you may experience unwanted issues related to the swap memory utilization, slowing the responsiveness of the algorithm or even stopping the applications.{Environment.NewLine}";
             }
         }
-        
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Serilog;
+using vBenchSLAM.Addins;
 using vBenchSLAM.Core;
 using vBenchSLAM.Core.MapParser;
 
@@ -20,6 +21,9 @@ namespace vBenchSLAM.ConsoleUI
 
                 var parser = new OpenVslamParser();
                 parser.GetMapDataFromMessagePack(@"C:\Works\vBenchSLAM\Samples\map.msg");
+                
+                // Console.WriteLine(SizeHelper.SizeValue(16759115776L, Size.GB));
+                // Console.WriteLine(SizeHelper.GetSizeSuffix(16759115776L, 2));
             }
             catch (Exception ex)
             {

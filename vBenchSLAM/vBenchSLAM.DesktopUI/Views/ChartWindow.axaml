@@ -5,10 +5,11 @@
         xmlns:ScottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="vBenchSLAM.DesktopUI.Views.ChartWindow"
-        Icon="/Assets/avalonia-logo.ico"    
+        Icon="/Assets/avalonia-logo.ico"
+        MinWidth="800" MinHeight="600"
         Width="800" Height="600"
         MaxWidth="800" MaxHeight="600"
-        CanResize="False"
+        CanResize="True"
         Title="vBenchSLAM chart"
         Content="{Binding Content}">
 </Window>
