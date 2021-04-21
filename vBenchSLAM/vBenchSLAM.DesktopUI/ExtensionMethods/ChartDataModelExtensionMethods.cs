@@ -17,13 +17,13 @@ namespace vBenchSLAM.DesktopUI.ExtensionMethods
             {
                 if (i == 0 || i == 2) // skip the header lines
                     continue;
-                var spitted = fileContent[i].Split(';', StringSplitOptions.RemoveEmptyEntries);
+                var split = fileContent[i].Split(';', StringSplitOptions.RemoveEmptyEntries);
                 
                 if (i == 1)
                 {
-                    model.Started = DateTime.Parse(spitted[0]);
-                    model.Finished = DateTime.Parse(spitted[1]);
-                    model.Framework = spitted[2];
+                    model.Started = DateTime.Parse(split[0]);
+                    model.Finished = DateTime.Parse(split[1]);
+                    model.Framework = split[2];
                 }
                 if (i == 3)
                 {
@@ -61,6 +61,7 @@ namespace vBenchSLAM.DesktopUI.ExtensionMethods
         {
             model.AvgCpuUsage = Math.Round(model.ResourceUsages.Average(r => r.ProcUsage), 2);
             model.AvgRamUsage = Math.Round(model.ResourceUsages.Average(r => r.RamPercentUsage), 2);
+            model.AvgGpuUsage = Math.Round(model.ResourceUsages.Average(r => r.GPUUsage), 2);
             return model;
         }
     }

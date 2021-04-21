@@ -8,6 +8,7 @@ using ScottPlot;
 using ScottPlot.Avalonia;
 using ScottPlot.Renderable;
 using vBenchSLAM.Addins;
+using vBenchSLAM.DesktopUI.Models;
 using vBenchSLAM.DesktopUI.ViewModels;
 using Color = System.Drawing.Color;
 using Size = vBenchSLAM.Addins.Size;
@@ -80,37 +81,65 @@ namespace vBenchSLAM.DesktopUI.Views
 
             if (dataModel is null)
                 return;
-
             
-            AvaPlot ramUsagePlot = this.Find<AvaPlot>("RamUsagePlot");
-            AvaPlot cpuUsagePlot = this.Find<AvaPlot>("CpuUsagePlot");
-            double[] axisXdata = Enumerable.Range(0, dataModel.ResourceUsages.Count).Select(e => (double)e).ToArray();
-
-            double[] ramAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(SizeHelper.SizeValue(u.RamUsage, _displaySize))).ToArray();
-            double[] maxRamAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(SizeHelper.SizeValue(u.MaxRamAvailable, _displaySize))).ToArray();
-            double[] cpuAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.ProcUsage)).ToArray();
-            double[] ramPercentAxisYdata = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.RamPercentUsage)).ToArray();
-            ramUsagePlot.Plot.AddScatter(axisXdata, ramAxisYdata, Color.Blue, 2F, label: "RAM usage");
-            ramUsagePlot.Plot.AddScatter(axisXdata, maxRamAxisYdata, Color.Red, 2F, label: "Max RAM avaliable");
-
-            // TODO: add secondary axis to scale the RAM usage
-            var scatter = cpuUsagePlot.Plot.AddScatter(axisXdata, cpuAxisYdata, Color.Blue, 2F, label: "% CPU usage");
-            //scatter.YAxisIndex = 0;
-
-            var ramScatter = cpuUsagePlot.Plot.AddScatter(axisXdata, ramPercentAxisYdata, Color.Red, 2F, label: "% RAM usage");
-            // var secAxis = ramUsagePlot.Plot.AddAxis(Edge.Right, axisIndex: 2);
-            // ramScatter.YAxisIndex = 2;
-            // secAxis.Color(ramScatter.Color);
-            // secAxis.Label("% RAM usage");
-
-            // set labels
-            StylePlot(ramUsagePlot.Plot, ChartType.Ram);
-            StylePlot(cpuUsagePlot.Plot, ChartType.Cpu);
+            
+            double[] axisXData = Enumerable.Range(0, dataModel.ResourceUsages.Count).Select(e => (double)e).ToArray();
+            PrepareRamChart(dataModel, axisXData);
+            
+            PrepareCpuChart(dataModel, axisXData);
 
 
             GetViewModel().PrepareRecommendations(dataModel);
         }
 
+        private void PrepareCpuChart(ChartDataModel dataModel, double[] axisXData)
+        {
+            AvaPlot cpuUsagePlot = this.Find<AvaPlot>("CpuUsagePlot");
+            cpuUsagePlot.Plot.Legend(true, Alignment.UpperLeft);
+
+
+            double[] cpuAxisYData = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.ProcUsage)).ToArray();
+            
+            double[] gpuPercentAxisYData = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.GPUUsage)).ToArray();
+            // cpu series
+            var cpuScatter = cpuUsagePlot.Plot.AddScatter(axisXData, cpuAxisYData, Color.Blue, 2F, label: "% CPU usage");
+            cpuScatter.YAxisIndex = cpuScatter.XAxisIndex = 0;
+            // gpu series
+            var gpuScatter = cpuUsagePlot.Plot.AddScatter(axisXData, gpuPercentAxisYData, Color.Green, 2F, label: "% GPU usage");
+            //secondary axis
+            var secAxis = cpuUsagePlot.Plot.AddAxis(Edge.Right, axisIndex: 2);
+            //secAxis.Color(ramScatter.Color);
+            secAxis.Label("% GPU usage");
+            // set series to secondary axis
+            gpuScatter.YAxisIndex = 2;
+            // set labels
+            StylePlot(cpuUsagePlot.Plot, ChartType.Cpu);
+        }
+
+        private void PrepareRamChart(ChartDataModel data, double[] axisXData)
+        {
+            AvaPlot ramUsagePlot = this.Find<AvaPlot>("RamUsagePlot");
+            // add series    
+            double[] ramAxisYData = data.ResourceUsages.Select(u => Convert.ToDouble(SizeHelper.SizeValue(u.RamUsage, _displaySize))).ToArray();
+            double[] maxRamAxisYData = data.ResourceUsages.Select(u => Convert.ToDouble(SizeHelper.SizeValue(u.MaxRamAvailable, _displaySize))).ToArray();
+            double[] ramPercentAxisYData = data.ResourceUsages.Select(u => Convert.ToDouble(u.RamPercentUsage)).ToArray();
+            ramUsagePlot.Plot.AddScatter(axisXData, ramAxisYData, Color.Blue, 2F, label: "RAM usage");
+            ramUsagePlot.Plot.AddScatter(axisXData, maxRamAxisYData, Color.Red, 2F, label: "Max RAM avaliable");
+            // % ram series
+            var ramScatter = ramUsagePlot.Plot.AddScatter(axisXData, ramPercentAxisYData, Color.Green, 2F, label: "% RAM usage");
+            // secondary axis
+            var secAxis = ramUsagePlot.Plot.AddAxis(Edge.Right, axisIndex: 2);
+            secAxis.Label("% RAM usage");
+            // set series to secondary axis  
+            ramScatter.YAxisIndex = 2;
+            StylePlot(ramUsagePlot.Plot, ChartType.Ram);
+            
+            ramUsagePlot.Plot.Legend(true, Alignment.UpperLeft);
+        }
+        private void PrepareCpuChart(ChartDataModel model)
+        {
+            
+        }
         private void StylePlot(Plot plt, ChartType chartType)
         {
             plt.XLabel("Run duration in seconds");
