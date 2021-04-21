@@ -84,9 +84,10 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             ClearExistingRecommendations();
 
             PrepareCpuRecommendations(data);
-            PrepareMemoryRecommendations(data);
+            PrepareRamRecommendations(data);
+            PrepareGpuRecommendations(data);
         }
-
+        
         private void ClearExistingRecommendations()
         {
             AlreadyGood = Improvements = Fatal = string.Empty;
@@ -111,21 +112,41 @@ namespace vBenchSLAM.DesktopUI.ViewModels
                     $"Your machine has crossed the average CPU utilization of {maxCpuUsage * 0.9M}% of CPU. Your machine may experience delays on the frames computation and loss in the quality of the map. {Environment.NewLine}";
             }
         }
-        private void PrepareMemoryRecommendations(ChartDataModel data)
+        private void PrepareRamRecommendations(ChartDataModel data)
         {
-            if (data.AvgRamUsage < 50)
+            switch (data.AvgRamUsage)
             {
-                AlreadyGood += $"Your machine has more RAM then needed to run the algorithm. {Environment.NewLine}";
+                case < 50:
+                    AlreadyGood += $"Your machine has more RAM then needed to run the algorithm. {Environment.NewLine}";
+                    break;
+                case >= 50 and < 90:
+                    Improvements +=
+                        $"Your machine has enough RAM to easily run the the algorithm. It is not needed to add more of it. {Environment.NewLine}";
+                    break;
+                case >= 90:
+                    Fatal +=
+                        $"Your machine has crossed the RAM utilization of 90%. When running longer you may experience unwanted issues related to the swap memory utilization, slowing the responsiveness of the algorithm or even stopping the applications.{Environment.NewLine}";
+                    break;
             }
-            else if (data.AvgRamUsage is >= 50 and < 90)
+        }
+        private void PrepareGpuRecommendations(ChartDataModel data)
+        {
+            switch (data.AvgGpuUsage)
             {
-                Improvements +=
-                    $"Your machine has enough RAM to easily run the the algorithm. It is not needed to add more of it. {Environment.NewLine}";
-            }
-            else if (data.AvgRamUsage >= 90)
-            {
-                Fatal +=
-                    $"Your machine has crossed the RAM utilization of 90%. When running longer you may experience unwanted issues related to the swap memory utilization, slowing the responsiveness of the algorithm or even stopping the applications.{Environment.NewLine}";
+                case 0m:
+                    Improvements += $"Your machine can improve the efficiency if you supply it with the GPU. {Environment.NewLine}";
+                    break;
+                case < 50:
+                    AlreadyGood += $"Your machine has more powerful GPU then needed to run the algorithm. {Environment.NewLine}";
+                    break;
+                case >= 50 and < 90:
+                    Improvements +=
+                        $"Your machine has powerful enough GPU to easily run the the algorithm. It is not needed to add more of it. {Environment.NewLine}";
+                    break;
+                case >= 90:
+                    Fatal +=
+                        $"Your machine has crossed the GPU utilization of 90%. When running you may experience slowing the responsiveness of the algorithm.{Environment.NewLine}";
+                    break;
             }
         }
     }
