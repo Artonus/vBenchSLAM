@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Text;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
@@ -88,6 +89,16 @@ namespace vBenchSLAM.DesktopUI.Views
             if (runs.Any() == false)
             {
                 await MessageBox.Show((Window) Parent, "Couldn't find any runs. Make sure that you run the algorithm first.", "No benchmark data found", MessageBoxButtons.Ok);
+#if DEBUG
+                // when in the debug mode open an empty window
+                var chart = new ChartWindow
+                {
+                    DataContext = new ChartWindowViewModel(GetViewModel().DataService, string.Empty)
+                };
+            
+                chart.Show((Window)this.Parent);       
+#endif
+                return;
             }
 
             var runsToOpen = openOnlyLatest ? new List<string>(new[] {runs.Last()}) : runs;
@@ -101,7 +112,6 @@ namespace vBenchSLAM.DesktopUI.Views
             
                 chart.Show((Window)this.Parent);
             }
-            
         }
     }
 }

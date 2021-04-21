@@ -17,12 +17,14 @@ using vBenchSLAM.Core.MapParser.Models;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
 using vBenchSLAM.Core.Model;
+using vBenchSLAM.Core.ProcessRunner;
 using vBenchSLAM.Core.SystemMonitor;
 
 namespace vBenchSLAM.Core.Mappers
 {
     public class OpenVslamMapper : BaseMapper, IMapper
     {
+        private readonly IProcessRunner _processRunner;
         public const string ServerContainerImage = "openvslam-server";
         public const string ViewerContainerImage = "openvslam-socket";
         public MapperType MapperType => MapperType.OpenVslam;
@@ -30,6 +32,7 @@ namespace vBenchSLAM.Core.Mappers
 
         public OpenVslamMapper(ProcessRunner.ProcessRunner processRunner, ILogger logger) : base(processRunner, logger)
         {
+            _processRunner = processRunner;
             Parser = new OpenVslamParser();
         }
 
@@ -115,7 +118,7 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     Stream = true
                 };
-                var reporter = new SystemResourceMonitor(resourceUsageFileName, Logger);
+                var reporter = new SystemResourceMonitor(resourceUsageFileName, _processRunner, Logger);
 
                 started &= await DockerManager.StartContainerAsync(socketContainer.ID);
                 var attachParams = new ContainerAttachParameters()

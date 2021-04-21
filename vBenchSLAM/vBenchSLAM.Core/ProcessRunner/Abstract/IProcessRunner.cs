@@ -19,5 +19,7 @@ namespace vBenchSLAM.Core.ProcessRunner
         Task<int> PullContainer(string containerInfo);
         Task<int> BuildImage(string containerName);
         Task<int> RunProcessAsync(string fileName, string args);
+
+        public string CaptureCommandOutput(string command);
     }
 }

@@ -47,7 +47,7 @@ namespace vBenchSLAM.Core.Mappers
                     Stream = true
                 };
 
-                var reporter = new SystemResourceMonitor(resourceUsageFileName, Logger);
+                var reporter = new SystemResourceMonitor(resourceUsageFileName, _processRunner, Logger);
                 bool started = await DockerManager.StartContainerAsync(mapperContainer.ID);
 
                 var attachParams = new ContainerAttachParameters()

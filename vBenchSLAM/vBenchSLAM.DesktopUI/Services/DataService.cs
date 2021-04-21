@@ -59,6 +59,10 @@ namespace vBenchSLAM.DesktopUI.Services
         private bool IsComplete(string dir, string runId)
         {
             var runDir = Path.Combine(dir, runId);
+            
+            if (Directory.Exists(runDir) == false)
+                return false;
+
             var files = Directory.GetFiles(runDir, "*", SearchOption.TopDirectoryOnly);
             
             return files.Length >= 2 
