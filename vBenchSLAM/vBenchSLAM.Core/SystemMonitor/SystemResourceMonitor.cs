@@ -6,16 +6,19 @@ using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core.Model;
+using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core.SystemMonitor
 {
     public class SystemResourceMonitor : IProgress<ContainerStatsResponse>
     {
+        private readonly IProcessRunner _processRunner;
         private readonly ILogger _logger;
         private readonly string _tmpFilePath;
 
-        public SystemResourceMonitor(string outputFileName, ILogger logger)
+        public SystemResourceMonitor(string outputFileName, IProcessRunner processRunner, ILogger logger)
         {
+            _processRunner = processRunner;
             _logger = logger;
             _tmpFilePath = Path.Combine(DirectoryHelper.GetMonitorsPath(), outputFileName);
         }
@@ -91,8 +94,21 @@ namespace vBenchSLAM.Core.SystemMonitor
             {
                 cpuUsage = cpuDelta / sysCpuDelta * onlineCPUs * 100;    
             }
+
+            var gpuUsage = GetGpuUsage();
+
+            return new ResourceUsage(cpuUsage, Convert.ToInt32(onlineCPUs), (ulong) ramUsage, 
+                (ulong) availableMem, ramPercentUsage, gpuUsage);
+        }
+
+        private decimal GetGpuUsage()
+        {
+            var runCmd = "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits";
+            var output = _processRunner.CaptureCommandOutput(runCmd);
             
-            return new ResourceUsage(cpuUsage, Convert.ToInt32(onlineCPUs), (ulong)ramUsage, (ulong)availableMem, ramPercentUsage);
+            decimal.TryParse(output, out decimal parsedOutput);
+
+            return parsedOutput;
         }
 
         private FileInfo PrepareFile()

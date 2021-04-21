@@ -20,8 +20,17 @@ namespace vBenchSLAM.DesktopUI.Models
         public string RamDisplay => SizeHelper.GetSizeSuffix(Ram, 2);
 
         public decimal AvgCpuUsage { get; set; }
+        public string AvgCpuUsageDisplay => DisplayAsPercentage(AvgCpuUsage);
         public decimal AvgRamUsage { get; set; }
+        public string AvgRamUsageDisplay => DisplayAsPercentage(AvgRamUsage);
+        public decimal AvgGpuUsage { get; set; }
+        public string AvgGpuUsageDisplay => DisplayAsPercentage(AvgGpuUsage);
 
         public List<ResourceUsage> ResourceUsages { get; set; } = new();
+        
+        private string DisplayAsPercentage(decimal value)
+        {
+            return $"{value}%";
+        }
     }
 }
