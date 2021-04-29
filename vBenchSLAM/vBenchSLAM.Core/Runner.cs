@@ -12,7 +12,7 @@ using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core
 {
-    public class Runner : IDisposable
+    public class Runner : IRunner
     {
         private IMapper _mapper;
         private readonly RunnerParameters _runnerParameters;

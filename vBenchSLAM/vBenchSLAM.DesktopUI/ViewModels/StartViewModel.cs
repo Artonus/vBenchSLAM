@@ -95,7 +95,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
 
             var param = new RunnerParameters(mapperType, OutputPath ,DatasetPath);
             RunnerResult result = null;
-            using (var runner = new Runner(param))
+            using (IRunner runner = new Runner(param))
             {
                 result = await runner.Run();
             }
