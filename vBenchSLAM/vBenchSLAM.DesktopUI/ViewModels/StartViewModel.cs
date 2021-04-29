@@ -23,23 +23,25 @@ namespace vBenchSLAM.DesktopUI.ViewModels
     {
         public IDataService DataService { get; }
         private FrameworkModel _selectedFramework;
-        private string _datasetInformation;
+        private DatasetTypeModel _selectedDatasetType;
         private string _datasetPath;
         private string _outputPath;
 
         //public ValidationContext ValidationContext { get; } 
         public ObservableCollection<FrameworkModel> FrameworkList { get; }
+        
         public FrameworkModel SelectedFramework
         {
             get => _selectedFramework;
             set => this.RaiseAndSetIfChanged(ref _selectedFramework, value);
         }
-
-        public string DatasetInformation
+        public ObservableCollection<DatasetTypeModel> DatasetTypeList { get; }
+        public DatasetTypeModel SelectedDatasetType
         {
-            get => _datasetInformation;
-            set => this.RaiseAndSetIfChanged(ref _datasetInformation, value);
+            get => _selectedDatasetType;
+            set => this.RaiseAndSetIfChanged(ref _selectedDatasetType, value);
         }
+        
 
         public string DatasetPath
         {
@@ -60,12 +62,14 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             var availableFrameworks = dataService.GetAvailableFrameworks();
             FrameworkList = new ObservableCollection<FrameworkModel>(availableFrameworks);
 
-            //StartFrameworkCommand = ReactiveCommand.Create(StartFrameworkBenchmark);
+            var availableDatasetTypes = dataService.GetAvailableDatasetTypes();
+            DatasetTypeList = new ObservableCollection<DatasetTypeModel>(availableDatasetTypes);
 
 #if DEBUG
             DatasetPath = "/home/bartek/Works/vBenchSLAM/Samples/Kitty";
             OutputPath = "/home/bartek/Works/vBenchSLAM/Samples/Output";
             SelectedFramework = availableFrameworks.First(f => f.Id == (int) MapperType.OrbSlam);
+            SelectedDatasetType = availableDatasetTypes.First(f => f.Id == (int) DatasetType.Other);
 #endif
             PrepareValidationConstraints();
         }
@@ -82,6 +86,9 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             this.ValidationRule(vm => vm.SelectedFramework,
                 f => f is not null,
                 "Please select desired framework");
+            this.ValidationRule(vm => vm.SelectedDatasetType,
+                f => f is not null,
+                "Please select desired dataset type");
         }
 
         public async Task StartFrameworkBenchmark()
@@ -92,8 +99,9 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             }
             
             var mapperType = GetSelectedMapperType();
+            var datasetType = GetSelectedDatasetType();
 
-            var param = new RunnerParameters(mapperType, OutputPath ,DatasetPath);
+            var param = new RunnerParameters(mapperType, datasetType, OutputPath, DatasetPath);
             RunnerResult result = null;
             using (IRunner runner = new Runner(param))
             {
@@ -110,9 +118,14 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             }
         }
 
+        private DatasetType GetSelectedDatasetType()
+        {
+            return (DatasetType) SelectedDatasetType.Id;
+        }
+
         private MapperType GetSelectedMapperType()
         {
-            return (MapperType)SelectedFramework.Id; 
+            return (MapperType) SelectedFramework.Id;
         }
     }
 }

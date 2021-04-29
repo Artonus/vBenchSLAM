@@ -19,16 +19,19 @@ using vBenchSLAM.Core.SystemMonitor;
 
 namespace vBenchSLAM.Core.Mappers
 {
-    public class OrbSlamMapper : BaseMapper, IMapper
+    internal class OrbSlamMapper : BaseMapper, IMapper
     {
         public const string MapperContainerImage = "orbslam2";
         public MapperType MapperType => MapperType.OrbSlam;
         public string MapFileName => "KeyFrameTrajectory.txt";
 
         private readonly OrbSlamProcessRunner _processRunner;
-        public OrbSlamMapper(OrbSlamProcessRunner processRunner, ILogger logger) : base(processRunner, logger)
+        private readonly IDatasetService _datasetService;
+
+        public OrbSlamMapper(OrbSlamProcessRunner processRunner, IDatasetService datasetService, ILogger logger) : base(processRunner, logger)
         {
             _processRunner = processRunner;
+            _datasetService = datasetService;
             Parser = new OrbSlamParser();
         }
 
@@ -88,7 +91,6 @@ namespace vBenchSLAM.Core.Mappers
                     await DockerManager.Client.Containers.RemoveContainerAsync(mapperContainer.ID,
                         new ContainerRemoveParameters());
                 }
-                //TODO: validate the map
                 SaveMapAndStatistics(startedTime, finishedTime, resourceUsageFileName);
             }
 
@@ -147,7 +149,6 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     new DeviceRequest
                     {
-                        //TODO: check for the correct data
                         Driver = "nvidia", Capabilities = new List<IList<string>>
                         {
                             new List<string> {"compute", "compat32", "graphics", "utility", "video", "display"}
@@ -160,44 +161,24 @@ namespace vBenchSLAM.Core.Mappers
 
         public override string GetContainerCommand()
         {
-            string command =
-                $"./Examples/Monocular/mono_kitti data/ORBvoc.txt data/config-orb.yaml data/sequence " +
-                $"; cp {MapFileName} data/{MapFileName}";
+            string command = _datasetService.DatasetType == DatasetType.Kitty
+                ? $"./Examples/Monocular/mono_kitti data/ORBvoc.txt data/config-orb.yaml data/sequence; cp {MapFileName} data/{MapFileName}"
+                : $"./Examples/Monocular/mono_kitti data/ORBvoc.txt data/config-orb.yaml data/sequence; cp {MapFileName} data/{MapFileName}";
+            //TODO: fill the commnd for the custom video
             return command;
         }
 
         public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
-            string vocabFileName = "ORBvoc.txt", configFileName = "config-orb.yaml", sequenceFolderName = "sequence";
+            var checkResult = _datasetService.ValidateDatasetCompleteness(parameters);
 
-            var allFiles = Directory.GetFiles(parameters.DatasetPath);
-            var fileInfos = allFiles.Select(path => new FileInfo(path)).ToList();
-
-            var vocabFile = fileInfos.SingleOrDefault(f => f.Extension == ".txt" && f.Name == vocabFileName);
-            if (vocabFile is null || vocabFile.Exists == false)
+            CopyToTemporaryFilesFolder(checkResult.GetAllFiles().ToArray());
+            if (_datasetService.DatasetType == DatasetType.Kitty)
             {
-                return new DatasetCheckResult(false,
-                    new Exception($"Cannot find the vocabulary file: {vocabFileName}"));
+                CopySequenceFolder(checkResult.SequenceDirectory);    
             }
 
-            var configFile = fileInfos.SingleOrDefault(f => f.Extension == ".yaml" && f.Name == configFileName);
-            if (configFile is null || configFile.Exists == false)
-            {
-                return new DatasetCheckResult(false,
-                    new Exception($"Cannot find the configuration file: {configFileName}"));
-            }
-
-            var sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
-            if (sequencePath.Exists == false)
-            {
-                return new DatasetCheckResult(false,
-                    new Exception($"Cannot find the sequence folder"));
-            }
-
-            CopyToTemporaryFilesFolder(vocabFile, configFile);
-            CopySequenceFolder(sequencePath);
-            
-            return new DatasetCheckResult(true, null);
+            return checkResult;
         }
 
         public void CopyMapToOutputFolder(string outputFolder)

@@ -4,13 +4,15 @@ namespace vBenchSLAM.Core.Model
 {
     public class RunnerParameters
     {
-        public string DatasetPath { get; set; }
-        public string OutputPath { get; set; }
-        public MapperType MapperType { get; set; }
-        
-        public RunnerParameters(MapperType mapperType, string outputPath, string datasetPath)
+        public string DatasetPath { get; }
+        public string OutputPath { get; }
+        public MapperType MapperType { get; }
+        public DatasetType DatasetType { get; }
+
+        public RunnerParameters(MapperType mapperType, DatasetType datasetType, string outputPath, string datasetPath)
         {
             MapperType = mapperType;
+            DatasetType = datasetType;
             OutputPath = outputPath;
             DatasetPath = datasetPath;
         }

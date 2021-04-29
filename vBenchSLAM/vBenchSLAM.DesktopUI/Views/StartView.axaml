@@ -17,14 +17,25 @@
                          Text="{Binding DatasetPath}" Watermark="Dataset path"
                          Margin="0,0,5,0" MaxWidth="290"/>
             </DockPanel>
-            <Label Margin="5, 10 ,5, 0">Selected dataset information</Label>
-            <TextBlock Margin="5, 10, 5, 0" Height="100" Text="{Binding DatasetInformation}" />
+            <Label Margin="5, 10, 5, 0">Dataset Type:</Label>
+            <DockPanel LastChildFill="False" HorizontalAlignment="Stretch">
+                <ComboBox Margin="5, 10, 5, 0" Width="300"
+                          Items="{Binding DatasetTypeList}"
+                          SelectedItem="{Binding SelectedDatasetType}"
+                          >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="models:DatasetTypeModel">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </DockPanel>
             <Label Margin="5, 10, 5, 0">Selected Framework:</Label>
             <DockPanel LastChildFill="False" HorizontalAlignment="Stretch">
                 <ComboBox Margin="5, 10, 5, 0" Width="300"
                           Items="{Binding FrameworkList}"
                           SelectedItem="{Binding SelectedFramework}"
-                          >
+                >
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="models:FrameworkModel">
                             <TextBlock Text="{Binding Name}" />

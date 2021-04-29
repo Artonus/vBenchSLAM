@@ -11,6 +11,11 @@ namespace vBenchSLAM.DesktopUI.Services
         /// <returns></returns>
         IEnumerable<FrameworkModel> GetAvailableFrameworks();
         /// <summary>
+        /// Gets the collection of all currently available dataset types
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<DatasetTypeModel> GetAvailableDatasetTypes();
+        /// <summary>
         /// Get runs list in the form of the strings representing the moment when the run has started
         /// </summary>
         /// <returns></returns>

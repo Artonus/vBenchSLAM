@@ -26,6 +26,21 @@ namespace vBenchSLAM.DesktopUI.Services
             return retVals;
         }
         /// <summary>
+        /// <inheritdoc cref="IDataService.GetAvailableDatasetTypes"/>
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<DatasetTypeModel> GetAvailableDatasetTypes()
+        {
+            var retVals = new List<DatasetTypeModel>();
+            foreach (DatasetType value in Enum.GetValues(typeof(DatasetType)))
+            {
+                retVals.Add(new DatasetTypeModel() { Name = value.ToString(), Id = (int)value });
+            }
+
+            return retVals;
+        }
+
+        /// <summary>
         /// <inheritdoc cref="IDataService.GetRunLog"/>
         /// </summary>
         public List<string> GetRunLog()
