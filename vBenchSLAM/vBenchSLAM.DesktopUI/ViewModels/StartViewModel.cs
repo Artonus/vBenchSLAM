@@ -69,7 +69,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             DatasetPath = "/home/bartek/Works/vBenchSLAM/Samples/Kitty";
             OutputPath = "/home/bartek/Works/vBenchSLAM/Samples/Output";
             SelectedFramework = availableFrameworks.First(f => f.Id == (int) MapperType.OrbSlam);
-            SelectedDatasetType = availableDatasetTypes.First(f => f.Id == (int) DatasetType.Other);
+            SelectedDatasetType = availableDatasetTypes.First(f => f.Id == (int) DatasetType.Kitty);
 #endif
             PrepareValidationConstraints();
         }

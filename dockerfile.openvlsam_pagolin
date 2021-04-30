@@ -1,0 +1,3 @@
+FROM  celinachild/openvslam:latest as openvslam
+WORKDIR /openvslam/build
+ENTRYPOINT [ "/bin/bash", "-l", "-c" ]

@@ -34,6 +34,10 @@ namespace vBenchSLAM.DesktopUI.Services
             var retVals = new List<DatasetTypeModel>();
             foreach (DatasetType value in Enum.GetValues(typeof(DatasetType)))
             {
+                if (value == DatasetType.Other)
+                {
+                    continue;
+                }
                 retVals.Add(new DatasetTypeModel() { Name = value.ToString(), Id = (int)value });
             }
 

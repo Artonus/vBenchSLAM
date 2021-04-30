@@ -24,14 +24,14 @@ namespace vBenchSLAM.Core.Mappers
 {
     internal class OpenVslamMapper : BaseMapper, IMapper
     {
-        private readonly IProcessRunner _processRunner;
+        private readonly OrbSlamProcessRunner _processRunner;
         private readonly IDatasetService _datasetService;
-        public const string ServerContainerImage = "openvslam-server";
-        public const string ViewerContainerImage = "openvslam-socket";
+        //public const string ServerContainerImage = "openvslam-server";
+        public const string ViewerContainerImage = "openvslam-pagolin";
         public MapperType MapperType => MapperType.OpenVslam;
         public string MapFileName => "map.msg";
 
-        public OpenVslamMapper(ProcessRunner.ProcessRunner processRunner, IDatasetService datasetService, ILogger logger) : base(processRunner, logger)
+        public OpenVslamMapper(OrbSlamProcessRunner processRunner, IDatasetService datasetService, ILogger logger) : base(processRunner, logger)
         {
             _processRunner = processRunner;
             _datasetService = datasetService;
@@ -41,88 +41,24 @@ namespace vBenchSLAM.Core.Mappers
         public async Task<bool> Map()
         {
             var retVal = true;
-            ContainerListResponse socketContainer = null, serverContainer = null;
-            DateTime startedTime = DateTime.Now, finishedTime = default;
+            ContainerListResponse mapperContainer = null;
+            DateTime startedTime = default, finishedTime = default;
 
             string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
             //TODO: cleanup
             try
             {
-                var images = await DockerManager.Client.Images.ListImagesAsync(new());
-                var viewerImage = images
-                    .FirstOrDefault(i => i.RepoTags[0] == GetFullImageName(ViewerContainerImage));
-                if (viewerImage is null) //image is not present at the current user's machine
-                {
-                    await DockerManager.PullImageAsync(GetFullImageName(ViewerContainerImage));
-                }
+                await _processRunner.EnablePangolinViewer();
+                mapperContainer = await PrepareAndStartContainer();
 
-                var serverImage = images
-                    .FirstOrDefault(i => i.RepoTags[0] == GetFullImageName(ServerContainerImage));
-                if (serverImage is null) //image is not present at the current user's machine
-                {
-                    await DockerManager.PullImageAsync(GetFullImageName(ServerContainerImage));
-                }
-
-                var srvHost = new HostConfig()
-                {
-                    NetworkMode = "host",
-                    AutoRemove = true
-                };
-                var srvCfg = new Config()
-                {
-                    Image = GetFullImageName(ServerContainerImage)
-                };
-                var srvCreateParams = new CreateContainerParameters(srvCfg)
-                {
-                    HostConfig = srvHost,
-                    Name = "openvslam_server"
-                };
-
-
-                // var started = await DockerManager.StartContainerViaCommandLineAsync(
-                //     GetFullImageName(ServerContainerImage), "--rm -d --net=host");
-                CreateContainerResponse srvRes =
-                    await DockerManager.Client.Containers.CreateContainerAsync(srvCreateParams);
-                socketContainer = await DockerManager.GetContainerByIdAsync(srvRes.ID);
-
-                var started = await DockerManager.StartContainerAsync(socketContainer.ID);
-                serverContainer = await DockerManager.GetContainerByNameAsync(GetFullImageName(ServerContainerImage));
-                StartViewerWindow();
-
-                var command = GetContainerCommand();
-                var host = new HostConfig()
-                {
-                    Binds = new List<string>
-                    {
-                        $"{DirectoryHelper.GetDataFolderPath()}:/openvslam/build/data"
-                    },
-                    NetworkMode = "host"
-                    //AutoRemove = true
-                };
-                var config = new Config()
-                {
-                    Cmd = new List<string>()
-                    {
-                        command
-                    },
-                    Image = GetFullImageName(ViewerContainerImage),
-                    AttachStderr = true,
-                    AttachStdout = true,
-                };
-                var createParams = new CreateContainerParameters(config)
-                {
-                    HostConfig = host,
-                    Name = "openvslam_viewer"
-                };
-                CreateContainerResponse res = await DockerManager.Client.Containers.CreateContainerAsync(createParams);
-                socketContainer = await DockerManager.GetContainerByIdAsync(res.ID);
                 var statParams = new ContainerStatsParameters()
                 {
                     Stream = true
                 };
+                startedTime = DateTime.Now;
                 var reporter = new SystemResourceMonitor(resourceUsageFileName, _processRunner, Logger);
+                bool started = await DockerManager.StartContainerAsync(mapperContainer.ID);
 
-                started &= await DockerManager.StartContainerAsync(socketContainer.ID);
                 var attachParams = new ContainerAttachParameters()
                 {
                     Stderr = true,
@@ -132,32 +68,34 @@ namespace vBenchSLAM.Core.Mappers
 #pragma warning disable 4014
                 // we disable the warning because the container stats are supposed to run parallel to the container execution,
                 // which we await later
-                DockerManager.Client.Containers.GetContainerStatsAsync(socketContainer.ID, statParams, reporter);
+                DockerManager.Client.Containers.GetContainerStatsAsync(mapperContainer.ID, statParams, reporter);
 #pragma warning restore 4014
                 var token = new CancellationTokenSource();
                 using (var stream =
-                    await DockerManager.Client.Containers.AttachContainerAsync(socketContainer.ID, true, attachParams))
+                    await DockerManager.Client.Containers.AttachContainerAsync(mapperContainer.ID, true, attachParams))
                 {
                     var output = await stream.ReadOutputToEndAsync(token.Token);
                     Console.Write(output);
                 }
 
-                var exited = await DockerManager.Client.Containers.WaitContainerAsync(socketContainer.ID);
+                var exited = await DockerManager.Client.Containers.WaitContainerAsync(mapperContainer.ID);
+                Logger.Information("Mapping has finished");
                 finishedTime = DateTime.Now;
                 retVal &= exited.StatusCode == 0;
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Something went wrong: ");
+                Logger.Error(ex, "Something went wrong while running the algorithm");
+                retVal = false;
             }
             finally
             {
                 //TODO: maybe also remove the container in the parallel function
-                retVal &= await ParallelStopContainersAsync(ServerContainerImage);
-                if (socketContainer is not null)
+                retVal &= await ParallelStopContainersAsync(ViewerContainerImage);
+                if (mapperContainer is not null)
                 {
-                    await DockerManager.StopContainerAsync(socketContainer.ID);
-                    await DockerManager.Client.Containers.RemoveContainerAsync(socketContainer.ID,
+                    await DockerManager.StopContainerAsync(mapperContainer.ID);
+                    await DockerManager.Client.Containers.RemoveContainerAsync(mapperContainer.ID,
                         new ContainerRemoveParameters());
                 }
 
@@ -168,52 +106,85 @@ namespace vBenchSLAM.Core.Mappers
             return retVal;
         }
 
-        private void StartViewerWindow()
+        private async Task<ContainerListResponse> PrepareAndStartContainer()
         {
-            var url = @"http://localhost:3001";
-            try
-            {
-                Process.Start(url);
-            }
-            catch (Exception)
-            {
-                // hack because of this: https://github.com/dotnet/corefx/issues/10361
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") {CreateNoWindow = true});
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                    Process.Start("xdg-open", url);
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                    Process.Start("open", url);
-                else
-                    throw;
-            }
-        }
+            var images = await DockerManager.Client.Images.ListImagesAsync(new());
+            var mapperImage = images
+                .FirstOrDefault(i => i.RepoTags[0] == GetFullImageName(ViewerContainerImage));
 
+            if (mapperImage is null) // image is not present on the users machine
+            {
+                await DockerManager.PullImageAsync(GetFullImageName(ViewerContainerImage));
+            }
+
+            var cfg = new Config()
+            {
+                Cmd = new List<string>
+                {
+                    GetContainerCommand()
+                },
+                Image = GetFullImageName(ViewerContainerImage),
+                AttachStderr = true,
+                AttachStdout = true,
+                Env = new List<string>
+                {
+                    $"DISPLAY=unix{Environment.GetEnvironmentVariable("DISPLAY")}",
+                    "NVIDIA_DRIVER_CAPABILITIES=all"
+                }
+            };
+            var createParams = new CreateContainerParameters(cfg)
+            {
+                HostConfig = PrepareHostConfig(),
+                Name = "openvlsam_pagolin"
+            };
+            CreateContainerResponse res = await DockerManager.Client.Containers.CreateContainerAsync(createParams);
+
+            return await DockerManager.GetContainerByIdAsync(res.ID);
+        }
+        private HostConfig PrepareHostConfig()
+        {
+            return new HostConfig()
+            {
+                Binds = new List<string>
+                {
+                    $"/tmp/.X11-unix:/tmp/.X11-unix:rw",
+                    $"{DirectoryHelper.GetDataFolderPath()}:/openvslam/build/data"
+                },
+                IpcMode = "host",
+                NetworkMode = "host",
+                Privileged = true,
+                DeviceRequests = new List<DeviceRequest>
+                {
+                    new DeviceRequest
+                    {
+                        Driver = "nvidia", Capabilities = new List<IList<string>>
+                        {
+                            new List<string> {"compute", "compat32", "graphics", "utility", "video", "display"}
+                        },
+                        Count = 1
+                    }
+                }
+            };
+        }
+        
         public override string GetContainerCommand()
         {
-            //todo: make program accept any sequence
-
             string command = _datasetService.DatasetType == DatasetType.Kitty 
-                ? $"./run_kitti_slam -v data/orb_vocab.dbow2 -d data/sequence -c data/config.yaml --auto-term --no-sleep --map-db data/{MapFileName}" 
-                : $"./run_video_slam -v data/orb_vocab.dbow2 -c data/config.yaml -m data/video.mp4 --auto-term --no-sleep --map-db data/{MapFileName}";
+                ? $"./run_kitti_slam -v data/orb_vocab.dbow2 -d data/sequence -c data/config.yaml --auto-term  --map-db data/{MapFileName}" 
+                : $"./run_image_slam -v data/orb_vocab.dbow2 -c data/config.yaml -i data/sequence --auto-term --no-sleep --map-db data/{MapFileName}";
                 
             return command;
         }
 
         public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
-
             var checkResult = _datasetService.ValidateDatasetCompleteness(parameters);
+            Logger.Information("Copying the files to temporary directory");
             CopyToTemporaryFilesFolder(checkResult.GetAllFiles().ToArray());
+            Logger.Information("Copying the sequence to temporary directory");
+            CopySequenceFolder(checkResult.SequenceDirectory);
+            Logger.Information("Files copied");
             
-            if (_datasetService.DatasetType == DatasetType.Kitty)
-            {
-                CopySequenceFolder(checkResult.SequenceDirectory);    
-            }
-
             return checkResult;
         }
 

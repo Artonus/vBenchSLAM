@@ -31,7 +31,7 @@ namespace vBenchSLAM.Core
             switch (_runnerParameters.MapperType)
             {
                 case MapperType.OpenVslam:
-                    _mapper = new OpenVslamMapper(new OpenVslamProcessRunner(),new OpenVslamDatasetService(_runnerParameters.DatasetType), _logger);
+                    _mapper = new OpenVslamMapper(new OrbSlamProcessRunner(),new OpenVslamDatasetService(_runnerParameters.DatasetType), _logger);
                     break;
                 case MapperType.OrbSlam:
                     _mapper = new OrbSlamMapper(new OrbSlamProcessRunner(), new OrbSlamDatasetService(_runnerParameters.DatasetType), _logger);

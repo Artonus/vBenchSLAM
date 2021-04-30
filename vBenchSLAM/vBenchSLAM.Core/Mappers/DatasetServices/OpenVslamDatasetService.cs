@@ -18,7 +18,7 @@ namespace vBenchSLAM.Core.Mappers.DatasetServices
 
         public DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
-            string vocabFileName = "orb_vocab.dbow2", configFileName = "config.yaml", videoFileName = "video.mp4", sequenceFolderName = "sequence";
+            string vocabFileName = "orb_vocab.dbow2", configFileName = "config.yaml", sequenceFolderName = "sequence";
 
             var allFiles = Directory.GetFiles(parameters.DatasetPath);
             var fileInfos = allFiles.Select(path => new FileInfo(path)).ToList();
@@ -37,34 +37,33 @@ namespace vBenchSLAM.Core.Mappers.DatasetServices
                     new Exception($"Cannot find the configuration file: {configFileName}"));
             }
 
-            FileInfo videoFile = default;
-            if (DatasetType == DatasetType.Other)
-            {
-                videoFile = fileInfos.SingleOrDefault(f => f.Extension == ".mp4" && f.Name == videoFileName);
-                if (videoFile is null || videoFile.Exists == false)
-                {
-                    return new DatasetCheckResult(false,
-                        new Exception($"Cannot find the configuration file: {configFileName}"));
-                } 
-            }
+            // FileInfo videoFile = default;
+            // if (DatasetType == DatasetType.Other)
+            // {
+            //     videoFile = fileInfos.SingleOrDefault(f => f.Extension == ".mp4" && f.Name == videoFileName);
+            //     if (videoFile is null || videoFile.Exists == false)
+            //     {
+            //         return new DatasetCheckResult(false,
+            //             new Exception($"Cannot find the configuration file: {configFileName}"));
+            //     } 
+            // }
 
             DirectoryInfo sequencePath = default;
-            if (DatasetType == DatasetType.Kitty)
-            {
+            // if (DatasetType == DatasetType.Kitty)
+            // {
                 sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
                 if (sequencePath.Exists == false)
                 {
                     return new DatasetCheckResult(false,
                         new Exception($"Cannot find the sequence folder"));
                 } 
-            }
+            //}
 
             var retVal = new DatasetCheckResult(true, null)
             {
                 VocabFile = vocabFile,
                 ConfigFile = configFile,
-                SequenceDirectory = sequencePath,
-                VideoFile = videoFile
+                SequenceDirectory = sequencePath
             };
             return retVal;
         }

@@ -38,21 +38,20 @@ namespace vBenchSLAM.Core.Mappers.DatasetServices
             }
 
             DirectoryInfo sequencePath = default;
-            if (DatasetType == DatasetType.Kitty)
-            {
+            // if (DatasetType == DatasetType.Kitty)
+            // {
                 sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
                 if (sequencePath.Exists == false)
                 {
                     return new DatasetCheckResult(false,
                         new Exception($"Cannot find the sequence folder"));
                 } 
-            }
+            //}
 
             var retVal = new DatasetCheckResult(true, null)
             {
                 VocabFile = vocabFile,
                 ConfigFile = configFile,
-                VideoFile = null, //TODO
                 SequenceDirectory = sequencePath
             };
             return retVal;

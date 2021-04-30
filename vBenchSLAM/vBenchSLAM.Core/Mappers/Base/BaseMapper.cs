@@ -105,6 +105,9 @@ namespace vBenchSLAM.Core.Mappers.Base
             var tempFolderPath = DirectoryHelper.GetDataFolderPath();
             foreach (var file in fileInfos)
             {
+                if (file is null)
+                    continue;
+
                 var copiedFileDestination = Path.Combine(tempFolderPath, file.Name);
                 FileHelper.SafeCopy(file.FullName, copiedFileDestination);
             }

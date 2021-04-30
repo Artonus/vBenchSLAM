@@ -105,12 +105,21 @@ namespace vBenchSLAM.DesktopUI.Views
 
             foreach (var runId in runsToOpen)
             {
-                var chart = new ChartWindow
+                try
                 {
-                    DataContext = new ChartWindowViewModel(GetViewModel().DataService, runId)
-                };
+                    var chart = new ChartWindow
+                    {
+                        DataContext = new ChartWindowViewModel(GetViewModel().DataService, runId)
+                    };
             
-                chart.Show((Window)this.Parent);
+                    chart.Show((Window)this.Parent);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Could not open the chart window");
+                    
+                }
+                
             }
         }
     }

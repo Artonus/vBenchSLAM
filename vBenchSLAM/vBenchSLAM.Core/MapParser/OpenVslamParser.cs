@@ -20,27 +20,28 @@ namespace vBenchSLAM.Core.MapParser
             var map = new MapData();
             try
             {
-                byte[] bytes = File.ReadAllBytes(file);
-
-                dynamic data = MessagePackSerializer.Deserialize<dynamic>(bytes);
-                
-                
-                if (data["keyframes"] is ICollection keyframesCollection)
+                using (var fs = new FileStream(file, FileMode.Open, FileAccess.Read))
                 {
-                    map.Keyframes = keyframesCollection.Count;
-                    int count = 0;
-                    foreach (KeyValuePair<object, object> frame in keyframesCollection)
+                    dynamic data = MessagePackSerializer.Deserialize<dynamic>(fs);
+                    //MessagePackSerializer.Deserialize<dynamic>()
+                
+                    if (data["keyframes"] is ICollection keyframesCollection)
                     {
-                        var localCnt = (frame.Value as dynamic)?["n_keypts"];
-                        count += localCnt;
+                        map.Keyframes = keyframesCollection.Count;
+                        int count = 0;
+                        foreach (KeyValuePair<object, object> frame in keyframesCollection)
+                        {
+                            var localCnt = (frame.Value as dynamic)?["n_keypts"];
+                            count += localCnt;
+                        }
+
+                        map.Keypoints = count;
                     }
 
-                    map.Keypoints = count;
-                }
-
-                if (data["landmarks"] is ICollection landmarkCollection)
-                {
-                    map.Landmarks = landmarkCollection.Count;
+                    if (data["landmarks"] is ICollection landmarkCollection)
+                    {
+                        map.Landmarks = landmarkCollection.Count;
+                    }
                 }
             }
             catch (Exception ex)

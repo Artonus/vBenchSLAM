@@ -39,7 +39,7 @@ namespace vBenchSLAM.Core.Mappers
         {
             bool retVal = true;
             ContainerListResponse mapperContainer = null;
-            DateTime startedTime = DateTime.Now, finishedTime = default;
+            DateTime startedTime = default, finishedTime = default;
             string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
             try
             {
@@ -49,7 +49,7 @@ namespace vBenchSLAM.Core.Mappers
                 {
                     Stream = true
                 };
-
+                startedTime = DateTime.Now;
                 var reporter = new SystemResourceMonitor(resourceUsageFileName, _processRunner, Logger);
                 bool started = await DockerManager.StartContainerAsync(mapperContainer.ID);
 
@@ -103,7 +103,7 @@ namespace vBenchSLAM.Core.Mappers
             var mapperImage = images
                 .FirstOrDefault(i => i.RepoTags[0] == GetFullImageName(MapperContainerImage));
 
-            if (mapperImage is not null) // image is not present on the users machine
+            if (mapperImage is null) // image is not present on the users machine
             {
                 await DockerManager.PullImageAsync(GetFullImageName(MapperContainerImage));
             }
@@ -171,13 +171,14 @@ namespace vBenchSLAM.Core.Mappers
         public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
             var checkResult = _datasetService.ValidateDatasetCompleteness(parameters);
-
+            Logger.Information("Copying the files to temporary directory");
             CopyToTemporaryFilesFolder(checkResult.GetAllFiles().ToArray());
             if (_datasetService.DatasetType == DatasetType.Kitty)
             {
+                Logger.Information("Copying the sequence to temporary directory");
                 CopySequenceFolder(checkResult.SequenceDirectory);    
             }
-
+            Logger.Information("Files copied");
             return checkResult;
         }
 
