@@ -1,6 +1,6 @@
 ﻿using vBenchSLAM.Addins.Attributes;
 
-namespace vBenchSLAM.Core.Enums
+namespace vBenchSLAM.Addins
 {
     public enum DatasetType
     {

@@ -1,4 +1,4 @@
-﻿using vBenchSLAM.Core.Enums;
+﻿using vBenchSLAM.Addins;
 using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.Core.Mappers.Abstract

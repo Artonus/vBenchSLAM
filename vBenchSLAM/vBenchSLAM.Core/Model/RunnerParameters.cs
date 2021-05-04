@@ -1,4 +1,4 @@
-﻿using vBenchSLAM.Core.Enums;
+﻿using vBenchSLAM.Addins;
 
 namespace vBenchSLAM.Core.Model
 {

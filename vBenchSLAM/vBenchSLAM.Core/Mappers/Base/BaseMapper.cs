@@ -12,6 +12,7 @@ using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.MapParser;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Model;
+using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core.Mappers.Base
 {
@@ -19,12 +20,14 @@ namespace vBenchSLAM.Core.Mappers.Base
     {
         protected string RunParameters;
         protected readonly IDockerManager DockerManager;
+        protected readonly IProcessRunner ProcessRunner;
         
         protected readonly ILogger Logger;
         protected BaseParser Parser;
 
-        protected BaseMapper(ProcessRunner.ProcessRunner processRunner, ILogger logger)
+        protected BaseMapper(IProcessRunner processRunner, ILogger logger)
         {
+            ProcessRunner = processRunner;
             DockerManager = new DockerManager(processRunner);
             Logger = logger;
         }

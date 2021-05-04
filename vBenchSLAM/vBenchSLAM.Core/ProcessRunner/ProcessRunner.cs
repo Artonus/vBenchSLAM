@@ -173,5 +173,10 @@ namespace vBenchSLAM.Core.ProcessRunner
 
             return output;
         }
+
+        public async Task EnablePangolinViewer()
+        {
+            await RunProcessAsync(BaseProgram, $"{ExecCmdOption} \"xhost + \"", false);
+        }
     }
 }

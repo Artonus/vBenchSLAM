@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using vBenchSLAM.Core.Enums;
+using vBenchSLAM.Addins;
 
 namespace vBenchSLAM.Core.Model
 {

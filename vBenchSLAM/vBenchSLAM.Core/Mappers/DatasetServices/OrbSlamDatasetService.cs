@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System;
 using System.Linq;
-using vBenchSLAM.Core.Enums;
+using vBenchSLAM.Addins;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Model;
 

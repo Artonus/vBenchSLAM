@@ -4,12 +4,10 @@ using System.Threading.Tasks;
 using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Core.DockerCore;
-using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.Mappers;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.DatasetServices;
 using vBenchSLAM.Core.Model;
-using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core
 {
@@ -31,10 +29,10 @@ namespace vBenchSLAM.Core
             switch (_runnerParameters.MapperType)
             {
                 case MapperType.OpenVslam:
-                    _mapper = new OpenVslamMapper(new OrbSlamProcessRunner(),new OpenVslamDatasetService(_runnerParameters.DatasetType), _logger);
+                    _mapper = new OpenVslamMapper(new ProcessRunner.ProcessRunner(),new OpenVslamDatasetService(_runnerParameters.DatasetType), _logger);
                     break;
                 case MapperType.OrbSlam:
-                    _mapper = new OrbSlamMapper(new OrbSlamProcessRunner(), new OrbSlamDatasetService(_runnerParameters.DatasetType), _logger);
+                    _mapper = new OrbSlamMapper(new ProcessRunner.ProcessRunner(), new OrbSlamDatasetService(_runnerParameters.DatasetType), _logger);
                     break;
                 default:
                     throw  new InvalidEnumArgumentException($"Unresolved mapper type: {_runnerParameters.MapperType}");

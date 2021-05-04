@@ -3,7 +3,6 @@ using Avalonia.Media;
 using ReactiveUI;
 using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Addins.Models;
-using vBenchSLAM.Core.Enums;
 using vBenchSLAM.DesktopUI.Models;
 using vBenchSLAM.DesktopUI.Services;
 using vBenchSLAM.DesktopUI.ViewModels.Base;

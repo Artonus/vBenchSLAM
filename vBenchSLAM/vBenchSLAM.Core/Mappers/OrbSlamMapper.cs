@@ -9,12 +9,10 @@ using Serilog;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core.DockerCore;
-using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.MapParser;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
 using vBenchSLAM.Core.Model;
-using vBenchSLAM.Core.ProcessRunner;
 using vBenchSLAM.Core.SystemMonitor;
 
 namespace vBenchSLAM.Core.Mappers
@@ -24,13 +22,10 @@ namespace vBenchSLAM.Core.Mappers
         public const string MapperContainerImage = "orbslam2";
         public MapperType MapperType => MapperType.OrbSlam;
         public string MapFileName => "KeyFrameTrajectory.txt";
-
-        private readonly OrbSlamProcessRunner _processRunner;
         private readonly IDatasetService _datasetService;
 
-        public OrbSlamMapper(OrbSlamProcessRunner processRunner, IDatasetService datasetService, ILogger logger) : base(processRunner, logger)
+        public OrbSlamMapper(ProcessRunner.ProcessRunner processRunner, IDatasetService datasetService, ILogger logger) : base(processRunner, logger)
         {
-            _processRunner = processRunner;
             _datasetService = datasetService;
             Parser = new OrbSlamParser();
         }
@@ -43,14 +38,14 @@ namespace vBenchSLAM.Core.Mappers
             string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
             try
             {
-                await _processRunner.EnablePangolinViewer();
+                await ProcessRunner.EnablePangolinViewer();
                 mapperContainer = await PrepareAndStartContainer();
                 var statParams = new ContainerStatsParameters()
                 {
                     Stream = true
                 };
                 startedTime = DateTime.Now;
-                var reporter = new SystemResourceMonitor(resourceUsageFileName, _processRunner, Logger);
+                var reporter = new SystemResourceMonitor(resourceUsageFileName, ProcessRunner, Logger);
                 bool started = await DockerManager.StartContainerAsync(mapperContainer.ID);
 
                 var attachParams = new ContainerAttachParameters()
@@ -103,7 +98,7 @@ namespace vBenchSLAM.Core.Mappers
             var mapperImage = images
                 .FirstOrDefault(i => i.RepoTags[0] == GetFullImageName(MapperContainerImage));
 
-            if (mapperImage is null) // image is not present on the users machine
+            if (mapperImage is null) // image is not present on the user's machine
             {
                 await DockerManager.PullImageAsync(GetFullImageName(MapperContainerImage));
             }

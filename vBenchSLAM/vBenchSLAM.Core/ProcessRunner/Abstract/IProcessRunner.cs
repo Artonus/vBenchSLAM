@@ -20,6 +20,8 @@ namespace vBenchSLAM.Core.ProcessRunner
         Task<int> BuildImage(string containerName);
         Task<int> RunProcessAsync(string fileName, string args);
 
+        Task EnablePangolinViewer();
+
         public string CaptureCommandOutput(string command);
     }
 }

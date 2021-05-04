@@ -5,7 +5,6 @@ using System.Linq;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.Models;
 using vBenchSLAM.Core;
-using vBenchSLAM.Core.Enums;
 using vBenchSLAM.DesktopUI.Models;
 
 namespace vBenchSLAM.DesktopUI.Services

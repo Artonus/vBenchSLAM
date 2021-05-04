@@ -7,28 +7,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.ExtensionMethods;
-using vBenchSLAM.Core.Enums;
 using vBenchSLAM.Core.MapParser;
 using vBenchSLAM.Core.Mappers.Abstract;
 using vBenchSLAM.Core.Mappers.Base;
 using vBenchSLAM.Core.Model;
-using vBenchSLAM.Core.ProcessRunner;
 using vBenchSLAM.Core.SystemMonitor;
 
 namespace vBenchSLAM.Core.Mappers
 {
     internal class OpenVslamMapper : BaseMapper, IMapper
     {
-        private readonly OrbSlamProcessRunner _processRunner;
         private readonly IDatasetService _datasetService;
-        //public const string ServerContainerImage = "openvslam-server";
+        
         public const string ViewerContainerImage = "openvslam-pagolin";
         public MapperType MapperType => MapperType.OpenVslam;
         public string MapFileName => "map.msg";
 
-        public OpenVslamMapper(OrbSlamProcessRunner processRunner, IDatasetService datasetService, ILogger logger) : base(processRunner, logger)
+        public OpenVslamMapper(ProcessRunner.ProcessRunner processRunner, IDatasetService datasetService, ILogger logger) : base(processRunner, logger)
         {
-            _processRunner = processRunner;
             _datasetService = datasetService;
             Parser = new OpenVslamParser();
         }
@@ -43,7 +39,7 @@ namespace vBenchSLAM.Core.Mappers
             //TODO: cleanup
             try
             {
-                await _processRunner.EnablePangolinViewer();
+                await ProcessRunner.EnablePangolinViewer();
                 mapperContainer = await PrepareAndStartContainer();
 
                 var statParams = new ContainerStatsParameters()
@@ -51,7 +47,7 @@ namespace vBenchSLAM.Core.Mappers
                     Stream = true
                 };
                 startedTime = DateTime.Now;
-                var reporter = new SystemResourceMonitor(resourceUsageFileName, _processRunner, Logger);
+                var reporter = new SystemResourceMonitor(resourceUsageFileName, ProcessRunner, Logger);
                 bool started = await DockerManager.StartContainerAsync(mapperContainer.ID);
 
                 var attachParams = new ContainerAttachParameters()
