@@ -1,5 +1,5 @@
 using System.IO;
-using vBenchSLAM.Core.MapParser.Models;
+using vBenchSLAM.Addins.Models;
 
 namespace vBenchSLAM.Core.MapParser
 {

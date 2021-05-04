@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using MessagePack;
 using Serilog;
-using vBenchSLAM.Core.MapParser.Models;
+using vBenchSLAM.Addins.Models;
 
 namespace vBenchSLAM.Core.MapParser
 {

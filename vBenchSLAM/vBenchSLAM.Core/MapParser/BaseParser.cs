@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using MessagePack;
-using Serilog;
-using vBenchSLAM.Core.MapParser.Models;
+using vBenchSLAM.Addins.Models;
 
 namespace vBenchSLAM.Core.MapParser
 {

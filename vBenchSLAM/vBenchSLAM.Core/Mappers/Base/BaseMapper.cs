@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Docker.DotNet.Models;
-using Serilog;
 using vBenchSLAM.Addins;
+using vBenchSLAM.Addins.Abstract;
 using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.MapParser;

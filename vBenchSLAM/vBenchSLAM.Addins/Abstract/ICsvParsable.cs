@@ -1,6 +1,4 @@
-using Docker.DotNet.Models;
-
-namespace vBenchSLAM.Core
+namespace vBenchSLAM.Addins.Abstract
 {
     public interface ICsvParsable
     {

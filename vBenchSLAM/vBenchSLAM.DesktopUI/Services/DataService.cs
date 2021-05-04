@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using vBenchSLAM.Addins;
+using vBenchSLAM.Addins.Models;
 using vBenchSLAM.Core;
 using vBenchSLAM.Core.Enums;
-using vBenchSLAM.DesktopUI.ExtensionMethods;
 using vBenchSLAM.DesktopUI.Models;
 
 namespace vBenchSLAM.DesktopUI.Services

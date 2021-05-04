@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using vBenchSLAM.Addins.Abstract;
 
-namespace vBenchSLAM.Core.MapParser.Models
+namespace vBenchSLAM.Addins.Models
 {
     public class MapData : ICsvParsable
     {

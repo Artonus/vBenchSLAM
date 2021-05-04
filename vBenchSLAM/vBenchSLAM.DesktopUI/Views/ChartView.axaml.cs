@@ -8,6 +8,7 @@ using ScottPlot;
 using ScottPlot.Avalonia;
 using ScottPlot.Renderable;
 using vBenchSLAM.Addins;
+using vBenchSLAM.Addins.Models;
 using vBenchSLAM.DesktopUI.Models;
 using vBenchSLAM.DesktopUI.ViewModels;
 using Color = System.Drawing.Color;

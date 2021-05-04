@@ -1,4 +1,5 @@
 using System;
+using vBenchSLAM.Addins.Abstract;
 
 namespace vBenchSLAM.Core.Model
 {

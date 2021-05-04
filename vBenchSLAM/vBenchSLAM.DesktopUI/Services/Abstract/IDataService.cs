@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using vBenchSLAM.Addins.Models;
 using vBenchSLAM.DesktopUI.Models;
 
 namespace vBenchSLAM.DesktopUI.Services

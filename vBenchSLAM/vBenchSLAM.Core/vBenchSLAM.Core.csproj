@@ -26,4 +26,8 @@
     <ProjectReference Include="..\vBenchSLAM.Addins\vBenchSLAM.Addins.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="MapParser\Models\" />
+  </ItemGroup>
+
 </Project>

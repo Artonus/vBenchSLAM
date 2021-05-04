@@ -66,9 +66,10 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             DatasetTypeList = new ObservableCollection<DatasetTypeModel>(availableDatasetTypes);
 
 #if DEBUG
+            // set up the starting paths in the DEV build
             DatasetPath = "/home/bartek/Works/vBenchSLAM/Samples/Kitty";
             OutputPath = "/home/bartek/Works/vBenchSLAM/Samples/Output";
-            SelectedFramework = availableFrameworks.First(f => f.Id == (int) MapperType.OrbSlam);
+            SelectedFramework = availableFrameworks.First(f => f.Id == (int) MapperType.OpenVslam);
             SelectedDatasetType = availableDatasetTypes.First(f => f.Id == (int) DatasetType.Kitty);
 #endif
             PrepareValidationConstraints();
