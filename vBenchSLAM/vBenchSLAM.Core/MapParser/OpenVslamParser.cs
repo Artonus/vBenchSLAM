@@ -22,8 +22,7 @@ namespace vBenchSLAM.Core.MapParser
             {
                 using (var fs = new FileStream(file, FileMode.Open, FileAccess.Read))
                 {
-                    dynamic data = MessagePackSerializer.Deserialize<dynamic>(fs);
-                    //MessagePackSerializer.Deserialize<dynamic>()
+                    dynamic data = MessagePackSerializer.Deserialize<dynamic>(fs);                    
                 
                     if (data["keyframes"] is ICollection keyframesCollection)
                     {
@@ -34,7 +33,6 @@ namespace vBenchSLAM.Core.MapParser
                             var localCnt = (frame.Value as dynamic)?["n_keypts"];
                             count += localCnt;
                         }
-
                         map.Keypoints = count;
                     }
 

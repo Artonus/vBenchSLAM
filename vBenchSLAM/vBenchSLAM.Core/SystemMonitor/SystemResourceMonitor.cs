@@ -1,16 +1,15 @@
+using Docker.DotNet.Models;
+using Serilog;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Docker.DotNet.Models;
-using Serilog;
 using vBenchSLAM.Addins;
-using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core.Model;
 using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core.SystemMonitor
 {
-    public class SystemResourceMonitor : IProgress<ContainerStatsResponse>
+    internal class SystemResourceMonitor : IProgress<ContainerStatsResponse>
     {
         private readonly IProcessRunner _processRunner;
         private readonly ILogger _logger;
@@ -27,11 +26,11 @@ namespace vBenchSLAM.Core.SystemMonitor
         {
             if (value is not null)
             {
-                await SaveUsageToFileAsync(value);    
+                await CalculateAndSaveUsageToFileAsync(value);    
             }
         }
 
-        private async Task SaveUsageToFileAsync(ContainerStatsResponse stats)
+        private async Task CalculateAndSaveUsageToFileAsync(ContainerStatsResponse stats)
         {
             try
             {

@@ -1,8 +1,10 @@
+using System;
 using System.Diagnostics;
 using vBenchSLAM.Addins.Events;
 
 namespace vBenchSLAM.Addins
 {
+    [Obsolete]
     public class VBenchProcess : Process
     {
         public bool EnableRaisingCustomEvents { get; set; }

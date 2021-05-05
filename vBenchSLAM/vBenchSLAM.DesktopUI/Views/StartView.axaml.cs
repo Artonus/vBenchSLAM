@@ -114,10 +114,9 @@ namespace vBenchSLAM.DesktopUI.Views
             
                     chart.Show((Window)this.Parent);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Log.Error("Could not open the chart window");
-                    
                 }
                 
             }

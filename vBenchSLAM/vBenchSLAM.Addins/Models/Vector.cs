@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace vBenchSLAM.Addins.Models
 {
+    [Obsolete]
     public class Vector
     {
         public double X { get; set; }

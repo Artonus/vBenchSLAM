@@ -1,15 +1,12 @@
-using System;
-using System.Linq;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
 using ScottPlot;
 using ScottPlot.Avalonia;
 using ScottPlot.Renderable;
+using System;
+using System.Linq;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.Models;
-using vBenchSLAM.DesktopUI.Models;
 using vBenchSLAM.DesktopUI.ViewModels;
 using Color = System.Drawing.Color;
 using Size = vBenchSLAM.Addins.Size;
@@ -45,11 +42,11 @@ namespace vBenchSLAM.DesktopUI.Views
                 LoadData();
                 _hasLoadedChartData = true;
 
-                HideRecommendationLabels();
+                HideEmptyRecommendationLabels();
             }
         }
 
-        private void HideRecommendationLabels()
+        private void HideEmptyRecommendationLabels()
         {
             var vm = GetViewModel();
             if (string.IsNullOrEmpty(vm.Fatal))
@@ -78,19 +75,18 @@ namespace vBenchSLAM.DesktopUI.Views
 
         private void LoadData()
         {
-            var dataModel = GetViewModel().DataModel;
+            var vm = GetViewModel();
+            var dataModel = vm.DataModel;
 
             if (dataModel is null)
                 return;
-            
             
             double[] axisXData = Enumerable.Range(0, dataModel.ResourceUsages.Count).Select(e => (double)e).ToArray();
             PrepareRamChart(dataModel, axisXData);
             
             PrepareCpuChart(dataModel, axisXData);
 
-
-            GetViewModel().PrepareRecommendations(dataModel);
+            vm.PrepareRecommendations(dataModel);
         }
 
         private void PrepareCpuChart(ChartDataModel dataModel, double[] axisXData)
@@ -98,16 +94,14 @@ namespace vBenchSLAM.DesktopUI.Views
             AvaPlot cpuUsagePlot = this.Find<AvaPlot>("CpuUsagePlot");
             cpuUsagePlot.Plot.Legend(true, Alignment.UpperLeft);
 
-
-            double[] cpuAxisYData = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.ProcUsage)).ToArray();
-            
+            double[] cpuAxisYData = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.ProcUsage)).ToArray();            
             double[] gpuPercentAxisYData = dataModel.ResourceUsages.Select(u => Convert.ToDouble(u.GPUUsage)).ToArray();
             // cpu series
             var cpuScatter = cpuUsagePlot.Plot.AddScatter(axisXData, cpuAxisYData, Color.Blue, 2F, label: "% CPU usage");
             cpuScatter.YAxisIndex = cpuScatter.XAxisIndex = 0;
             // gpu series
             var gpuScatter = cpuUsagePlot.Plot.AddScatter(axisXData, gpuPercentAxisYData, Color.Green, 2F, label: "% GPU usage");
-            //secondary axis
+            // secondary axis
             var secAxis = cpuUsagePlot.Plot.AddAxis(Edge.Right, axisIndex: 2);
             //secAxis.Color(ramScatter.Color);
             secAxis.Label("% GPU usage");
@@ -137,10 +131,7 @@ namespace vBenchSLAM.DesktopUI.Views
             
             ramUsagePlot.Plot.Legend(true, Alignment.UpperLeft);
         }
-        private void PrepareCpuChart(ChartDataModel model)
-        {
-            
-        }
+
         private void StylePlot(Plot plt, ChartType chartType)
         {
             plt.XLabel("Run duration in seconds");

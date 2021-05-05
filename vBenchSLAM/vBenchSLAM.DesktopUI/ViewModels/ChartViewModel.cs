@@ -86,26 +86,31 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             PrepareRamRecommendations(data);
             PrepareGpuRecommendations(data);
         }
-        
+        /// <summary>
+        /// Clears the recommendations that has been calculated for the current run
+        /// </summary>
         private void ClearExistingRecommendations()
         {
             AlreadyGood = Improvements = Fatal = string.Empty;
         }
-
+        /// <summary>
+        /// Calculates the requirements based on the CPU utilisation during the SLAM run
+        /// </summary>
+        /// <param name="data"></param>
         private void PrepareCpuRecommendations(ChartDataModel data)
         {
-            var cpuCount = Environment.ProcessorCount / 2;
+            var cpuCount = data.Cores / 2;
             decimal maxCpuUsage = cpuCount * 100;
             if (data.AvgCpuUsage < maxCpuUsage * 0.5M)
             {
                 AlreadyGood += $"Your machine has powerful enough processor and GPU. {Environment.NewLine}";
             }
-            else if (data.AvgCpuUsage >= maxCpuUsage * 0.5M && data.AvgCpuUsage <= maxCpuUsage * 0.9M)
+            else if (data.AvgCpuUsage >= maxCpuUsage * 0.5M && data.AvgCpuUsage <= maxCpuUsage * 0.95M)
             {
                 Improvements +=
                     $"Your machine has utilized {data.AvgCpuUsage} of maximum {maxCpuUsage}% CPU available. You may want to consider using the more powerful CPU in the future or use the algorithm that can utilise the GPU. {Environment.NewLine}";
             }
-            else if (data.AvgCpuUsage >= maxCpuUsage * 0.9M)
+            else if (data.AvgCpuUsage >= maxCpuUsage * 0.95M)
             {
                 Fatal +=
                     $"Your machine has crossed the average CPU utilization of {maxCpuUsage * 0.9M}% of CPU. Your machine may experience delays on the frames computation and loss in the quality of the map. {Environment.NewLine}";
@@ -138,11 +143,11 @@ namespace vBenchSLAM.DesktopUI.ViewModels
                 case < 50:
                     AlreadyGood += $"Your machine has more powerful GPU then needed to run the algorithm. {Environment.NewLine}";
                     break;
-                case >= 50 and < 90:
+                case >= 50 and < 95:
                     Improvements +=
                         $"Your machine has powerful enough GPU to easily run the the algorithm. It is not needed to add more of it. {Environment.NewLine}";
                     break;
-                case >= 90:
+                case >= 95:
                     Fatal +=
                         $"Your machine has crossed the GPU utilization of 90%. When running you may experience slowing the responsiveness of the algorithm.{Environment.NewLine}";
                     break;

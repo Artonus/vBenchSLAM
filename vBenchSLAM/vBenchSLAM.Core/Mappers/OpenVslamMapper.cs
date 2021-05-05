@@ -34,9 +34,7 @@ namespace vBenchSLAM.Core.Mappers
             var retVal = true;
             ContainerListResponse mapperContainer = null;
             DateTime startedTime = default, finishedTime = default;
-
-            string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
-            //TODO: cleanup
+            string  resourceUsageFileName = string.Empty;
             try
             {
                 await ProcessRunner.EnablePangolinViewer();
@@ -47,6 +45,7 @@ namespace vBenchSLAM.Core.Mappers
                     Stream = true
                 };
                 startedTime = DateTime.Now;
+                resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
                 var reporter = new SystemResourceMonitor(resourceUsageFileName, ProcessRunner, Logger);
                 bool started = await DockerManager.StartContainerAsync(mapperContainer.ID);
 
@@ -89,8 +88,7 @@ namespace vBenchSLAM.Core.Mappers
                     await DockerManager.Client.Containers.RemoveContainerAsync(mapperContainer.ID,
                         new ContainerRemoveParameters());
                 }
-
-                //TODO: memory allocation issue
+                
                 SaveMapAndStatistics(startedTime, finishedTime, resourceUsageFileName);
             }
 
