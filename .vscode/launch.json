@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/vBenchSLAM/bin/Debug/net5.0/vBenchSLAM.DesktopUI.dll",
+            "program": "${workspaceFolder}/bin/Debug/net5.0/vBenchSLAM.App.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/vBenchSLAM/vBenchSLAM.DesktopUI",
+            "cwd": "${workspaceFolder}/src/vBenchSLAM.DesktopUI",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false
