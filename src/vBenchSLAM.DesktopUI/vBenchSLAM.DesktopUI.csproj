@@ -6,10 +6,10 @@
         <AssemblyName>vBenchSLAM.App</AssemblyName>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <OutputPath>..\bin\Debug\</OutputPath>
+      <OutputPath>..\..\bin\Debug\</OutputPath>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <OutputPath>..\bin\Release\</OutputPath>
+      <OutputPath>..\..\bin\Release\</OutputPath>
     </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
