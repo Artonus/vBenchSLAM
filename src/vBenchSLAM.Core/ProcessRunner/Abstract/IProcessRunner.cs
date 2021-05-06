@@ -1,11 +1,10 @@
+using System;
 using System.Threading.Tasks;
 
 namespace vBenchSLAM.Core.ProcessRunner
 {
-    public interface IProcessRunner
+    internal interface IProcessRunner
     {
-        event ProcessRunner.ProcessRegisteredEventHandler ProcessRegistered;
-
         /// <summary>
         /// Asynchronously starts the container using the command line
         /// </summary>
@@ -13,15 +12,44 @@ namespace vBenchSLAM.Core.ProcessRunner
         /// <param name="startParameters">Map parameters of the container</param>
         /// <param name="containerCommand">Additional command to be executed by the container</param>
         /// <returns></returns>
+        [Obsolete]
         public Task<int> StartContainerViaCommandLineAsync(string containerName, string startParameters, string containerCommand = "");
-
+        /// <summary>
+        /// Asynchronously sends the command to the container
+        /// </summary>
+        /// <param name="containerId"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
         Task<int> SendCommandToContainerAsync(string containerId, string command);
-        Task<int> PullContainer(string containerInfo);
-        Task<int> BuildImage(string containerName);
+        /// <summary>
+        /// Asynchronously pulls the container from the repository
+        /// </summary>
+        /// <param name="containerInfo"></param>
+        /// <returns></returns>
+        Task<int> PullContainerAsync(string containerInfo);
+        /// <summary>
+        /// Asynchronously builds the container
+        /// </summary>
+        /// <param name="containerName"></param>
+        /// <returns></returns>
+        Task<int> BuildImageAsync(string containerName);
+        /// <summary>
+        /// Asynchronously runs the process
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         Task<int> RunProcessAsync(string fileName, string args);
-
-        Task EnablePangolinViewer();
-
+        /// <summary>
+        /// Asynchronously enables the Pangolin Viewer
+        /// </summary>
+        /// <returns></returns>
+        Task EnablePangolinViewerAsync();
+        /// <summary>
+        /// Captures the output of the command 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public string CaptureCommandOutput(string command);
     }
 }

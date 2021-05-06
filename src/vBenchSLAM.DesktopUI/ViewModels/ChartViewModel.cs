@@ -11,16 +11,24 @@ namespace vBenchSLAM.DesktopUI.ViewModels
 {
     public class ChartViewModel : ViewModelBase
     {
+        /// <summary>
+        /// Data Service instance
+        /// </summary>
         private readonly IDataService _dataService;
 
         private ChartDataModel _data;
+        /// <summary>
+        /// Chart data
+        /// </summary>
         public ChartDataModel DataModel
         {
             get => _data;
             set => this.RaiseAndSetIfChanged(ref _data, value);
         }
         private string _fatal;
-
+        /// <summary>
+        /// Fatal recommendations to the system
+        /// </summary>
         public string Fatal
         {
             get => _fatal;
@@ -28,6 +36,9 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         }
 
         private IBrush _fatalColorBrush;
+        /// <summary>
+        /// Color of fatal recommendations to the system
+        /// </summary>
         public IBrush FatalColorBrush
         {
             get => _fatalColorBrush;
@@ -35,22 +46,28 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         }
 
         private string _improvements;
-
+        /// <summary>
+        /// Improvements recommendations to the system
+        /// </summary>
         public string Improvements
         {
             get => _improvements;
             set => this.RaiseAndSetIfChanged(ref _improvements, value);
         }
         private IBrush _improvementsColorBrush;
+        /// <summary>
+        /// Color of improvements recommendations to the system
+        /// </summary>
         public IBrush ImprovementsColorBrush
         {
             get => _improvementsColorBrush;
             set => this.RaiseAndSetIfChanged(ref _improvementsColorBrush, value);
         }
-        
-        
-        private string _alreadyGood;
 
+        private string _alreadyGood;
+        /// <summary>
+        /// Already Good recommendations to the system
+        /// </summary>
         public string AlreadyGood
         {
             get => _alreadyGood;
@@ -58,12 +75,14 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         }
         
         private IBrush _alreadyGoodColorBrush;
+        /// <summary>
+        /// Color of already good recommendations to the system
+        /// </summary>
         public IBrush AlreadyGoodColorBrush
         {
             get => _alreadyGoodColorBrush;
             set => this.RaiseAndSetIfChanged(ref _alreadyGoodColorBrush, value);
         }
-
 
         public ChartViewModel(IDataService dataService)
         {
@@ -77,7 +96,10 @@ namespace vBenchSLAM.DesktopUI.ViewModels
         {
             DataModel = dataService.GetRunDataForChart(runId);
         }
-
+        /// <summary>
+        /// Prepares the recommendations for the current setup based on the gathered data
+        /// </summary>
+        /// <param name="data"></param>
         public void PrepareRecommendations(ChartDataModel data)
         {
             ClearExistingRecommendations();
@@ -94,7 +116,7 @@ namespace vBenchSLAM.DesktopUI.ViewModels
             AlreadyGood = Improvements = Fatal = string.Empty;
         }
         /// <summary>
-        /// Calculates the requirements based on the CPU utilisation during the SLAM run
+        /// Prepares the CPU recommendations to the user based on the CPU usage
         /// </summary>
         /// <param name="data"></param>
         private void PrepareCpuRecommendations(ChartDataModel data)
@@ -116,6 +138,10 @@ namespace vBenchSLAM.DesktopUI.ViewModels
                     $"Your machine has crossed the average CPU utilization of {maxCpuUsage * 0.9M}% of CPU. Your machine may experience delays on the frames computation and loss in the quality of the map. {Environment.NewLine}";
             }
         }
+        /// <summary>
+        /// Prepares the RAM recommendations to the user based on the RAM usage
+        /// </summary>
+        /// <param name="data"></param>
         private void PrepareRamRecommendations(ChartDataModel data)
         {
             switch (data.AvgRamUsage)
@@ -133,6 +159,10 @@ namespace vBenchSLAM.DesktopUI.ViewModels
                     break;
             }
         }
+        /// <summary>
+        /// Prepares the GPU recommendations to the user based on the GPU usage
+        /// </summary>
+        /// <param name="data"></param>
         private void PrepareGpuRecommendations(ChartDataModel data)
         {
             switch (data.AvgGpuUsage)

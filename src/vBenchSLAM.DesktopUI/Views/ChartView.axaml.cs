@@ -34,7 +34,11 @@ namespace vBenchSLAM.DesktopUI.Views
         {
             AvaloniaXamlLoader.Load(this);
         }
-
+        /// <summary>
+        /// DataContext changed event handler, responsible for loading the data into the chart
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnDataContextChanged(object sender, EventArgs e)
         {
             if (_hasLoadedChartData == false)
@@ -45,7 +49,9 @@ namespace vBenchSLAM.DesktopUI.Views
                 HideEmptyRecommendationLabels();
             }
         }
-
+        /// <summary>
+        /// Hides the empty recommendation labels
+        /// </summary>
         private void HideEmptyRecommendationLabels()
         {
             var vm = GetViewModel();
@@ -67,12 +73,17 @@ namespace vBenchSLAM.DesktopUI.Views
                 alreadyGoodLabel.IsVisible = false;
             }
         }
-
+        /// <summary>
+        /// Returns the view model associated with the current view
+        /// </summary>
+        /// <returns></returns>
         private ChartViewModel GetViewModel()
         {
             return DataContext as ChartViewModel;
         }
-
+        /// <summary>
+        /// Loads the data into the charts
+        /// </summary>
         private void LoadData()
         {
             var vm = GetViewModel();
@@ -88,7 +99,11 @@ namespace vBenchSLAM.DesktopUI.Views
 
             vm.PrepareRecommendations(dataModel);
         }
-
+        /// <summary>
+        /// Prepares the chart with the CPU and GPU usage
+        /// </summary>
+        /// <param name="dataModel"></param>
+        /// <param name="axisXData"></param>
         private void PrepareCpuChart(ChartDataModel dataModel, double[] axisXData)
         {
             AvaPlot cpuUsagePlot = this.Find<AvaPlot>("CpuUsagePlot");
@@ -110,7 +125,11 @@ namespace vBenchSLAM.DesktopUI.Views
             // set labels
             StylePlot(cpuUsagePlot.Plot, ChartType.Cpu);
         }
-
+        /// <summary>
+        /// Prepares the chart with the RAM usage
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="axisXData"></param>
         private void PrepareRamChart(ChartDataModel data, double[] axisXData)
         {
             AvaPlot ramUsagePlot = this.Find<AvaPlot>("RamUsagePlot");
@@ -131,7 +150,11 @@ namespace vBenchSLAM.DesktopUI.Views
             
             ramUsagePlot.Plot.Legend(true, Alignment.UpperLeft);
         }
-
+        /// <summary>
+        /// Sets the style of a plot
+        /// </summary>
+        /// <param name="plt"></param>
+        /// <param name="chartType"></param>
         private void StylePlot(Plot plt, ChartType chartType)
         {
             plt.XLabel("Run duration in seconds");

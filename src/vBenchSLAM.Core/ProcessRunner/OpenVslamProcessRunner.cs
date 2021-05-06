@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using vBenchSLAM.Core.Mappers;
@@ -5,9 +6,11 @@ using vBenchSLAM.Core.Mappers.Base;
 
 namespace vBenchSLAM.Core.ProcessRunner
 {
-    public class OpenVslamProcessRunner : ProcessRunner
+    [Obsolete]
+    internal class OpenVslamProcessRunner : ProcessRunner
     {
         /// <inheritdoc />
+        [Obsolete]
         public override async Task<int> StartContainerViaCommandLineAsync(string containerName, string startParameters,
             string containerCommand = "")
         {
@@ -24,7 +27,14 @@ namespace vBenchSLAM.Core.ProcessRunner
 
             return result;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="containerName"></param>
+        /// <param name="startParameters"></param>
+        /// <param name="containerCommand"></param>
+        /// <returns></returns>
+        [Obsolete]
         private async Task<FileInfo> CreateScriptFile(string containerName, string startParameters, string containerCommand)
         {
             var fInfo = new FileInfo("run.sh");
@@ -44,7 +54,7 @@ namespace vBenchSLAM.Core.ProcessRunner
             await SetAsExecutable(fInfo);
             return fInfo;
         }
-
+        [Obsolete]
         private async Task SetAsExecutable(FileInfo fInfo)
         {
             await RunProcessAsync(BaseProgram, $"{ExecCmdOption} \"chmod +x {fInfo.Name}\"", false);

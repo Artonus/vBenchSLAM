@@ -6,6 +6,10 @@ namespace vBenchSLAM.Core
 {
     public interface IRunner : IDisposable
     {
+        /// <summary>
+        /// Run the mapping algorithm
+        /// </summary>
+        /// <returns></returns>
         Task<RunnerResult> Run();
     }
 }

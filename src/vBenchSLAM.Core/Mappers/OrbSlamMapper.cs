@@ -17,19 +17,37 @@ using vBenchSLAM.Core.SystemMonitor;
 
 namespace vBenchSLAM.Core.Mappers
 {
+    /// <summary>
+    /// Mapper for the ORB_SLAM2 framework
+    /// </summary>
     internal class OrbSlamMapper : BaseMapper, IMapper
     {
-        public const string MapperContainerImage = "orbslam2";
-        public MapperType MapperType => MapperType.OrbSlam;
-        public string MapFileName => "KeyFrameTrajectory.txt";
+        /// <summary>
+        /// Dataset Service instance
+        /// </summary>
         private readonly IDatasetService _datasetService;
+        /// <summary>
+        /// Tag of a container that contains the OpenVSLAM algorithm
+        /// </summary>
+        public const string MapperContainerImage = "orbslam2";
+        /// <summary>
+        /// <inheritdoc cref="IMapper.MapperType"/>
+        /// </summary>
+        public MapperType MapperType => MapperType.OrbSlam;
+        /// <summary>
+        /// <inheritdoc cref="IMapper.MapFileName"/>
+        /// </summary>
+        public string MapFileName => "KeyFrameTrajectory.txt";
 
         public OrbSlamMapper(ProcessRunner.ProcessRunner processRunner, IDatasetService datasetService, ILogger logger) : base(processRunner, logger)
         {
             _datasetService = datasetService;
             Parser = new OrbSlamParser();
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IMapper.Map"/>
+        /// </summary>
+        /// <returns></returns>
         public async Task<bool> Map()
         {
             bool retVal = true;
@@ -38,8 +56,8 @@ namespace vBenchSLAM.Core.Mappers
             string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
             try
             {
-                await ProcessRunner.EnablePangolinViewer();
-                mapperContainer = await PrepareAndStartContainer();
+                await ProcessRunner.EnablePangolinViewerAsync();
+                mapperContainer = await PrepareContainer();
                 var statParams = new ContainerStatsParameters()
                 {
                     Stream = true
@@ -86,13 +104,16 @@ namespace vBenchSLAM.Core.Mappers
                     await DockerManager.Client.Containers.RemoveContainerAsync(mapperContainer.ID,
                         new ContainerRemoveParameters());
                 }
-                SaveMapAndStatistics(startedTime, finishedTime, resourceUsageFileName);
+                ConfirmRunFinished(startedTime, finishedTime, resourceUsageFileName);
             }
 
             return retVal;
         }
-
-        private async Task<ContainerListResponse> PrepareAndStartContainer()
+        /// <summary>
+        /// Prepares the container to be ready to run
+        /// </summary>
+        /// <returns></returns>
+        private async Task<ContainerListResponse> PrepareContainer()
         {
             var images = await DockerManager.Client.Images.ListImagesAsync(new());
             var mapperImage = images
@@ -127,7 +148,10 @@ namespace vBenchSLAM.Core.Mappers
 
             return await DockerManager.GetContainerByIdAsync(res.ID);
         }
-
+        /// <summary>
+        /// Prepares the configuration of a host machine to be used by the current container
+        /// </summary>
+        /// <returns></returns>
         private HostConfig PrepareHostConfig()
         {
             return new HostConfig()
@@ -153,7 +177,10 @@ namespace vBenchSLAM.Core.Mappers
                 }
             };
         }
-
+        /// <summary>
+        /// <inheritdoc cref="BaseMapper.GetContainerCommand"/>
+        /// </summary>
+        /// <returns></returns>
         public override string GetContainerCommand()
         {
             string command = _datasetService.DatasetType == DatasetType.Kitty
@@ -161,7 +188,11 @@ namespace vBenchSLAM.Core.Mappers
                 : $"./Examples/Monocular/mono_kitti data/orb_vocab_orbslam2.txt data/config_orbslam2.yaml data/sequence; cp {MapFileName} data/{MapFileName}";
             return command;
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IMapper.ValidateDatasetCompleteness"/>
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
             var checkResult = _datasetService.ValidateDatasetCompleteness(parameters);
@@ -175,7 +206,10 @@ namespace vBenchSLAM.Core.Mappers
             Logger.Information("Files copied");
             return checkResult;
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IMapper.CopyMapToOutputFolder"/>
+        /// </summary>
+        /// <param name="outputFolder"></param>
         public void CopyMapToOutputFolder(string outputFolder)
         {
             CopyMapToOutputFolder(outputFolder, MapFileName);

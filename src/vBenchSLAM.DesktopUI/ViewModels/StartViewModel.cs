@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Reactive;
-using System.Threading.Tasks;
-using Avalonia.Controls;
-using ReactiveUI;
+﻿using ReactiveUI;
 using ReactiveUI.Validation.Extensions;
 using Serilog;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using vBenchSLAM.Addins;
 using vBenchSLAM.Addins.ExtensionMethods;
 using vBenchSLAM.Core;
-using vBenchSLAM.Core.DockerCore;
 using vBenchSLAM.Core.Model;
 using vBenchSLAM.DesktopUI.Models;
 using vBenchSLAM.DesktopUI.Services;
@@ -21,34 +17,51 @@ namespace vBenchSLAM.DesktopUI.ViewModels
 {
     public class StartViewModel : ViewModelBase
     {
+        /// <summary>
+        /// Dataset Service instance
+        /// </summary>
         public IDataService DataService { get; }
-        private FrameworkModel _selectedFramework;
-        private DatasetTypeModel _selectedDatasetType;
-        private string _datasetPath;
-        private string _outputPath;
 
-        //public ValidationContext ValidationContext { get; } 
         public ObservableCollection<FrameworkModel> FrameworkList { get; }
-        
+
+        private FrameworkModel _selectedFramework;
+        /// <summary>
+        /// Framework selected in the UI
+        /// </summary>
         public FrameworkModel SelectedFramework
         {
             get => _selectedFramework;
             set => this.RaiseAndSetIfChanged(ref _selectedFramework, value);
         }
+        /// <summary>
+        /// Collection of available dataset types
+        /// </summary>
         public ObservableCollection<DatasetTypeModel> DatasetTypeList { get; }
+
+        private DatasetTypeModel _selectedDatasetType;
+        /// <summary>
+        /// Dataset type selected in the UI
+        /// </summary>
         public DatasetTypeModel SelectedDatasetType
         {
             get => _selectedDatasetType;
             set => this.RaiseAndSetIfChanged(ref _selectedDatasetType, value);
         }
         
-
+        private string _datasetPath;
+        /// <summary>
+        /// Dataset path selected in the UI
+        /// </summary>
         public string DatasetPath
         {
             get => _datasetPath;
             set => this.RaiseAndSetIfChanged(ref _datasetPath, value);
         }
 
+        private string _outputPath;
+        /// <summary>
+        /// Output path selected in the UI
+        /// </summary>
         public string OutputPath
         {
             get => _outputPath;
@@ -74,7 +87,9 @@ namespace vBenchSLAM.DesktopUI.ViewModels
 #endif
             PrepareValidationConstraints();
         }
-
+        /// <summary>
+        /// Prepares the validation for the control
+        /// </summary>
         private void PrepareValidationConstraints()
         {
             //dataset path
@@ -91,7 +106,10 @@ namespace vBenchSLAM.DesktopUI.ViewModels
                 f => f is not null,
                 "Please select desired dataset type");
         }
-
+        /// <summary>
+        /// Starts the benchmarking of the selected framework
+        /// </summary>
+        /// <returns></returns>
         public async Task StartFrameworkBenchmark()
         {
             if (HasErrors)
@@ -118,12 +136,18 @@ namespace vBenchSLAM.DesktopUI.ViewModels
                 throw new Exception("The algorithm did not run properly!", result.Exception);
             }
         }
-
+        /// <summary>
+        /// Gets the selected dataset type
+        /// </summary>
+        /// <returns></returns>
         private DatasetType GetSelectedDatasetType()
         {
             return (DatasetType) SelectedDatasetType.Id;
         }
-
+        /// <summary>
+        /// Gets the selected mapper type
+        /// </summary>
+        /// <returns></returns>
         private MapperType GetSelectedMapperType()
         {
             return (MapperType) SelectedFramework.Id;

@@ -13,8 +13,17 @@ namespace vBenchSLAM.Core
 {
     public class Runner : IRunner
     {
+        /// <summary>
+        /// Mapper instance
+        /// </summary>
         private IMapper _mapper;
+        /// <summary>
+        /// Runner parameters selected by the user
+        /// </summary>
         private readonly RunnerParameters _runnerParameters;
+        /// <summary>
+        /// Logger instance
+        /// </summary>
         private readonly ILogger _logger;
 
         public Runner(RunnerParameters parameters)
@@ -23,7 +32,9 @@ namespace vBenchSLAM.Core
             _runnerParameters = parameters;
             CreateMapper();
         }
-
+        /// <summary>
+        /// Creates the mapper based on the algorithm selected by the user
+        /// </summary>
         private void CreateMapper()
         {
             switch (_runnerParameters.MapperType)
@@ -38,7 +49,10 @@ namespace vBenchSLAM.Core
                     throw  new InvalidEnumArgumentException($"Unresolved mapper type: {_runnerParameters.MapperType}");
             }
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IRunner.Run"/>
+        /// </summary>
+        /// <returns></returns>
         public async Task<RunnerResult> Run()
         {
             DatasetCheckResult checkResult = null;
