@@ -78,7 +78,7 @@ namespace vBenchSLAM.Core.ProcessRunner
                 return await RunProcessAsync(process).ConfigureAwait(false);
             }
         }
-        [Obsolete]
+        
         protected static Task<int> RunProcessAsync(VBenchProcess process)
         {
             var tcs = new TaskCompletionSource<int>();

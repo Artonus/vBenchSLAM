@@ -61,6 +61,8 @@ namespace vBenchSLAM.DesktopUI.Views
                 return;
             }
 
+            var runBtn = this.Find<Button>("BtnStart");
+            runBtn.IsEnabled = false;
             try
             {
                 await vm.StartFrameworkBenchmark();
@@ -70,6 +72,7 @@ namespace vBenchSLAM.DesktopUI.Views
                 Log.Error(ex, "Invalid dataset arguments");
                 await MessageBox.Show((Window) Parent, ex.Message, "Invalid dataset arguments", MessageBoxButtons.Ok);
             }
+            runBtn.IsEnabled = true;
         }
 
         private void ShowCurrentRunStats(object sender, RoutedEventArgs e)
@@ -114,9 +117,9 @@ namespace vBenchSLAM.DesktopUI.Views
             
                     chart.Show((Window)this.Parent);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    Log.Error("Could not open the chart window");
+                    Log.Error(ex, "Could not open the chart window");
                 }
                 
             }

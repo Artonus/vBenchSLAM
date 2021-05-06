@@ -5,7 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="100"
         x:Class="vBenchSLAM.DesktopUI.Windows.MessageBox"
         Title="Message Box"
-        Width="300" Height="75"
+        Width="500" Height="75"
         CanResize="False">
     <StackPanel HorizontalAlignment="Center">
         <TextBlock HorizontalAlignment="Center" Name="Text" />
