@@ -18,7 +18,7 @@ namespace vBenchSLAM.Core.Mappers.DatasetServices
 
         public DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
-            string vocabFileName = "orb_vocab.dbow2", configFileName = "config.yaml", sequenceFolderName = "sequence";
+            string vocabFileName = "orb_vocab_openvslam.dbow2", configFileName = "config_openvslam.yaml", sequenceFolderName = "sequence";
 
             var allFiles = Directory.GetFiles(parameters.DatasetPath);
             var fileInfos = allFiles.Select(path => new FileInfo(path)).ToList();

@@ -159,8 +159,8 @@ namespace vBenchSLAM.Core.Mappers
         public override string GetContainerCommand()
         {
             string command = _datasetService.DatasetType == DatasetType.Kitty 
-                ? $"./run_kitti_slam -v data/orb_vocab.dbow2 -d data/sequence -c data/config.yaml --auto-term  --map-db data/{MapFileName}" 
-                : $"./run_image_slam -v data/orb_vocab.dbow2 -c data/config.yaml -i data/sequence --auto-term --no-sleep --map-db data/{MapFileName}";
+                ? $"./run_kitti_slam -v data/orb_vocab_openvslam.dbow2 -d data/sequence -c data/config_openvslam.yaml --auto-term  --map-db data/{MapFileName}" 
+                : $"./run_image_slam -v data/orb_vocab_openvslam.dbow2 -c data/config_openvslam.yaml -i data/sequence --auto-term --no-sleep --map-db data/{MapFileName}";
                 
             return command;
         }

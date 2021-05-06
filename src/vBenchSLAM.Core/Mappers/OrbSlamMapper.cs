@@ -157,9 +157,8 @@ namespace vBenchSLAM.Core.Mappers
         public override string GetContainerCommand()
         {
             string command = _datasetService.DatasetType == DatasetType.Kitty
-                ? $"./Examples/Monocular/mono_kitti data/ORBvoc.txt data/config-orb.yaml data/sequence; cp {MapFileName} data/{MapFileName}"
-                : $"./Examples/Monocular/mono_kitti data/ORBvoc.txt data/config-orb.yaml data/sequence; cp {MapFileName} data/{MapFileName}";
-            //TODO: fill the commnd for the custom video
+                ? $"./Examples/Monocular/mono_kitti data/orb_vocab_orbslam2.txt data/config_orbslam2.yaml data/sequence; cp {MapFileName} data/{MapFileName}"
+                : $"./Examples/Monocular/mono_kitti data/orb_vocab_orbslam2.txt data/config_orbslam2.yaml data/sequence; cp {MapFileName} data/{MapFileName}";
             return command;
         }
 

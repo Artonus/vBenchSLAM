@@ -18,7 +18,7 @@ namespace vBenchSLAM.Core.Mappers.DatasetServices
 
         public DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
-            string vocabFileName = "ORBvoc.txt", configFileName = "config-orb.yaml", sequenceFolderName = "sequence";
+            string vocabFileName = "orb_vocab_orbslam2.txt", configFileName = "config_orbslam2.yaml", sequenceFolderName = "sequence";
 
             var allFiles = Directory.GetFiles(parameters.DatasetPath);
             var fileInfos = allFiles.Select(path => new FileInfo(path)).ToList();
