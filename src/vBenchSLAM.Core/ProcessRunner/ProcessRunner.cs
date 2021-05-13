@@ -108,6 +108,7 @@ namespace vBenchSLAM.Core.ProcessRunner
             using (var process = new Process())
             {
                 process.StartInfo = startInfo;
+                process.EnableRaisingEvents = true;
                 if (riseCustomEvents)
                     OnProcessRegistered(new ProcessRegisteredEventArgs(process));
 

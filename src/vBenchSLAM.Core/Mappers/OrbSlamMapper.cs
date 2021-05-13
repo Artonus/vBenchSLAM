@@ -53,7 +53,7 @@ namespace vBenchSLAM.Core.Mappers
             bool retVal = true;
             ContainerListResponse mapperContainer = null;
             DateTime startedTime = default, finishedTime = default;
-            string resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
+            string resourceUsageFileName = string.Empty;
             try
             {
                 await ProcessRunner.EnablePangolinViewerAsync();
@@ -63,6 +63,7 @@ namespace vBenchSLAM.Core.Mappers
                     Stream = true
                 };
                 startedTime = DateTime.Now;
+                resourceUsageFileName = startedTime.FormatAsFileNameCode() + ".csv";
                 var reporter = new SystemResourceMonitor(resourceUsageFileName, ProcessRunner, Logger);
                 bool started = await DockerManager.StartContainerAsync(mapperContainer.ID);
 
@@ -196,6 +197,10 @@ namespace vBenchSLAM.Core.Mappers
         public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
             var checkResult = _datasetService.ValidateDatasetCompleteness(parameters);
+            if (checkResult.IsValid == false)
+            {
+                return checkResult;
+            }
             Logger.Information("Copying the files to temporary directory");
             CopyToTemporaryFilesFolder(checkResult.GetAllFiles().ToArray());
             if (_datasetService.DatasetType == DatasetType.Kitty)

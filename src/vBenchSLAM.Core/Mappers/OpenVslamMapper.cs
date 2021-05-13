@@ -197,6 +197,10 @@ namespace vBenchSLAM.Core.Mappers
         public override DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
             var checkResult = _datasetService.ValidateDatasetCompleteness(parameters);
+            if (checkResult.IsValid == false)
+            {
+                return checkResult;
+            }
             Logger.Information("Copying the files to temporary directory");
             CopyToTemporaryFilesFolder(checkResult.GetAllFiles().ToArray());
             Logger.Information("Copying the sequence to temporary directory");
