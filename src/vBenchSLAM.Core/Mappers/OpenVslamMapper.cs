@@ -50,7 +50,7 @@ namespace vBenchSLAM.Core.Mappers
             var retVal = true;
             ContainerListResponse mapperContainer = null;
             DateTime startedTime = default, finishedTime = default;
-            string  resourceUsageFileName = string.Empty;
+            string resourceUsageFileName = string.Empty;
             try
             {
                 await ProcessRunner.EnablePangolinViewerAsync();

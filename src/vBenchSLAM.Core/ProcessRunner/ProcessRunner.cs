@@ -115,6 +115,7 @@ namespace vBenchSLAM.Core.ProcessRunner
                 return await RunProcessAsync(process).ConfigureAwait(false);
             }
         }
+
         /// <summary>
         /// Asynchronously runs the process
         /// </summary>

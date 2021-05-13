@@ -105,7 +105,7 @@ namespace vBenchSLAM.Core.SystemMonitor
 
             if (sysCpuDelta > 0 && cpuDelta > 0)
             {
-                cpuUsage = cpuDelta / sysCpuDelta * onlineCPUs * 100;    
+                cpuUsage = cpuDelta / sysCpuDelta * onlineCPUs * 100;
             }
 
             var gpuUsage = GetGpuUsage();
