@@ -3,8 +3,16 @@ using vBenchSLAM.Addins.Models;
 
 namespace vBenchSLAM.Core.MapParser
 {
+    /// <summary>
+    /// Parser for the ORB_SLAM2 map output
+    /// </summary>
     public class OrbSlamParser : BaseParser
     {
+        /// <summary>
+        /// <inheritdoc cref="BaseParser.ParseMap"/>
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public override MapData ParseMap(string file)
         {
             MapData mapData = new MapData();

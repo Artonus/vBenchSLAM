@@ -9,6 +9,9 @@ using vBenchSLAM.DesktopUI.Models;
 
 namespace vBenchSLAM.DesktopUI.Services
 {
+    /// <summary>
+    /// <inheritdoc cref="IDataService"/>
+    /// </summary>
     public class DataService : IDataService
     {
         /// <summary>
@@ -87,7 +90,12 @@ namespace vBenchSLAM.DesktopUI.Services
                    && files.Contains(Path.Combine(runDir, Settings.RunDataFileName)) 
                    && files.Contains(Path.Combine(runDir, $"{runId}.csv"));
         }
-
+        /// <summary>
+        /// Reads the data to the chart from files
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <param name="runId"></param>
+        /// <returns></returns>
         private ChartDataModel ReadRunDataFromFiles(string dir, string runId)
         {
             var runDir = Path.Combine(dir, runId);

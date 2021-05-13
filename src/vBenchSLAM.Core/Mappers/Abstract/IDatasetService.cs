@@ -3,7 +3,7 @@ using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.Core.Mappers.Abstract
 {
-    public interface IDatasetService
+    internal interface IDatasetService
     {
         /// <summary>
         /// Represents the active dataset type

@@ -11,7 +11,6 @@ namespace vBenchSLAM.DesktopUI.ViewModels
     {
         private ViewModelBase _content;
 
-        // ReSharper disable once MemberCanBePrivate.Global
         public ViewModelBase Content
         {
             get => _content;

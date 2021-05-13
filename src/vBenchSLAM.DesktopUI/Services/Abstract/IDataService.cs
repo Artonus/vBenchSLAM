@@ -4,6 +4,9 @@ using vBenchSLAM.DesktopUI.Models;
 
 namespace vBenchSLAM.DesktopUI.Services
 {
+    /// <summary>
+    /// Provides the data for the user interface
+    /// </summary>
     public interface IDataService
     {
         /// <summary>

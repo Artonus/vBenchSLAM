@@ -20,6 +20,14 @@ namespace vBenchSLAM.DesktopUI.Windows
         {
             AvaloniaXamlLoader.Load(this);
         }
+        /// <summary>
+        /// Shows the message box
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="text"></param>
+        /// <param name="title"></param>
+        /// <param name="buttons"></param>
+        /// <returns></returns>
         public static Task<MessageBoxResult> Show(Window parent, string text, string title, MessageBoxButtons buttons)
         {
             var msgbox = new MessageBox()

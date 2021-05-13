@@ -3,13 +3,23 @@ using System.IO;
 
 namespace vBenchSLAM.Addins
 {
+    /// <summary>
+    /// Common directory operations
+    /// </summary>
     public static class DirectoryHelper
     {
+        /// <summary>
+        /// Returns the vBenchSLAM temporary catalog
+        /// </summary>
+        /// <returns></returns>
         public static string GetTempPath()
         {
             return @$"{Path.GetTempPath()}vBenchSLAM/";
         }
-
+        /// <summary>
+        /// Returns the vBenchSLAM temporary catalog that holds the data
+        /// </summary>
+        /// <returns></returns>
         public static string GetDataFolderPath()
         {
             string dir = $"{GetTempPath()}data/";
@@ -20,7 +30,9 @@ namespace vBenchSLAM.Addins
 
             return dir;
         }
-
+        /// <summary>
+        /// Clears the content of the temporary folder of the application
+        /// </summary>
         public static void ClearDataFolder()
         {
             string dir = GetDataFolderPath();
@@ -32,13 +44,19 @@ namespace vBenchSLAM.Addins
 
             Directory.Delete(dir, true);
         }
-
+        /// <summary>
+        /// Get the vBenchSLAM application data folder
+        /// </summary>
+        /// <returns></returns>
         public static string GetAppDataFolder()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
                 "vBenchSLAM");
         }
-
+        /// <summary>
+        /// Creates directory if not exist
+        /// </summary>
+        /// <param name="documentsPath"></param>
         public static void CreateDirectoryIfNotExists(string documentsPath)
         {
             if (Directory.Exists(documentsPath) == false)
@@ -46,19 +64,25 @@ namespace vBenchSLAM.Addins
                 Directory.CreateDirectory(documentsPath);
             }
         }
-
-        public static string GetMonitorsPath()
+        /// <summary>
+        /// Get temporary folder for the resource monitor
+        /// </summary>
+        /// <returns></returns>
+        public static string GetResourceMonitorsPath()
         {
             return @$"{GetTempPath()}monitors/";
         }
-
+        /// <summary>
+        /// Gets the path to the vBenchSLAM in user's documents folder
+        /// </summary>
+        /// <returns></returns>
         public static string GetUserDocumentsFolder()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "vBenchSLAM");
         }
 
         /// <summary>
-        /// Copies the content and the structure of the whole subdirectory
+        /// Copies the content and the structure of the whole sub directory
         /// </summary>
         /// <param name="source"></param>
         /// <param name="target"></param>

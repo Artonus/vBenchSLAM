@@ -39,22 +39,37 @@ namespace vBenchSLAM.Core.Model
             OnlineCPUs = onlineCPUs;
             GPUUsage = gpuUsage;
         }
-
+        /// <summary>
+        /// <inheritdoc cref="ICsvParsable.GetCsvHeaderRow"/>
+        /// </summary>
+        /// <returns></returns>
         public string GetCsvHeaderRow()
         {
             return
                 $"{nameof(RamUsage)};{nameof(MaxRamAvailable)};{nameof(RamPercentUsage)};{nameof(OnlineCPUs)};{nameof(ProcUsage)}";
         }
-
+        /// <summary>
+        /// <inheritdoc cref="ICsvParsable.ParseAsCsvLiteral"/>
+        /// </summary>
+        /// <returns></returns>
         public string ParseAsCsvLiteral()
         {
             return $"{RamUsage};{MaxRamAvailable};{Math.Round(RamPercentUsage, 2)};{OnlineCPUs};{Math.Round(ProcUsage, 2)};{Math.Round(GPUUsage, 2)}";
         }
-
+        /// <summary>
+        /// Parses the model instance to the CSV string literal
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public static string AsCsvLiteral(ResourceUsage model)
         {
             return model.ParseAsCsvLiteral();
         }
+        /// <summary>
+        /// Parse the <see cref="ResourceUsage"/> from the CSV formatted text
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
         public static ResourceUsage FromCsvLiteral(string line)
         {
             string[] values = line.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);

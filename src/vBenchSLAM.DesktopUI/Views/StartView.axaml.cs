@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
-using System.Text;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
@@ -24,7 +22,11 @@ namespace vBenchSLAM.DesktopUI.Views
         {
             AvaloniaXamlLoader.Load(this);
         }
-
+        /// <summary>
+        /// Event handler. Opens the select folder dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected async void OpenFileButtonOnClick(object sender, RoutedEventArgs e)
         {
             var btn = sender as Button;
@@ -33,7 +35,7 @@ namespace vBenchSLAM.DesktopUI.Views
 
             var dialog = new OpenFolderDialog();
 
-            var result = await dialog.ShowAsync((Window) Parent);
+            var result = await dialog.ShowAsync((Window)Parent);
 
             var vm = GetViewModel();
             if (result is not null && result.Any())
@@ -50,13 +52,17 @@ namespace vBenchSLAM.DesktopUI.Views
         {
             return DataContext as StartViewModel;
         }
-
+        /// <summary>
+        /// Event handler. Starts the algorithm run
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void BtnStartOnClick(object sender, RoutedEventArgs e)
         {
             var vm = GetViewModel();
             if (vm.HasErrors)
             {
-                await MessageBox.Show((Window) Parent, "Please select all required fields", "Invalid arguments",
+                await MessageBox.Show((Window)Parent, "Please select all required fields", "Invalid arguments",
                     MessageBoxButtons.Ok);
                 return;
             }
@@ -70,41 +76,52 @@ namespace vBenchSLAM.DesktopUI.Views
             catch (Exception ex)
             {
                 Log.Error(ex, "Invalid dataset arguments");
-                await MessageBox.Show((Window) Parent, ex.Message, "Invalid dataset arguments", MessageBoxButtons.Ok);
+                await MessageBox.Show((Window)Parent, ex.Message, "Invalid dataset arguments", MessageBoxButtons.Ok);
             }
             runBtn.IsEnabled = true;
         }
-
+        /// <summary>
+        /// Event handler. Shows all available windows with run results 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ShowCurrentRunStats(object sender, RoutedEventArgs e)
         {
             OpenChartWindow();
         }
-
+        /// <summary>
+        /// Event handler. Shows all available windows with run results 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ShowRunStats(object sender, RoutedEventArgs e)
         {
             OpenChartWindow(false);
         }
-
+        /// <summary>
+        /// Opens the vBenchSLAM result window
+        /// </summary>
+        /// <param name="openOnlyLatest"></param>
         private async void OpenChartWindow(bool openOnlyLatest = true)
         {
             var dataService = GetViewModel().DataService;
             var runs = dataService.GetRunLog();
             if (runs.Any() == false)
             {
-                await MessageBox.Show((Window) Parent, "Couldn't find any runs. Make sure that you run the algorithm first.", "No benchmark data found", MessageBoxButtons.Ok);
+                await MessageBox.Show((Window)Parent, "Couldn't find any runs. Make sure that you run the algorithm first.", "No benchmark data found", MessageBoxButtons.Ok);
 #if DEBUG
                 // when in the debug mode open an empty window
                 var chart = new ChartWindow
                 {
                     DataContext = new ChartWindowViewModel(GetViewModel().DataService, string.Empty)
                 };
-            
-                chart.Show((Window)this.Parent);       
+
+                chart.Show((Window)this.Parent);
 #endif
                 return;
             }
 
-            var runsToOpen = openOnlyLatest ? new List<string>(new[] {runs.Last()}) : runs;
+            var runsToOpen = openOnlyLatest ? new List<string>(new[] { runs.Last() }) : runs;
 
             foreach (var runId in runsToOpen)
             {
@@ -114,14 +131,14 @@ namespace vBenchSLAM.DesktopUI.Views
                     {
                         DataContext = new ChartWindowViewModel(GetViewModel().DataService, runId)
                     };
-            
+
                     chart.Show((Window)this.Parent);
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex, "Could not open the chart window");
                 }
-                
+
             }
         }
     }

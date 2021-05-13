@@ -7,15 +7,25 @@ using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.Core.Mappers.DatasetServices
 {
-    public class OpenVslamDatasetService : IDatasetService
+    /// <summary>
+    /// Dataset service for the OpenVSLAM mapper
+    /// </summary>
+    internal class OpenVslamDatasetService : IDatasetService
     {
-        public DatasetType DatasetType { get; init; } 
+        /// <summary>
+        /// <inheritdoc cref="IDatasetService.DatasetType"/>
+        /// </summary>
+        public DatasetType DatasetType { get; init; }
 
         public OpenVslamDatasetService(DatasetType datasetType)
         {
             DatasetType = datasetType;
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IDatasetService.ValidateDatasetCompleteness"/>
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
             string vocabFileName = "orb_vocab_openvslam.dbow2", configFileName = "config_openvslam.yaml", sequenceFolderName = "sequence";
@@ -37,27 +47,13 @@ namespace vBenchSLAM.Core.Mappers.DatasetServices
                     new Exception($"Cannot find the configuration file: {configFileName}"));
             }
 
-            // FileInfo videoFile = default;
-            // if (DatasetType == DatasetType.Other)
-            // {
-            //     videoFile = fileInfos.SingleOrDefault(f => f.Extension == ".mp4" && f.Name == videoFileName);
-            //     if (videoFile is null || videoFile.Exists == false)
-            //     {
-            //         return new DatasetCheckResult(false,
-            //             new Exception($"Cannot find the configuration file: {configFileName}"));
-            //     } 
-            // }
-
             DirectoryInfo sequencePath = default;
-            // if (DatasetType == DatasetType.Kitty)
-            // {
-                sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
-                if (sequencePath.Exists == false)
-                {
-                    return new DatasetCheckResult(false,
-                        new Exception($"Cannot find the sequence folder"));
-                } 
-            //}
+            sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
+            if (sequencePath.Exists == false)
+            {
+                return new DatasetCheckResult(false,
+                    new Exception($"Cannot find the sequence folder"));
+            }
 
             var retVal = new DatasetCheckResult(true, null)
             {

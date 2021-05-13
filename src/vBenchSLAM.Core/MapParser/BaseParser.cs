@@ -4,15 +4,23 @@ using vBenchSLAM.Addins.Models;
 
 namespace vBenchSLAM.Core.MapParser
 {
+    /// <summary>
+    /// Base class for the map parsers
+    /// </summary>
     public abstract class BaseParser
     {
         public BaseParser()
         {
 
         }
-
+        /// <summary>
+        /// Parse the map data created by the algorithm
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public abstract MapData ParseMap(string file);
 
+        [Obsolete]
         private static void Iterate(object obj)
         {
             var idic = (IDictionary)obj;
@@ -31,7 +39,7 @@ namespace vBenchSLAM.Core.MapParser
                     Console.WriteLine($"Key: {key}, Value: {idic[key]}");
             }
         }
-
+        [Obsolete]
         private static string CombineArray(object obj)
         {
             IEnumerable arr = obj as IEnumerable;

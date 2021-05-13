@@ -7,15 +7,25 @@ using vBenchSLAM.Core.Model;
 
 namespace vBenchSLAM.Core.Mappers.DatasetServices
 {
-    public class OrbSlamDatasetService : IDatasetService
+    /// <summary>
+    /// Dataset service for the ORB_SLAM2 mapper
+    /// </summary>
+    internal class OrbSlamDatasetService : IDatasetService
     {
+        /// <summary>
+        /// <inheritdoc cref="IDatasetService.DatasetType"/>
+        /// </summary>
         public DatasetType DatasetType { get; init; }
 
         public OrbSlamDatasetService(DatasetType datasetType)
         {
             DatasetType = datasetType;
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IDatasetService.ValidateDatasetCompleteness"/>
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters)
         {
             string vocabFileName = "orb_vocab_orbslam2.txt", configFileName = "config_orbslam2.yaml", sequenceFolderName = "sequence";
@@ -38,15 +48,12 @@ namespace vBenchSLAM.Core.Mappers.DatasetServices
             }
 
             DirectoryInfo sequencePath = default;
-            // if (DatasetType == DatasetType.Kitty)
-            // {
-                sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
-                if (sequencePath.Exists == false)
-                {
-                    return new DatasetCheckResult(false,
-                        new Exception($"Cannot find the sequence folder"));
-                } 
-            //}
+            sequencePath = new DirectoryInfo(Path.Combine(parameters.DatasetPath, sequenceFolderName));
+            if (sequencePath.Exists == false)
+            {
+                return new DatasetCheckResult(false,
+                    new Exception($"Cannot find the sequence folder"));
+            }
 
             var retVal = new DatasetCheckResult(true, null)
             {
@@ -55,12 +62,6 @@ namespace vBenchSLAM.Core.Mappers.DatasetServices
                 SequenceDirectory = sequencePath
             };
             return retVal;
-
-        }
-
-        public string GetContainerCommand()
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

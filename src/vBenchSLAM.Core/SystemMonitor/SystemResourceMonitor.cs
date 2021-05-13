@@ -9,6 +9,9 @@ using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core.SystemMonitor
 {
+    /// <summary>
+    /// Monitors the resource usage while the mapping algorithm is running
+    /// </summary>
     internal class SystemResourceMonitor : IProgress<ContainerStatsResponse>
     {
         private readonly IProcessRunner _processRunner;
@@ -19,9 +22,12 @@ namespace vBenchSLAM.Core.SystemMonitor
         {
             _processRunner = processRunner;
             _logger = logger;
-            _tmpFilePath = Path.Combine(DirectoryHelper.GetMonitorsPath(), outputFileName);
+            _tmpFilePath = Path.Combine(DirectoryHelper.GetResourceMonitorsPath(), outputFileName);
         }
-
+        /// <summary>
+        /// Receives the resource usage report
+        /// </summary>
+        /// <param name="value"></param>
         public async void Report(ContainerStatsResponse value)
         {
             if (value is not null)
@@ -29,7 +35,11 @@ namespace vBenchSLAM.Core.SystemMonitor
                 await CalculateAndSaveUsageToFileAsync(value);    
             }
         }
-
+        /// <summary>
+        /// Calculates the resource usage and saves it to the file
+        /// </summary>
+        /// <param name="stats"></param>
+        /// <returns></returns>
         private async Task CalculateAndSaveUsageToFileAsync(ContainerStatsResponse stats)
         {
             try
@@ -61,7 +71,11 @@ namespace vBenchSLAM.Core.SystemMonitor
                 Console.WriteLine($"Could not access the file: {_tmpFilePath}, error: {ex}");
             }
         }
-
+        /// <summary>
+        /// Calculates the resource usage
+        /// </summary>
+        /// <param name="stats"></param>
+        /// <returns></returns>
         private ResourceUsage CalculateResourceUsage(ContainerStatsResponse stats)
         {
             
@@ -99,7 +113,10 @@ namespace vBenchSLAM.Core.SystemMonitor
             return new ResourceUsage(cpuUsage, Convert.ToInt32(onlineCPUs), (ulong) ramUsage, 
                 (ulong) availableMem, ramPercentUsage, gpuUsage);
         }
-
+        /// <summary>
+        /// Reads the current GPU usage of the system
+        /// </summary>
+        /// <returns></returns>
         private decimal GetGpuUsage()
         {
             var runCmd = "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits";
@@ -109,7 +126,10 @@ namespace vBenchSLAM.Core.SystemMonitor
 
             return parsedOutput;
         }
-
+        /// <summary>
+        /// Prepares the file for the resource usage to be saved
+        /// </summary>
+        /// <returns></returns>
         private FileInfo PrepareFile()
         {
             var fInfo = new FileInfo(_tmpFilePath);

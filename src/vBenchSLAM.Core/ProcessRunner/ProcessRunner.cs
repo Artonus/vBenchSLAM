@@ -7,57 +7,92 @@ using vBenchSLAM.Addins.Events;
 
 namespace vBenchSLAM.Core.ProcessRunner
 {
-    public class ProcessRunner : IProcessRunner
+    internal class ProcessRunner : IProcessRunner
     {
+        /// <summary>
+        /// Event handler of a new process being registered
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public delegate void ProcessRegisteredEventHandler(object sender, ProcessRegisteredEventArgs e);
-
+        /// <summary>
+        /// Event that occurs when a new process is registered
+        /// </summary>
         public event ProcessRegisteredEventHandler ProcessRegistered;
-
+        /// <summary>
+        /// Base program to run on a system
+        /// </summary>
         protected string BaseProgram { get; }
+        /// <summary>
+        /// option to the base program to execute the command
+        /// </summary>
         protected string ExecCmdOption { get; }
-        protected string CommandPrefix { get; }
 
         public ProcessRunner()
         {
             BaseProgram = Settings.IsUnix ? "/bin/bash" : "cmd.exe";
             ExecCmdOption = Settings.IsUnix ? "-c" : "/C";
-            CommandPrefix = Settings.IsWsl ? "wsl " : string.Empty;
         }
 
         /// <summary>
         /// <inheritdoc cref="IProcessRunner.StartContainerViaCommandLineAsync"/>
         /// </summary>
+        [Obsolete]
         public virtual async Task<int> StartContainerViaCommandLineAsync(string containerName, string startParameters,
             string containerCommand = "")
         {
             var args =
-                $"{ExecCmdOption} \"{CommandPrefix} {GetDockerRunCommand(containerName, startParameters, containerCommand)}\"";
+                $"{ExecCmdOption} \"{GetDockerRunCommand(containerName, startParameters, containerCommand)}\"";
             return await RunProcessAsync(BaseProgram, args, false);
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IProcessRunner.SendCommandToContainerAsync"/>
+        /// </summary>
+        /// <param name="containerId"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public virtual async Task<int> SendCommandToContainerAsync(string containerId, string command)
         {
-            var args = $@"{ExecCmdOption} ""{CommandPrefix} docker exec -it {containerId} bash -c {command}""";
+            var args = $@"{ExecCmdOption} ""docker exec -it {containerId} bash -c {command}""";
             return await RunProcessAsync(BaseProgram, args);
         }
-
-        public virtual async Task<int> PullContainer(string containerInfo)
+        /// <summary>
+        /// <inheritdoc cref="IProcessRunner.PullContainerAsync"/>
+        /// </summary>
+        /// <param name="containerInfo"></param>
+        /// <returns></returns>
+        public virtual async Task<int> PullContainerAsync(string containerInfo)
         {
-            var args = $@"{ExecCmdOption} ""{CommandPrefix} docker pull {containerInfo}""";
+            var args = $@"{ExecCmdOption} ""docker pull {containerInfo}""";
             return await RunProcessAsync(BaseProgram, args, false);
         }
-
-        public virtual async Task<int> BuildImage(string containerName)
+        /// <summary>
+        /// <inheritdoc cref="IProcessRunner.BuildImageAsync"/>
+        /// </summary>
+        /// <param name="containerName"></param>
+        /// <returns></returns>
+        public virtual async Task<int> BuildImageAsync(string containerName)
         {
-            var args = $@"{ExecCmdOption} ""{CommandPrefix} docker container create {containerName}""";
+            var args = $@"{ExecCmdOption} ""docker container create {containerName}""";
             return await RunProcessAsync(BaseProgram, args, false);
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IProcessRunner.RunProcessAsync"/>
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public virtual async Task<int> RunProcessAsync(string fileName, string args)
         {
             return await RunProcessAsync(fileName, args, true);
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IProcessRunner.RunProcessAsync"/>
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="args"></param>
+        /// <param name="riseCustomEvents"></param>
+        /// <returns></returns>
         protected async Task<int> RunProcessAsync(string fileName, string args, bool riseCustomEvents)
         {
             var startInfo = new ProcessStartInfo
@@ -70,16 +105,23 @@ namespace vBenchSLAM.Core.ProcessRunner
                 RedirectStandardError = true
             };
             Console.WriteLine($"{fileName} {args}");
-            using (var process = new VBenchProcess(startInfo, riseCustomEvents))
+            using (var process = new Process())
             {
+                process.StartInfo = startInfo;
+                process.EnableRaisingEvents = true;
                 if (riseCustomEvents)
                     OnProcessRegistered(new ProcessRegisteredEventArgs(process));
 
                 return await RunProcessAsync(process).ConfigureAwait(false);
             }
         }
-        
-        protected static Task<int> RunProcessAsync(VBenchProcess process)
+
+        /// <summary>
+        /// Asynchronously runs the process
+        /// </summary>
+        /// <param name="process"></param>
+        /// <returns></returns>
+        private static Task<int> RunProcessAsync(Process process)
         {
             var tcs = new TaskCompletionSource<int>();
             void OnProcessExited(object sender, EventArgs ea)
@@ -120,12 +162,20 @@ namespace vBenchSLAM.Core.ProcessRunner
 
             return tcs.Task;
         }
-
+        /// <summary>
+        /// Outputs the data received
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             Console.WriteLine(e.Data);
         }
-
+        /// <summary>
+        /// Outputs the error data received
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Data) == false)
@@ -133,12 +183,21 @@ namespace vBenchSLAM.Core.ProcessRunner
                 Console.WriteLine("ERR: " + e.Data);
             }
         }
-
+        /// <summary>
+        /// Invokes the <see cref="ProcessRegistered"/> event
+        /// </summary>
+        /// <param name="e"></param>
         private void OnProcessRegistered(ProcessRegisteredEventArgs e)
         {
             ProcessRegistered?.Invoke(this, e);
         }
-
+        /// <summary>
+        /// Returns the command to start the container
+        /// </summary>
+        /// <param name="containerName"></param>
+        /// <param name="startParameters"></param>
+        /// <param name="containerCommand"></param>
+        /// <returns></returns>
         protected string GetDockerRunCommand(string containerName, string startParameters, string containerCommand = "")
         {
             var cmd = $"docker run {startParameters} {containerName}";
@@ -149,7 +208,11 @@ namespace vBenchSLAM.Core.ProcessRunner
 
             return cmd;
         }
-
+        /// <summary>
+        /// <inheritdoc cref="IProcessRunner.CaptureCommandOutput"/>
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public string CaptureCommandOutput(string command)
         {
             var proc = new Process()
@@ -157,7 +220,7 @@ namespace vBenchSLAM.Core.ProcessRunner
                 StartInfo = new ProcessStartInfo()
                 {
                     FileName = BaseProgram,
-                    Arguments = $"{ExecCmdOption} \"{CommandPrefix} {command}\"",
+                    Arguments = $"{ExecCmdOption} \"{command}\"",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
@@ -173,8 +236,11 @@ namespace vBenchSLAM.Core.ProcessRunner
 
             return output;
         }
-
-        public async Task EnablePangolinViewer()
+        /// <summary>
+        /// <inheritdoc cref="IProcessRunner.EnablePangolinViewerAsync"/>
+        /// </summary>
+        /// <returns></returns>
+        public async Task EnablePangolinViewerAsync()
         {
             await RunProcessAsync(BaseProgram, $"{ExecCmdOption} \"xhost + \"", false);
         }

@@ -7,6 +7,11 @@ namespace vBenchSLAM.Addins.ExtensionMethods
 {
     public static class EnumExtensions
     {
+        /// <summary>
+        /// Gets the sting value assigned to an enum
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static string GetStringValue(this Enum value)
         {
             // Get the type

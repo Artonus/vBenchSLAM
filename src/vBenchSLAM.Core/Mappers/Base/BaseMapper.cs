@@ -16,13 +16,26 @@ using vBenchSLAM.Core.ProcessRunner;
 
 namespace vBenchSLAM.Core.Mappers.Base
 {
-    public abstract class BaseMapper
+    /// <summary>
+    /// Base class for the mappers
+    /// </summary>
+    internal abstract class BaseMapper
     {
-        protected string RunParameters;
+        /// <summary>
+        /// Instance of DockerManager
+        /// </summary>
         protected readonly IDockerManager DockerManager;
+        /// <summary>
+        /// Process runner instance
+        /// </summary>
         protected readonly IProcessRunner ProcessRunner;
-        
+        /// <summary>
+        /// Logger instance
+        /// </summary>
         protected readonly ILogger Logger;
+        /// <summary>
+        /// Map parser instance
+        /// </summary>
         protected BaseParser Parser;
 
         protected BaseMapper(IProcessRunner processRunner, ILogger logger)
@@ -31,12 +44,20 @@ namespace vBenchSLAM.Core.Mappers.Base
             DockerManager = new DockerManager(processRunner);
             Logger = logger;
         }
-
+        /// <summary>
+        /// Get full image name to be downloaded by the Docker
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
         public static string GetFullImageName(string image)
         {
             return $"{Settings.VBenchSlamRepositoryName}:{image}";
         }
-
+        /// <summary>
+        /// Asynchronously stops containers in parallel
+        /// </summary>
+        /// <param name="containerNames"></param>
+        /// <returns></returns>
         protected virtual async Task<bool> ParallelStopContainersAsync(params string[] containerNames)
         {
             var stopped = new List<Task<bool>>();
@@ -48,18 +69,35 @@ namespace vBenchSLAM.Core.Mappers.Base
             var results = await Task.WhenAll(stopped);
             return results.All(r => r);
         }
-
+        /// <summary>
+        /// Asynchronously finds and stops the container by it's name
+        /// </summary>
+        /// <param name="containerName"></param>
+        /// <returns></returns>
         protected virtual async Task<bool> FindAndStopContainerAsync(string containerName)
         {
             var container = await DockerManager.GetContainerByNameAsync(GetFullImageName(containerName));
             return await DockerManager.StopContainerAsync(container.ID);
         }
-        
+        /// <summary>
+        /// Returns the command that will be used by the container to run the algorithm
+        /// </summary>
+        /// <returns></returns>
         public abstract string GetContainerCommand();
+        /// <summary>
+        /// <inheritdoc cref="IMapper.ValidateDatasetCompleteness"/>
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public abstract DatasetCheckResult ValidateDatasetCompleteness(RunnerParameters parameters);
-        
 
-        protected void SaveMapAndStatistics(DateTime started, DateTime finished, string resourceUsageFileName)
+        /// <summary>
+        /// Saves the created map and run data to the appropriate directory, confirms successful run of the algorithm
+        /// </summary>
+        /// <param name="started"></param>
+        /// <param name="finished"></param>
+        /// <param name="resourceUsageFileName"></param>
+        protected void ConfirmRunFinished(DateTime started, DateTime finished, string resourceUsageFileName)
         {
             var mapper = this as IMapper;
             string mapPath = Path.Combine(DirectoryHelper.GetDataFolderPath(), mapper?.MapFileName ?? throw new InvalidOperationException());
@@ -69,7 +107,7 @@ namespace vBenchSLAM.Core.Mappers.Base
                DirectoryHelper.GetUserDocumentsFolder(),
                Path.GetFileNameWithoutExtension(resourceUsageFileName));
 
-            string currFileLocation = Path.Combine(DirectoryHelper.GetMonitorsPath(), resourceUsageFileName);
+            string currFileLocation = Path.Combine(DirectoryHelper.GetResourceMonitorsPath(), resourceUsageFileName);
             string destinationLocation = Path.Combine(documentsPath, resourceUsageFileName);
 
             DirectoryHelper.CreateDirectoryIfNotExists(documentsPath);
@@ -78,8 +116,14 @@ namespace vBenchSLAM.Core.Mappers.Base
             SaveMap(mapData, started, finished, documentsPath);
             LogRun(resourceUsageFileName);
         }
-
-        protected void SaveMap(ICsvParsable parsable, DateTime started, DateTime finished, string documentsPath)
+        /// <summary>
+        /// Saves the map data to the destination directory
+        /// </summary>
+        /// <param name="parsable"></param>
+        /// <param name="started"></param>
+        /// <param name="finished"></param>
+        /// <param name="documentsPath"></param>
+        private void SaveMap(ICsvParsable parsable, DateTime started, DateTime finished, string documentsPath)
         {
             string dataPath = Path.Combine(documentsPath, Settings.RunDataFileName);
             using (StreamWriter stream = File.CreateText(dataPath))
@@ -91,7 +135,10 @@ namespace vBenchSLAM.Core.Mappers.Base
                 stream.WriteLine(parsable.ParseAsCsvLiteral());
             }
         }
-        
+        /// <summary>
+        /// Confirms the algorithm has successfully finished running
+        /// </summary>
+        /// <param name="resourceUsageFileName"></param>
         private void LogRun(string resourceUsageFileName)
         {
             var logFile = new FileInfo(Path.Combine(DirectoryHelper.GetUserDocumentsFolder(), Settings.RunLogFileName));
@@ -102,7 +149,10 @@ namespace vBenchSLAM.Core.Mappers.Base
                 writer.WriteLine(Path.GetFileNameWithoutExtension(resourceUsageFileName));
             }
         }
-
+        /// <summary>
+        /// Copies files to the temporary data directory folder
+        /// </summary>
+        /// <param name="fileInfos"></param>
         protected void CopyToTemporaryFilesFolder(params FileInfo[] fileInfos)
         {
             var tempFolderPath = DirectoryHelper.GetDataFolderPath();
@@ -115,14 +165,21 @@ namespace vBenchSLAM.Core.Mappers.Base
                 FileHelper.SafeCopy(file.FullName, copiedFileDestination);
             }
         }
-
+        /// <summary>
+        /// Copies the folder containing the sequence from the dataset to the temporary data directory
+        /// </summary>
+        /// <param name="sequenceFolderName"></param>
         protected void CopySequenceFolder(DirectoryInfo sequenceFolderName)
         {
-            var destSequenceFolderPath =new DirectoryInfo(Path.Combine(DirectoryHelper.GetDataFolderPath(), sequenceFolderName.Name));
+            var destSequenceFolderPath = new DirectoryInfo(Path.Combine(DirectoryHelper.GetDataFolderPath(), sequenceFolderName.Name));
             DirectoryHelper.CopyFullDir(sequenceFolderName, destSequenceFolderPath);
         }
-
-        public void CopyMapToOutputFolder(string outputFolder, string mapFileName)
+        /// <summary>
+        /// Copies the map created by the algorithm to the output folder specified by the user
+        /// </summary>
+        /// <param name="outputFolder"></param>
+        /// <param name="mapFileName"></param>
+        protected void CopyMapToOutputFolder(string outputFolder, string mapFileName)
         {
             string mapFile = Path.Combine(DirectoryHelper.GetDataFolderPath(), mapFileName);
             string destFileName = Path.Combine(outputFolder, mapFileName);
